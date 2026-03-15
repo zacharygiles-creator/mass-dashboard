@@ -66,7 +66,8 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 .section-label .slabel-badge { font-size:7px; padding:2px 8px; border:1px solid var(--border2); color:var(--text-dim); }
 
 /* SCORE ROW */
-.score-row { display:grid; grid-template-columns:1fr 280px 1fr; gap:16px; align-items:start; }
+.score-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start; }
+.score-right-stack { display:flex; flex-direction:column; gap:16px; }
 
 .score-side-card { background:var(--bg2); border:1px solid var(--border); padding:20px 24px; position:relative; }
 .score-side-card .card-lbl { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-bottom:8px; }
@@ -425,52 +426,53 @@ function renderDashboard(siteId) {
   let html='<main>';
 
   // ── SCORES ──
-  html+=`<div><div class="section-label">Plant Condition Overview</div>
-  <div class="score-row">`;
-
-  // Reliability score left
-  const rc=scoreColor(relScore);
-  const rbw=relScore!==null?Math.round(relScore):0;
-  html+=`<div class="score-side-card animate" style="animation-delay:0.1s">
-    <div class="card-lbl">Reliability Score</div>
-    <div class="score-big" style="color:${rc}">${relScore!==null?Math.round(relScore):'—'}</div>
-    <div class="score-sublbl" style="color:${rc}">${scoreLabel(relScore)}</div>
-    <div class="score-bar"><div class="score-bar-fill" style="width:${rbw}%;background:${rc}"></div></div>
-    <div class="score-desc">Measures how well the plant or building is <strong>operating right now</strong> based on live compressor readings and equipment performance data.</div>
-  </div>`;
-
-  // Plant condition score center
   const pc=scoreColor(plantScore);
   const pdo=plantScore!==null?376-(plantScore/100)*376:376;
-  html+=`<div class="score-main-card animate" style="animation-delay:0.15s">
-    <div class="pcs-label">Plant Condition Score</div>
-    <div class="score-ring-wrap">
-      <div class="score-ring">
-        <svg width="130" height="130" viewBox="0 0 130 130">
-          <circle class="ring-bg" cx="65" cy="65" r="55"/>
-          <circle class="ring-fill" cx="65" cy="65" r="55" id="main-ring" style="stroke:${pc};stroke-dashoffset:${pdo}"/>
-        </svg>
-        <div class="score-center">
-          <div class="score-num">${plantScore!==null?Math.round(plantScore):'—'}</div>
-          <div class="score-max">/ 100</div>
-        </div>
-      </div>
-      <div class="score-status-lbl" style="color:${pc}">${scoreLabel(plantScore)}</div>
-    </div>
-  </div>`;
-
-  // Infrastructure score right
+  const rc=scoreColor(relScore);
+  const rbw=relScore!==null?Math.round(relScore):0;
   const ic=scoreColor(infraScore);
   const ibw=infraScore!==null?Math.round(infraScore):0;
-  html+=`<div class="score-side-card animate" style="animation-delay:0.2s">
-    <div class="card-lbl">Infrastructure Score</div>
-    <div class="score-big" style="color:${ic}">${infraScore!==null?Math.round(infraScore):'—'}</div>
-    <div class="score-sublbl" style="color:${ic}">${scoreLabel(infraScore)}</div>
-    <div class="score-bar"><div class="score-bar-fill" style="width:${ibw}%;background:${ic}"></div></div>
-    <div class="score-desc">Measures the <strong>physical condition</strong> of equipment, assets, and infrastructure including compliance status and findings.</div>
-  </div>`;
 
-  html+=`</div></div>`;
+  html+=`<div><div class="section-label">Plant Condition Overview</div>
+  <div class="score-row">
+
+    <!-- LEFT: Plant Condition Score large -->
+    <div class="score-main-card animate" style="animation-delay:0.1s">
+      <div class="pcs-label">Plant Condition Score</div>
+      <div class="score-ring-wrap">
+        <div class="score-ring">
+          <svg width="130" height="130" viewBox="0 0 130 130">
+            <circle class="ring-bg" cx="65" cy="65" r="55"/>
+            <circle class="ring-fill" cx="65" cy="65" r="55" id="main-ring" style="stroke:${pc};stroke-dashoffset:${pdo}"/>
+          </svg>
+          <div class="score-center">
+            <div class="score-num">${plantScore!==null?Math.round(plantScore):'—'}</div>
+            <div class="score-max">/ 100</div>
+          </div>
+        </div>
+        <div class="score-status-lbl" style="color:${pc}">${scoreLabel(plantScore)}</div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Reliability + Infrastructure stacked -->
+    <div class="score-right-stack">
+      <div class="score-side-card animate" style="animation-delay:0.15s">
+        <div class="card-lbl">Reliability Score — How It's Operating Right Now</div>
+        <div class="score-big" style="color:${rc}">${relScore!==null?Math.round(relScore):'—'}</div>
+        <div class="score-sublbl" style="color:${rc}">${scoreLabel(relScore)}</div>
+        <div class="score-bar"><div class="score-bar-fill" style="width:${rbw}%;background:${rc}"></div></div>
+        <div class="score-desc">Based on live compressor readings and equipment performance data.</div>
+      </div>
+      <div class="score-side-card animate" style="animation-delay:0.2s">
+        <div class="card-lbl">Infrastructure Score — Physical Condition</div>
+        <div class="score-big" style="color:${ic}">${infraScore!==null?Math.round(infraScore):'—'}</div>
+        <div class="score-sublbl" style="color:${ic}">${scoreLabel(infraScore)}</div>
+        <div class="score-bar"><div class="score-bar-fill" style="width:${ibw}%;background:${ic}"></div></div>
+        <div class="score-desc">Based on asset condition, findings, and compliance status.</div>
+      </div>
+    </div>
+
+  </div></div>`;
 
   // Plain summary
   html+=`<div class="plain-summary ${scoreClass(plantScore)} animate" style="animation-delay:0.25s">
@@ -478,146 +480,150 @@ function renderDashboard(siteId) {
     <div class="ps-text">${plainSummaryText(plantScore)}</div>
   </div>`;
 
-  // ── WHAT'S WORKING ──
-  html+=`<div><div class="section-label">What's Working <span class="slabel-badge">${goodAssets.length} Assets Operational</span></div>
-  <div class="status-section animate" style="animation-delay:0.3s">
-    <div class="status-header">
-      <div class="sh-title"><div class="status-dot green"></div>Operational Assets — No Action Required</div>
-      <div class="sh-count green">${goodAssets.length} Good</div>
-    </div>`;
+  // ── SYSTEMS BREAKDOWN ──
+  html+=`<div><div class="section-label">System Health Breakdown</div>`;
 
-  if(goodAssets.length===0) {
-    html+=`<div class="empty-msg">No assets currently scoring in the operational range</div>`;
-  } else {
-    goodAssets.forEach(a=>{
-      const af=a.fields;
-      const aName=fval(af,'Asset Name','Name')||'Unknown Asset';
-      const hs=fval(af,'Asset Health Score')??null;
-      const sysLinked=af['System']||af['Systems']||[];
-      const sysName=sysLinked.length?(M.systems[sysLinked[0]]?.fields['Name']||'—'):'—';
-      html+=`<div class="asset-row">
-        <div class="asset-row-name">${aName}</div>
-        <div class="asset-row-system">${sysName}</div>
-        <div class="asset-score-wrap">
-          <span class="asset-score-num" style="color:var(--green)">${hs!==null?Math.round(hs):'—'}</span>
-          <div class="asset-mini-bar"><div class="asset-mini-fill" style="width:${hs??0}%;background:var(--green)"></div></div>
+  siteSystems.forEach((sys,si)=>{
+    const sf=sys.fields;
+    const sysName=fval(sf,'Name','System Name')||'System';
+    const sysScore=fval(sf,'Weighted System Health Score','System Infrastructure Score','System Health Score');
+    const sysCrit=fval(sf,'System Criticality','Criticality')||'';
+    const sc2=scoreColor(sysScore);
+    const sbw=sysScore!==null?Math.round(sysScore):0;
+
+    // Assets in this system
+    const sysAssets=siteAssets.filter(a=>(a.fields['System']||a.fields['Systems']||[]).includes(sys.id));
+    const sysGood=sysAssets.filter(a=>(fval(a.fields,'Asset Health Score')??null)>=80);
+    const sysBad=sysAssets.filter(a=>{const s=fval(a.fields,'Asset Health Score')??null;return s!==null&&s<80;}).sort((a,b)=>(fval(a.fields,'Asset Health Score')??100)-(fval(b.fields,'Asset Health Score')??100));
+
+    html+=`<div class="status-section animate" style="animation-delay:${0.3+si*0.05}s;margin-bottom:16px">
+      <div class="status-header">
+        <div class="sh-title">
+          <div class="status-dot ${sysScore>=80?'green':sysScore>=60?'yellow':'red'}"></div>
+          ${sysName}${sysCrit?` — ${sysCrit} Criticality`:''}
         </div>
-        <span class="asset-status-pill pill-green">Operational</span>
-      </div>`;
-    });
-  }
-  html+=`</div></div>`;
-
-  // ── NEEDS ATTENTION ──
-  html+=`<div><div class="section-label">Needs Attention <span class="slabel-badge">${attentionAssets.length} Assets</span></div>
-  <div class="status-section animate" style="animation-delay:0.35s">
-    <div class="status-header">
-      <div class="sh-title"><div class="status-dot yellow"></div>Monitor Closely — Schedule Maintenance</div>
-      <div class="sh-count yellow">${attentionAssets.length} Items</div>
-    </div>`;
-
-  if(attentionAssets.length===0) {
-    html+=`<div class="empty-msg">No assets currently in the attention required range</div>`;
-  } else {
-    attentionAssets.forEach(a=>{
-      const af=a.fields;
-      const aName=fval(af,'Asset Name','Name')||'Unknown Asset';
-      const hs=fval(af,'Asset Health Score')??null;
-      const sysLinked=af['System']||af['Systems']||[];
-      const sysName=sysLinked.length?(M.systems[sysLinked[0]]?.fields['Name']||'—'):'—';
-      html+=`<div class="asset-row">
-        <div class="asset-row-name">${aName}</div>
-        <div class="asset-row-system">${sysName}</div>
-        <div class="asset-score-wrap">
-          <span class="asset-score-num" style="color:var(--yellow)">${hs!==null?Math.round(hs):'—'}</span>
-          <div class="asset-mini-bar"><div class="asset-mini-fill" style="width:${hs??0}%;background:var(--yellow)"></div></div>
+        <div style="display:flex;align-items:center;gap:12px">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-dim)">System Score</div>
+          <div style="font-family:'Orbitron',monospace;font-size:20px;font-weight:700;color:${sc2}">${sysScore!==null?Math.round(sysScore):'—'}</div>
         </div>
-        <span class="asset-status-pill pill-yellow">Attention Required</span>
-      </div>`;
-    });
-  }
-  html+=`</div></div>`;
-
-  // ── CRITICAL ISSUES ──
-  const critFindingCount=sortedFindings.filter(fd=>(fd.fields['Severity']||'').toUpperCase()==='CRITICAL'||( fd.fields['Severity']||'').toUpperCase()==='HIGH').length;
-  html+=`<div><div class="section-label">Critical Issues <span class="slabel-badge">${criticalAssets.length} Assets + ${critFindingCount} Findings</span></div>
-  <div class="two-col">`;
-
-  // Critical assets
-  html+=`<div class="status-section animate" style="animation-delay:0.4s">
-    <div class="status-header">
-      <div class="sh-title"><div class="status-dot red"></div>Critical Assets — Immediate Action Required</div>
-      <div class="sh-count red">${criticalAssets.length} Critical</div>
-    </div>`;
-
-  if(criticalAssets.length===0) {
-    html+=`<div class="empty-msg">No assets currently in critical condition</div>`;
-  } else {
-    criticalAssets.forEach(a=>{
-      const af=a.fields;
-      const aName=fval(af,'Asset Name','Name')||'Unknown Asset';
-      const hs=fval(af,'Asset Health Score')??null;
-      const sysLinked=af['System']||af['Systems']||[];
-      const sysName=sysLinked.length?(M.systems[sysLinked[0]]?.fields['Name']||'—'):'—';
-      html+=`<div class="asset-row">
-        <div class="asset-row-name">${aName}</div>
-        <div class="asset-row-system">${sysName}</div>
-        <div class="asset-score-wrap">
-          <span class="asset-score-num" style="color:var(--red)">${hs!==null?Math.round(hs):'—'}</span>
-          <div class="asset-mini-bar"><div class="asset-mini-fill" style="width:${hs??0}%;background:var(--red)"></div></div>
+      </div>
+      <div style="padding:0 20px 4px">
+        <div style="height:3px;background:var(--border2);position:relative;margin:8px 0 12px">
+          <div style="height:100%;position:absolute;top:0;left:0;width:${sbw}%;background:${sc2};transition:width 1s ease"></div>
         </div>
-        <span class="asset-status-pill pill-red">Critical</span>
       </div>`;
-    });
-  }
+
+    // Confirmed operational count
+    if(sysGood.length>0) {
+      html+=`<div style="padding:8px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;gap:10px">
+        <div style="width:6px;height:6px;border-radius:50%;background:var(--green)"></div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--green);letter-spacing:1px">${sysGood.length} asset${sysGood.length>1?'s':''} confirmed operational — no action required</div>
+      </div>`;
+    }
+
+    // Problem assets
+    if(sysBad.length>0) {
+      sysBad.forEach(a=>{
+        const af=a.fields;
+        const aName=fval(af,'Asset Name','Name')||'Unknown Asset';
+        const hs=fval(af,'Asset Health Score')??null;
+        const hc=hs>=60?'yellow':'red';
+        const hcolor=hs>=60?'var(--yellow)':'var(--red)';
+        html+=`<div class="asset-row">
+          <div class="asset-row-name">${aName}</div>
+          <div class="asset-score-wrap">
+            <span class="asset-score-num" style="color:${hcolor}">${hs!==null?Math.round(hs):'—'}</span>
+            <div class="asset-mini-bar"><div class="asset-mini-fill" style="width:${hs??0}%;background:${hcolor}"></div></div>
+          </div>
+          <span class="asset-status-pill pill-${hc}">${hs>=60?'Attention Required':'Critical'}</span>
+        </div>`;
+      });
+    } else if(sysGood.length===0) {
+      html+=`<div class="empty-msg">No asset scores recorded for this system yet</div>`;
+    }
+
+    html+=`</div>`;
+  });
+
   html+=`</div>`;
 
-  // Findings
-  html+=`<div class="status-section animate" style="animation-delay:0.45s">
-    <div class="status-header">
-      <div class="sh-title"><div class="status-dot red"></div>Active Findings — Documented Issues</div>
-      <div class="sh-count ${critFindings.length>0?'red':'yellow'}">${sortedFindings.length} Open</div>
-    </div>`;
+  // ── LIFE & SAFETY FINDINGS ──
+  const lifeSafetyFindings=sortedFindings.filter(fd=>(fd.fields['Category']||'').toUpperCase()==='LIFE & SAFETY');
+  const otherFindings=sortedFindings.filter(fd=>(fd.fields['Category']||'').toUpperCase()!=='LIFE & SAFETY');
 
-  if(sortedFindings.length===0) {
-    html+=`<div class="empty-msg">No open findings for this site</div>`;
-  } else {
-    sortedFindings.forEach(fd=>{
-      const ff=fd.fields;
-      const title=fval(ff,'Finding Title','Title','Name')||'Untitled Finding';
-      const sev=(ff['Severity']||'').toUpperCase();
-      const cat=fval(ff,'Category')||'';
-      const status=fval(ff,'Status')||'Open';
-      const aids=ff['Asset']||ff['Assets']||[];
-      const aName=aids.length?(M.assets[aids[0]]?.fields['Asset Name']||M.assets[aids[0]]?.fields['Name']||'—'):'—';
-      const barClass=sev==='CRITICAL'?'critical':sev==='HIGH'?'high':'moderate';
-      const pClass=sev==='CRITICAL'?'pill-red':sev==='HIGH'?'pill-yellow':'';
+  if(sortedFindings.length>0) {
+    html+=`<div><div class="section-label">Active Findings</div>
+    <div class="two-col">`;
 
-      // Category plain language
-      let catExplain='';
-      if(cat.toUpperCase()==='LIFE & SAFETY') catExplain='Safety Risk — Requires Priority Response';
-      else if(cat.toUpperCase()==='MECHANICAL') catExplain='Equipment Issue — Schedule Repair';
-      else if(cat.toUpperCase()==='ENERGY') catExplain='Efficiency Issue — Review Operation';
-
-      html+=`<div class="finding-row">
-        <div class="finding-bar ${barClass}"></div>
-        <div class="finding-content">
-          <div class="finding-title">${title}</div>
-          <div class="finding-cat">
-            <span>Category:</span>${cat}${catExplain?` — ${catExplain}`:''}
-            &nbsp;&nbsp;<span>Asset:</span>${aName}
-            &nbsp;&nbsp;<span>Status:</span>${status}
-          </div>
-        </div>
-        ${pClass?`<span class="finding-pill ${pClass}">${sev.charAt(0)+sev.slice(1).toLowerCase()}</span>`:''}
+    // Life & Safety
+    html+=`<div class="status-section animate" style="animation-delay:0.5s">
+      <div class="status-header">
+        <div class="sh-title"><div class="status-dot red"></div>Life & Safety — Priority Response Required</div>
+        <div class="sh-count ${lifeSafetyFindings.length>0?'red':'green'}">${lifeSafetyFindings.length>0?lifeSafetyFindings.length+' Open':'None'}</div>
       </div>`;
-    });
+
+    if(lifeSafetyFindings.length===0) {
+      html+=`<div class="empty-msg" style="color:var(--green)">✓ No Life & Safety findings open</div>`;
+    } else {
+      html+=`<div class="plain-explain"><div class="pe-lbl">What This Means</div><div class="pe-text">Life & Safety findings represent immediate risk to personnel and regulatory compliance. These must be addressed before any other maintenance work.</div></div>`;
+      lifeSafetyFindings.forEach(fd=>{
+        const ff=fd.fields;
+        const title=fval(ff,'Finding Title','Title','Name')||'Untitled Finding';
+        const sev=(ff['Severity']||'').toUpperCase();
+        const aids=ff['Asset']||ff['Assets']||[];
+        const aName=aids.length?(M.assets[aids[0]]?.fields['Asset Name']||M.assets[aids[0]]?.fields['Name']||'—'):'—';
+        const status=fval(ff,'Status')||'Open';
+        const rec=fval(ff,'Recommended Action')||'';
+        html+=`<div class="finding-row">
+          <div class="finding-bar critical"></div>
+          <div class="finding-content">
+            <div class="finding-title">${title}</div>
+            <div class="finding-cat"><span>Asset:</span>${aName}&nbsp;&nbsp;<span>Status:</span>${status}</div>
+            ${rec?`<div class="finding-cat" style="margin-top:4px;color:var(--text-mid)">${rec}</div>`:''}
+          </div>
+          <span class="finding-pill pill-red">${sev.charAt(0)+sev.slice(1).toLowerCase()}</span>
+        </div>`;
+      });
+    }
+    html+=`</div>`;
+
+    // Other findings
+    html+=`<div class="status-section animate" style="animation-delay:0.55s">
+      <div class="status-header">
+        <div class="sh-title"><div class="status-dot yellow"></div>Mechanical & Energy Findings</div>
+        <div class="sh-count ${otherFindings.length>0?'yellow':'green'}">${otherFindings.length>0?otherFindings.length+' Open':'None'}</div>
+      </div>`;
+
+    if(otherFindings.length===0) {
+      html+=`<div class="empty-msg" style="color:var(--green)">✓ No open mechanical or energy findings</div>`;
+    } else {
+      otherFindings.forEach(fd=>{
+        const ff=fd.fields;
+        const title=fval(ff,'Finding Title','Title','Name')||'Untitled Finding';
+        const sev=(ff['Severity']||'').toUpperCase();
+        const cat=fval(ff,'Category')||'';
+        const aids=ff['Asset']||ff['Assets']||[];
+        const aName=aids.length?(M.assets[aids[0]]?.fields['Asset Name']||M.assets[aids[0]]?.fields['Name']||'—'):'—';
+        const status=fval(ff,'Status')||'Open';
+        const barClass=sev==='CRITICAL'?'critical':sev==='HIGH'?'high':'moderate';
+        const pClass=sev==='CRITICAL'?'pill-red':sev==='HIGH'?'pill-yellow':'';
+        const catLabel=cat.toUpperCase()==='MECHANICAL'?'Equipment Issue — Schedule Repair':cat.toUpperCase()==='ENERGY'?'Efficiency Issue — Review Operation':cat;
+        html+=`<div class="finding-row">
+          <div class="finding-bar ${barClass}"></div>
+          <div class="finding-content">
+            <div class="finding-title">${title}</div>
+            <div class="finding-cat"><span>Type:</span>${catLabel}&nbsp;&nbsp;<span>Asset:</span>${aName}&nbsp;&nbsp;<span>Status:</span>${status}</div>
+          </div>
+          ${pClass?`<span class="finding-pill ${pClass}">${sev.charAt(0)+sev.slice(1).toLowerCase()}</span>`:''}
+        </div>`;
+      });
+    }
+    html+=`</div></div></div>`;
   }
-  html+=`</div></div></div>`;
 
   // ── COMPLIANCE ──
   html+=`<div><div class="section-label">Compliance & Safety Status</div>
-  <div class="status-section animate" style="animation-delay:0.5s">
+  <div class="status-section animate" style="animation-delay:0.6s">
     <div class="status-header">
       <div class="sh-title"><div class="status-dot ${expiredValves.length>0?'red':'green'}"></div>Relief Valve Compliance — ${expiredValves.length>0?'Action Required':'All Current'}</div>
       <div class="sh-count ${expiredValves.length>0?'red':'green'}">${expiredValves.length>0?expiredValves.length+' Expired':'All Current'}</div>
@@ -626,7 +632,7 @@ function renderDashboard(siteId) {
   if(expiredValves.length>0) {
     html+=`<div class="plain-explain">
       <div class="pe-lbl">What This Means</div>
-      <div class="pe-text">Relief valves protect pressure vessels from catastrophic failure. Expired relief valves are a life safety and regulatory compliance issue. These must be replaced immediately to meet IIAR and OSHA requirements.</div>
+      <div class="pe-text">Relief valves protect pressure vessels from catastrophic failure. Expired valves are a life safety and regulatory compliance issue that must be resolved immediately to meet IIAR and OSHA requirements.</div>
     </div>`;
   }
 
@@ -640,12 +646,7 @@ function renderDashboard(siteId) {
         <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;text-align:center">Expiry Date</div>
         <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;text-align:right">Status</div>
       </div>`;
-
-    const sortedValves=[...expiredValves,...valves.filter(v=>{
-      const exp=fval(v.fields,'Expiration Date','Expiry Date','Last Test Date');
-      return !exp||new Date(exp)>=new Date();
-    })];
-
+    const sortedValves=[...expiredValves,...valves.filter(v=>{const exp=fval(v.fields,'Expiration Date','Expiry Date','Last Test Date');return !exp||new Date(exp)>=new Date();})];
     sortedValves.forEach(v=>{
       const vf=v.fields;
       const vid=fval(vf,'Valve ID','Name')||'—';
@@ -665,35 +666,43 @@ function renderDashboard(siteId) {
   }
   html+=`</div></div>`;
 
-  // ── RECOMMENDED ACTIONS ──
+  // ── SCORE IMPROVEMENT ROADMAP ──
   const actions=[];
   critFindings.forEach(fd=>{
     const title=fval(fd.fields,'Finding Title','Title','Name')||'Critical Finding';
     const rec=fval(fd.fields,'Recommended Action')||'Schedule immediate inspection and repair';
     const cost=fval(fd.fields,'Estimated Cost');
-    actions.push({priority:'CRITICAL',text:title+' — '+rec,cost:cost?'Est. $'+cost:null,color:'pill-red'});
+    actions.push({priority:'CRITICAL',text:title+' — '+rec,cost:cost?'Est. $'+cost:null,impact:4});
   });
   expiredValves.forEach(v=>{
     const vid=fval(v.fields,'Valve ID','Name')||'Relief Valve';
     const od=yearsOverdue(fval(v.fields,'Expiration Date','Expiry Date','Last Test Date'));
-    actions.push({priority:'COMPLIANCE',text:`Replace ${vid} — Expired ${od?od+' years ago':''}. Required for PSM and OSHA compliance.`,cost:null,color:'pill-yellow'});
+    actions.push({priority:'COMPLIANCE',text:`Replace ${vid} — Expired ${od?od+' years ago':''}. Required for PSM and OSHA compliance.`,cost:null,impact:2});
   });
   attentionAssets.forEach(a=>{
     const aName=fval(a.fields,'Asset Name','Name')||'Asset';
     const rec=fval(a.fields,'Recommended Action');
-    if(rec) actions.push({priority:'SCHEDULED',text:`${aName} — ${rec}`,cost:null,color:''});
+    if(rec) actions.push({priority:'SCHEDULED',text:`${aName} — ${rec}`,cost:null,impact:1});
   });
 
-  if(actions.length>0) {
-    html+=`<div><div class="section-label">Recommended Actions — Priority Order</div>
-    <div class="status-section animate" style="animation-delay:0.55s">
+  if(actions.length>0&&plantScore!==null) {
+    const potentialGain=Math.min(100-plantScore, actions.reduce((sum,a)=>sum+a.impact,0));
+    const potentialScore=Math.round(plantScore+potentialGain);
+
+    html+=`<div><div class="section-label">Score Improvement Roadmap</div>
+    <div class="status-section animate" style="animation-delay:0.65s">
       <div class="status-header">
-        <div class="sh-title"><div class="status-dot yellow"></div>Action Items to Improve Your Score</div>
-        <div class="sh-count yellow">${actions.length} Items</div>
+        <div class="sh-title"><div class="status-dot yellow"></div>Address These Issues to Improve Your Score</div>
+        <div class="sh-count yellow">${actions.length} Action${actions.length>1?'s':''}</div>
+      </div>
+      <div class="plain-explain">
+        <div class="pe-lbl">Your Score Potential</div>
+        <div class="pe-text">Your current Plant Condition Score is <strong style="color:${scoreColor(plantScore)}">${Math.round(plantScore)}</strong>. By addressing the priority items below your score could reach an estimated <strong style="color:${scoreColor(potentialScore)}">${potentialScore}</strong> out of 100.</div>
       </div>`;
-    actions.forEach((act,i)=>{
+
+    actions.forEach(act=>{
       html+=`<div class="action-row">
-        <span class="action-priority ${act.color||''}" style="${act.priority==='CRITICAL'?'color:var(--red);border:1px solid rgba(232,50,10,0.4);background:var(--red-dim)':act.priority==='COMPLIANCE'?'color:var(--yellow);border:1px solid rgba(245,166,35,0.3);background:var(--yellow-dim)':'color:var(--text-dim);border:1px solid var(--border2)'}">${act.priority}</span>
+        <span class="action-priority" style="${act.priority==='CRITICAL'?'color:var(--red);border:1px solid rgba(232,50,10,0.4);background:var(--red-dim)':act.priority==='COMPLIANCE'?'color:var(--yellow);border:1px solid rgba(245,166,35,0.3);background:var(--yellow-dim)':'color:var(--text-dim);border:1px solid var(--border2)'}">${act.priority}</span>
         <div class="action-text">${act.text}</div>
         ${act.cost?`<div class="action-cost">${act.cost}</div>`:''}
       </div>`;
@@ -701,78 +710,10 @@ function renderDashboard(siteId) {
     html+=`</div></div>`;
   }
 
-  // ── COMPRESSOR READINGS ──
-  const readingEntries=Object.entries(readingMap);
-  if(readingEntries.length>0) {
-    html+=`<div><div class="section-label">Compressor Operating Data — Live Readings</div>`;
-    readingEntries.forEach(([aid,reading])=>{
-      const rf=reading.fields;
-      const asset=M.assets[aid];
-      const aName=fval(asset?.fields||{},'Asset Name','Name')||'Compressor';
-      const rDate=fmtDate(fval(rf,'Date','Reading Date'));
-      const rScore=fval(rf,'Weighted Reading Score','Reading Score');
-      const compType=(fval(asset?.fields||{},'Compressor Type','Type')||'').toUpperCase();
-      const isRecip=compType.includes('RECIP');
-
-      html+=`<div class="status-section animate" style="animation-delay:0.6s;margin-bottom:16px">
-        <div class="comp-header">
-          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase">${aName} — Reading Date: ${rDate}</div>
-          ${rScore!==null?`<span class="asset-status-pill ${pillClass(rScore)}">${scoreLabel(rScore)} — Score: ${Math.round(rScore)}</span>`:''}
-        </div>
-        <div class="comp-grid">`;
-
-      if(isRecip) {
-        const ulStage=fval(rf,'Unloader Stage %','Unloader Stage');
-        const mAmps=fval(rf,'Motor Amps at Stage','Motor Amps');
-        const ulScore=fval(rf,'Unloader Amp Score');
-        const ampStat=fval(rf,'Amp Status');
-        const suctP=fval(rf,'Suction Pressure (PSIG)','Suction Pressure');
-        const dischP=fval(rf,'Discharge Pressure (PSIG)','Discharge Pressure');
-        const dischT=fval(rf,'Discharge Temp (°F)','Discharge Temp');
-        const oilP=fval(rf,'Oil Pressure (PSIG)','Oil Pressure');
-        const crkP=fval(rf,'Crankcase Pressure (PSIG)','Crankcase Pressure');
-        const fla=fval(asset?.fields||{},'Motor FLA (Nameplate)','Motor FLA','FLA');
-        const aFlag=ampStat==='ABNORMAL — NOTIFY SUPERVISOR'?'flag-red':'';
-        const aStat=ampStat==='NORMAL'?'normal':ampStat?'critical-s':'';
-        html+=`
-          <div class="comp-cell"><div class="comp-lbl">Unloader Stage</div><div class="comp-val">${ulStage!==null?ulStage+'%':'—'}</div><div class="comp-unit">Capacity</div><div class="comp-status normal">${ulStage!==null?'Recorded':'No Data'}</div></div>
-          <div class="comp-cell"><div class="comp-lbl">Motor Amps</div><div class="comp-val ${aFlag}">${mAmps!==null?mAmps+'A':'—'}</div><div class="comp-unit">${fla?'FLA: '+fla+'A':'Amps'}</div><div class="comp-status ${aStat}">${ampStat||(mAmps!==null?'Recorded':'No Data')}</div></div>
-          <div class="comp-cell"><div class="comp-lbl">Suction Pressure</div><div class="comp-val">${fmt(suctP)}</div><div class="comp-unit">PSIG</div><div class="comp-status normal">${suctP!==null?'Normal':'No Data'}</div></div>
-          <div class="comp-cell"><div class="comp-lbl">Discharge Pressure</div><div class="comp-val">${fmt(dischP)}</div><div class="comp-unit">PSIG</div><div class="comp-status normal">${dischP!==null?'Normal':'No Data'}</div></div>
-          <div class="comp-cell"><div class="comp-lbl">Discharge Temp</div><div class="comp-val">${fmt(dischT)}</div><div class="comp-unit">°F</div><div class="comp-status normal">${dischT!==null?'Normal':'No Data'}</div></div>
-          <div class="comp-cell"><div class="comp-lbl">Oil Pressure</div><div class="comp-val">${fmt(oilP)}</div><div class="comp-unit">PSIG</div><div class="comp-status normal">${oilP!==null?'Normal':'No Data'}</div></div>
-          <div class="comp-cell"><div class="comp-lbl">Crankcase Pressure</div><div class="comp-val">${fmt(crkP)}</div><div class="comp-unit">PSIG</div><div class="comp-status normal">${crkP!==null?'Normal':'No Data'}</div></div>
-          <div class="comp-cell"><div class="comp-lbl">Amp Score</div><div class="comp-val ${ulScore!==null&&ulScore<60?'flag-red':ulScore!==null&&ulScore<80?'flag-yellow':'flag-green'}">${ulScore!==null?Math.round(ulScore):'—'}</div><div class="comp-unit">/ 100</div><div class="comp-status ${ulScore!==null&&ulScore>=80?'normal':ulScore!==null&&ulScore>=60?'attention':'critical-s'}">${scoreLabel(ulScore)}</div></div>`;
-      } else {
-        const suctP=fval(rf,'Suction Pressure','Suction Reading');
-        const dischP=fval(rf,'Discharge Pressure');
-        const dischT=fval(rf,'Discharge Temp','Discharge Temp (°F)');
-        const mLoad=fval(rf,'Motor Load %','Motor Load');
-        const sv=fval(rf,'Slide Valve %','Slide Valve');
-        const oilDp=fval(rf,'Oil Filter ΔP','Oil ΔP','Net Oil Pressure');
-        const oilM=fval(rf,'Oil Maintenance','Oil Maint');
-        const filtM=fval(rf,'Filter Maintenance','Filter Maint');
-        const mFlag=mLoad!==null&&(mLoad<50||mLoad>105)?'flag-yellow':'';
-        const mStat=mLoad!==null?(mLoad<50?'attention':mLoad>105?'critical-s':'normal'):'';
-        html+=`
-          <div class="comp-cell"><div class="comp-lbl">Suction Pressure</div><div class="comp-val">${fmt(suctP)}</div><div class="comp-unit">${fval(rf,'Suction Units')||'PSIG'}</div><div class="comp-status normal">${suctP!==null?'Normal':'No Data'}</div></div>
-          <div class="comp-cell"><div class="comp-lbl">Discharge Pressure</div><div class="comp-val">${fmt(dischP)}</div><div class="comp-unit">PSIG</div><div class="comp-status normal">${dischP!==null?'Normal':'No Data'}</div></div>
-          <div class="comp-cell"><div class="comp-lbl">Discharge Temp</div><div class="comp-val">${fmt(dischT)}</div><div class="comp-unit">°F</div><div class="comp-status normal">${dischT!==null?'Normal':'No Data'}</div></div>
-          <div class="comp-cell"><div class="comp-lbl">Motor Load</div><div class="comp-val ${mFlag}">${mLoad!==null?mLoad+'%':'—'}</div><div class="comp-unit">% of FLA</div><div class="comp-status ${mStat}">${mLoad!==null?(mLoad<50?'Underloaded':mLoad>105?'Overloaded':'Normal'):'No Data'}</div></div>
-          <div class="comp-cell"><div class="comp-lbl">Slide Valve</div><div class="comp-val">${sv!==null?sv+'%':'—'}</div><div class="comp-unit">Capacity</div><div class="comp-status normal">${sv!==null?'Normal':'No Data'}</div></div>
-          <div class="comp-cell"><div class="comp-lbl">Net Oil Pressure</div><div class="comp-val">${fmt(oilDp)}</div><div class="comp-unit">PSID</div><div class="comp-status normal">${oilDp!==null?'Normal':'No Data'}</div></div>
-          <div class="comp-cell"><div class="comp-lbl">Oil Service</div><div class="comp-val" style="font-size:13px">${oilM||'—'}</div><div class="comp-unit">Status</div><div class="comp-status normal">${oilM!==null?'Recorded':'No Data'}</div></div>
-          <div class="comp-cell"><div class="comp-lbl">Filter Service</div><div class="comp-val" style="font-size:13px">${filtM||'—'}</div><div class="comp-unit">Status</div><div class="comp-status normal">${filtM!==null?'Recorded':'No Data'}</div></div>`;
-      }
-      html+=`</div></div>`;
-    });
-    html+=`</div>`;
-  }
-
   // ── TREND HISTORY ──
   if(snapshots.length>0) {
     html+=`<div><div class="section-label">Plant Condition History — Score Trend</div>
-    <div class="status-section animate" style="animation-delay:0.65s">
+    <div class="status-section animate" style="animation-delay:0.7s">
       <div class="status-header">
         <div class="sh-title">Historical Plant Condition Scores — ${name}</div>
       </div>
@@ -796,10 +737,9 @@ function renderDashboard(siteId) {
   html+=`</main>`;
   $('dashboard-content').innerHTML=html;
 
-  // Animate ring
   setTimeout(()=>{
     const ring=document.getElementById('main-ring');
-    if(ring&&plantScore!==null) { ring.style.transition='stroke-dashoffset 1.5s ease'; ring.style.strokeDashoffset=String(376-(plantScore/100)*376); }
+    if(ring&&plantScore!==null){ring.style.transition='stroke-dashoffset 1.5s ease';ring.style.strokeDashoffset=String(376-(plantScore/100)*376);}
   },150);
 }
 </script>
