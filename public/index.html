@@ -66,8 +66,9 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 .section-label .slabel-badge { font-size:7px; padding:2px 8px; border:1px solid var(--border2); color:var(--text-dim); }
 
 /* SCORE ROW */
-.score-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:start; }
+.score-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:stretch; }
 .score-right-stack { display:flex; flex-direction:column; gap:16px; }
+.score-main-card { flex:1; justify-content:center; }
 
 .score-side-card { background:var(--bg2); border:1px solid var(--border); padding:20px 24px; position:relative; }
 .score-side-card .card-lbl { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-bottom:8px; }
