@@ -1,0 +1,807 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MASSCORE — Plant Condition Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --red: #E8320A; --red-dim: rgba(232,50,10,0.15);
+  --yellow: #F5A623; --yellow-dim: rgba(245,166,35,0.15);
+  --green: #2ECC71; --green-dim: rgba(46,204,113,0.12);
+  --bg: #080808; --bg2: #0f0f0f; --bg3: #141414; --bg4: #1a1a1a;
+  --border: #1e1e1e; --border2: #2a2a2a;
+  --text: #e8e8e8; --text-dim: #666; --text-mid: #999;
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { background:var(--bg); color:var(--text); font-family:'Rajdhani',sans-serif; min-height:100vh; overflow-x:hidden; }
+body::before { content:''; position:fixed; inset:0; background-image:linear-gradient(rgba(255,255,255,0.012) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.012) 1px,transparent 1px); background-size:32px 32px; pointer-events:none; z-index:0; }
+
+/* HEADER */
+header { position:relative; z-index:10; border-bottom:1px solid var(--border); background:var(--bg2); padding:0 32px; display:flex; align-items:center; justify-content:space-between; height:60px; }
+.logo { display:flex; align-items:center; gap:10px; }
+.logo-text .mass { font-family:'Orbitron',monospace; font-size:20px; font-weight:900; letter-spacing:3px; line-height:1; }
+.logo-text .mass span.core { color:var(--red); }
+.logo-text .mass span.mass { color:#fff; }
+.logo-text .sub { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:3px; color:var(--text-dim); margin-top:2px; }
+.header-right { display:flex; align-items:center; gap:16px; }
+.live-badge { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px; color:var(--green); border:1px solid rgba(46,204,113,0.3); padding:4px 10px; }
+.header-date { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--text-dim); letter-spacing:1px; }
+
+/* SITE SELECTOR */
+.site-selector-bar { position:relative; z-index:9; background:var(--bg3); border-bottom:1px solid var(--border); padding:0 32px; display:flex; align-items:center; gap:16px; height:48px; }
+.site-label { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; white-space:nowrap; }
+.site-select-wrap { position:relative; }
+select.site-dropdown {
+  font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; color:#fff;
+  background:var(--bg4); border:1px solid var(--border2); padding:8px 36px 8px 14px;
+  cursor:pointer; appearance:none; -webkit-appearance:none; outline:none;
+  text-transform:uppercase; min-width:260px;
+}
+select.site-dropdown:focus { border-color:var(--red); }
+.select-arrow { position:absolute; right:12px; top:50%; transform:translateY(-50%); pointer-events:none; color:var(--red); font-size:10px; }
+
+/* ALERT BANNER */
+.alert-banner { position:relative; z-index:8; padding:10px 32px; display:flex; align-items:center; gap:12px; font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase; }
+.alert-banner.critical { background:rgba(232,50,10,0.12); border-bottom:1px solid rgba(232,50,10,0.3); color:var(--red); }
+.alert-banner.clear { background:rgba(46,204,113,0.08); border-bottom:1px solid rgba(46,204,113,0.2); color:var(--green); }
+.alert-dot { width:8px; height:8px; border-radius:50%; background:currentColor; animation:pulse 1.5s ease infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+/* SITE BANNER */
+.site-banner { position:relative; z-index:5; background:var(--bg3); border-bottom:1px solid var(--border); padding:16px 32px; display:flex; align-items:center; justify-content:space-between; }
+.site-banner::before { content:''; position:absolute; top:0; left:0; width:4px; height:100%; background:var(--red); }
+.site-info .site-lbl { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; margin-bottom:3px; }
+.site-info .site-name { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:3px; color:#fff; line-height:1; }
+.site-info .site-meta { font-size:12px; color:var(--text-dim); margin-top:3px; }
+.site-info .site-meta span { color:var(--text-mid); }
+
+/* MAIN */
+main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direction:column; gap:24px; }
+
+/* SECTION LABEL */
+.section-label { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:4px; color:var(--text-dim); text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:10px; }
+.section-label::after { content:''; flex:1; height:1px; background:var(--border); }
+.section-label .slabel-badge { font-size:7px; padding:2px 8px; border:1px solid var(--border2); color:var(--text-dim); }
+
+/* SCORE ROW */
+.score-row { display:grid; grid-template-columns:1fr 280px 1fr; gap:16px; align-items:start; }
+
+.score-side-card { background:var(--bg2); border:1px solid var(--border); padding:20px 24px; position:relative; }
+.score-side-card .card-lbl { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-bottom:8px; }
+.score-side-card .score-big { font-family:'Orbitron',monospace; font-size:48px; font-weight:900; line-height:1; }
+.score-side-card .score-sublbl { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase; margin-top:4px; }
+.score-side-card .score-bar { height:4px; background:var(--border2); margin-top:12px; position:relative; }
+.score-side-card .score-bar-fill { height:100%; position:absolute; top:0; left:0; transition:width 1s ease; }
+.score-side-card .score-desc { font-size:12px; color:var(--text-dim); margin-top:10px; line-height:1.5; }
+
+.score-main-card { background:var(--bg2); border:1px solid var(--border); padding:24px; position:relative; display:flex; flex-direction:column; align-items:center; }
+.score-main-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
+.score-ring-wrap { display:flex; flex-direction:column; align-items:center; gap:12px; }
+.score-ring { position:relative; width:130px; height:130px; }
+.score-ring svg { transform:rotate(-90deg); }
+.ring-bg { fill:none; stroke:var(--border2); stroke-width:8; }
+.ring-fill { fill:none; stroke-width:8; stroke-linecap:round; stroke-dasharray:376; stroke-dashoffset:376; transition:stroke-dashoffset 1.5s ease; }
+.score-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
+.score-num { font-family:'Orbitron',monospace; font-size:38px; font-weight:900; color:#fff; line-height:1; }
+.score-max { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--text-dim); margin-top:1px; }
+.score-status-lbl { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:3px; text-transform:uppercase; text-align:center; }
+.pcs-label { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; margin-bottom:6px; }
+
+/* PLAIN LANGUAGE SUMMARY */
+.plain-summary { background:var(--bg2); border:1px solid var(--border); border-left:4px solid var(--text-dim); padding:16px 20px; }
+.plain-summary.good { border-left-color:var(--green); }
+.plain-summary.attention { border-left-color:var(--yellow); }
+.plain-summary.critical-state { border-left-color:var(--red); }
+.plain-summary .ps-title { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; margin-bottom:6px; }
+.plain-summary .ps-text { font-size:14px; color:var(--text); line-height:1.6; font-weight:500; }
+
+/* STATUS SECTIONS */
+.status-section { background:var(--bg2); border:1px solid var(--border); }
+.status-header { padding:12px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.status-header .sh-title { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; display:flex; align-items:center; gap:8px; }
+.status-dot { width:8px; height:8px; border-radius:50%; }
+.status-dot.green { background:var(--green); }
+.status-dot.yellow { background:var(--yellow); }
+.status-dot.red { background:var(--red); }
+.sh-count { font-family:'Share Tech Mono',monospace; font-size:8px; padding:3px 10px; text-transform:uppercase; }
+.sh-count.green { color:var(--green); border:1px solid rgba(46,204,113,0.3); background:var(--green-dim); }
+.sh-count.yellow { color:var(--yellow); border:1px solid rgba(245,166,35,0.3); background:var(--yellow-dim); }
+.sh-count.red { color:var(--red); border:1px solid rgba(232,50,10,0.4); background:var(--red-dim); }
+
+/* ASSET ROWS */
+.asset-row { padding:12px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:16px; }
+.asset-row:last-child { border-bottom:none; }
+.asset-row-name { font-size:14px; font-weight:600; color:#fff; flex:1; }
+.asset-row-system { font-size:11px; color:var(--text-dim); width:160px; font-family:'Share Tech Mono',monospace; letter-spacing:1px; }
+.asset-score-wrap { display:flex; align-items:center; gap:8px; }
+.asset-score-num { font-family:'Orbitron',monospace; font-size:16px; font-weight:700; width:36px; }
+.asset-mini-bar { width:80px; height:3px; background:var(--border2); position:relative; }
+.asset-mini-fill { height:100%; position:absolute; top:0; left:0; }
+.asset-status-pill { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:1px; padding:3px 8px; text-transform:uppercase; }
+.pill-green { color:var(--green); border:1px solid rgba(46,204,113,0.3); background:var(--green-dim); }
+.pill-yellow { color:var(--yellow); border:1px solid rgba(245,166,35,0.3); background:var(--yellow-dim); }
+.pill-red { color:var(--red); border:1px solid rgba(232,50,10,0.4); background:var(--red-dim); }
+.empty-msg { padding:24px 20px; font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; text-align:center; }
+
+/* TWO COL */
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+
+/* FINDINGS */
+.finding-row { padding:14px 20px; border-bottom:1px solid var(--border); display:flex; align-items:flex-start; gap:14px; }
+.finding-row:last-child { border-bottom:none; }
+.finding-bar { width:3px; height:44px; flex-shrink:0; margin-top:2px; }
+.finding-bar.critical { background:var(--red); }
+.finding-bar.high { background:var(--yellow); }
+.finding-bar.moderate { background:var(--text-mid); }
+.finding-content { flex:1; }
+.finding-title { font-size:14px; font-weight:600; color:#fff; margin-bottom:3px; }
+.finding-cat { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; }
+.finding-cat span { color:var(--text-mid); margin-right:10px; }
+.finding-pill { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:1px; padding:3px 8px; text-transform:uppercase; align-self:center; }
+
+/* WHAT THIS MEANS */
+.plain-explain { padding:14px 20px; border-top:1px solid var(--border); }
+.plain-explain .pe-lbl { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-bottom:6px; }
+.plain-explain .pe-text { font-size:13px; color:var(--text-mid); line-height:1.6; }
+
+/* RECOMMENDED ACTIONS */
+.action-row { padding:12px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:14px; }
+.action-row:last-child { border-bottom:none; }
+.action-priority { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:1px; padding:3px 8px; text-transform:uppercase; white-space:nowrap; }
+.action-text { flex:1; font-size:13px; color:var(--text); font-weight:500; }
+.action-cost { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--text-dim); white-space:nowrap; }
+
+/* VALVE GRID */
+.valve-row { display:grid; grid-template-columns:80px 1fr 100px 90px; gap:8px; align-items:center; padding:10px 14px; background:var(--bg3); border:1px solid var(--border); margin-bottom:6px; }
+.valve-row:last-child { margin-bottom:0; }
+.valve-id { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--text-mid); }
+.valve-asset { font-size:12px; font-weight:500; }
+.valve-expiry { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--text-dim); text-align:center; }
+.valve-status-expired { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--red); text-align:right; }
+.valve-status-ok { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--green); text-align:right; }
+
+/* COMPRESSOR */
+.comp-header { padding:12px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.comp-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--border); }
+.comp-cell { background:var(--bg3); padding:14px 18px; }
+.comp-lbl { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-bottom:5px; }
+.comp-val { font-family:'Orbitron',monospace; font-size:20px; font-weight:700; color:#fff; line-height:1; }
+.comp-val.flag-red { color:var(--red); }
+.comp-val.flag-yellow { color:var(--yellow); }
+.comp-val.flag-green { color:var(--green); }
+.comp-unit { font-family:'Share Tech Mono',monospace; font-size:7px; color:var(--text-dim); margin-top:2px; }
+.comp-status { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:1px; margin-top:5px; text-transform:uppercase; }
+.comp-status.normal { color:var(--green); }
+.comp-status.attention { color:var(--yellow); }
+.comp-status.critical-s { color:var(--red); }
+
+/* SNAPSHOT */
+.snap-row { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); }
+.snap-row:last-child { border-bottom:none; }
+.snap-date { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--text-dim); width:100px; }
+.snap-score { font-family:'Orbitron',monospace; font-size:18px; font-weight:700; width:50px; }
+.snap-bar { flex:1; height:3px; background:var(--border2); position:relative; }
+.snap-fill { height:100%; position:absolute; top:0; left:0; }
+
+/* LOADING */
+.loading-state { display:flex; flex-direction:column; align-items:center; justify-content:center; height:400px; gap:16px; position:relative; z-index:5; }
+.spinner { width:36px; height:36px; border:2px solid var(--border2); border-top-color:var(--red); border-radius:50%; animation:spin 0.8s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
+.loading-txt { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; }
+
+/* FOOTER */
+footer { position:relative; z-index:5; border-top:1px solid var(--border); padding:14px 32px; display:flex; align-items:center; justify-content:space-between; background:var(--bg2); margin-top:20px; }
+.footer-txt { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; }
+
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+.animate { animation:fadeUp 0.4s ease forwards; opacity:0; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">
+    <div class="logo-text">
+      <div class="mass"><span class="mass">MASS</span><span class="core">CORE</span></div>
+      <div class="sub">Mechanical Assessment Scoring System</div>
+    </div>
+  </div>
+  <div class="header-right">
+    <div class="live-badge">● Live Dashboard</div>
+    <div class="header-date" id="header-date"></div>
+  </div>
+</header>
+
+<div class="site-selector-bar">
+  <div class="site-label">Select Site</div>
+  <div class="site-select-wrap">
+    <select class="site-dropdown" id="site-dropdown" onchange="selectSite(this.value)">
+      <option value="">— Select a site —</option>
+    </select>
+    <div class="select-arrow">▼</div>
+  </div>
+</div>
+
+<div id="alert-banner"></div>
+
+<div class="site-banner" id="site-banner" style="display:none">
+  <div class="site-info">
+    <div class="site-lbl">Active Site</div>
+    <div class="site-name" id="banner-name">—</div>
+    <div class="site-meta" id="banner-meta"></div>
+  </div>
+</div>
+
+<div id="dashboard-content">
+  <div class="loading-state">
+    <div class="spinner"></div>
+    <div class="loading-txt">Connecting to MASSCORE Database</div>
+  </div>
+</div>
+
+<footer>
+  <div class="footer-txt">MASSCORE — Mechanical Assessment Scoring System — Confidential</div>
+  <div class="footer-txt" id="footer-right">—</div>
+</footer>
+
+<script>
+const $ = id => document.getElementById(id);
+
+// ── COLOR HELPERS ────────────────────────────────────────
+function scoreColor(s) {
+  if (s === null || s === undefined) return 'var(--text-dim)';
+  return s >= 80 ? 'var(--green)' : s >= 60 ? 'var(--yellow)' : 'var(--red)';
+}
+function scoreClass(s) {
+  if (s === null || s === undefined) return '';
+  return s >= 80 ? 'good' : s >= 60 ? 'attention' : 'critical-state';
+}
+function scoreLabel(s) {
+  if (s === null || s === undefined) return 'No Data';
+  return s >= 80 ? 'Operational' : s >= 60 ? 'Attention Required' : 'Critical';
+}
+function pillClass(s) {
+  if (s === null || s === undefined) return '';
+  return s >= 80 ? 'pill-green' : s >= 60 ? 'pill-yellow' : 'pill-red';
+}
+function fmt(v, d=1) {
+  if (v === null || v === undefined || v === '') return '—';
+  return typeof v === 'number' ? v.toFixed(d) : v;
+}
+function fmtDate(s) {
+  if (!s) return '—';
+  const d = new Date(s);
+  return isNaN(d) ? s : d.toLocaleDateString('en-US',{month:'2-digit',day:'2-digit',year:'numeric'});
+}
+function yearsOverdue(s) {
+  if (!s) return null;
+  const d = new Date(s);
+  if (d >= new Date()) return null;
+  return Math.floor((new Date()-d)/(1000*60*60*24*365));
+}
+function buildMap(records) {
+  const m={};
+  if(records) records.forEach(r=>{m[r.id]=r;});
+  return m;
+}
+function fval(f,...keys) {
+  for(const k of keys) if(f[k]!==undefined&&f[k]!==null&&f[k]!=='') return f[k];
+  return null;
+}
+
+// ── STATE ────────────────────────────────────────────────
+let D=null, M={}, activeSite=null;
+
+// ── INIT ─────────────────────────────────────────────────
+document.addEventListener('DOMContentLoaded', async()=>{
+  $('header-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'short',year:'numeric',month:'short',day:'numeric'}).toUpperCase();
+  try {
+    const res = await fetch('/api/data');
+    D = await res.json();
+    M.sites     = buildMap(D.sites?.records);
+    M.systems   = buildMap(D.systems?.records);
+    M.assets    = buildMap(D.assets?.records);
+    M.findings  = buildMap(D.findings?.records);
+    M.valves    = buildMap(D.valves?.records);
+    M.readings  = buildMap(D.readings?.records);
+    M.snapshots = buildMap(D.snapshots?.records);
+    M.customers = buildMap(D.customers?.records);
+    buildDropdown();
+  } catch(e) {
+    $('dashboard-content').innerHTML = `<div class="loading-state"><div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--red);text-transform:uppercase">Failed to load — check server connection</div></div>`;
+  }
+});
+
+function buildDropdown() {
+  const sites = D.sites?.records || [];
+  const sel = $('site-dropdown');
+  sites.forEach(site=>{
+    const opt = document.createElement('option');
+    opt.value = site.id;
+    opt.textContent = fval(site.fields,'Name','Site Name') || 'Unknown Site';
+    sel.appendChild(opt);
+  });
+  if(sites.length===1) { sel.value=sites[0].id; selectSite(sites[0].id); }
+}
+
+function selectSite(id) {
+  if(!id) { $('site-banner').style.display='none'; $('alert-banner').innerHTML=''; $('dashboard-content').innerHTML=''; return; }
+  activeSite=id;
+  const site=M.sites[id];
+  if(!site) return;
+  const f=site.fields;
+  const name=fval(f,'Name','Site Name')||'Site';
+  const city=fval(f,'City')||''; const state=fval(f,'State')||'';
+
+  $('banner-name').textContent=name;
+  $('banner-meta').innerHTML=city?`<span>Location:</span> ${city}${state?', '+state:''}`:'';
+  $('site-banner').style.display='flex';
+  $('footer-right').textContent=`Generated ${new Date().toLocaleDateString('en-US')} — ${name} — MASSCORE v2.0`;
+
+  renderDashboard(id);
+}
+
+function renderDashboard(siteId) {
+  const site=M.sites[siteId];
+  const f=site.fields;
+  const name=fval(f,'Name','Site Name')||'Site';
+
+  const plantScore=fval(f,'Plant Condition Score (New)','Plant Condition Score','Score');
+  const infraScore=fval(f,'Infrastructure Score');
+  const relScore=fval(f,'Reliability Score');
+
+  // Systems
+  const siteSystems=(D.systems?.records||[]).filter(s=>(s.fields['Site']||s.fields['Sites']||[]).includes(siteId));
+  const sysIds=siteSystems.map(s=>s.id);
+
+  // Assets
+  const siteAssets=(D.assets?.records||[]).filter(a=>(a.fields['System']||a.fields['Systems']||[]).some(id=>sysIds.includes(id)));
+  const assetIds=siteAssets.map(a=>a.id);
+
+  // Findings open
+  const findings=(D.findings?.records||[]).filter(fd=>{
+    const linked=fd.fields['Site']||fd.fields['Sites']||[];
+    const status=(fd.fields['Status']||'').toUpperCase();
+    return linked.includes(siteId) && status!=='RESOLVED';
+  });
+
+  // Valves
+  const valves=(D.valves?.records||[]).filter(v=>(v.fields['Asset']||v.fields['Assets']||[]).some(id=>assetIds.includes(id)));
+  const expiredValves=valves.filter(v=>{
+    const exp=fval(v.fields,'Expiration Date','Expiry Date','Last Test Date');
+    return exp && new Date(exp)<new Date();
+  });
+
+  // Readings
+  const readingMap={};
+  (D.readings?.records||[]).forEach(r=>{
+    const aids=r.fields['Asset']||r.fields['Assets']||[];
+    aids.forEach(aid=>{
+      if(!assetIds.includes(aid)) return;
+      const date=fval(r.fields,'Date','Reading Date')||'';
+      if(!readingMap[aid]||date>(fval(readingMap[aid].fields,'Date','Reading Date')||'')) readingMap[aid]=r;
+    });
+  });
+
+  // Snapshots
+  const snapshots=(D.snapshots?.records||[]).filter(sn=>(sn.fields['Site']||sn.fields['Sites']||[]).includes(siteId))
+    .sort((a,b)=>{const da=fval(a.fields,'Date','Assessment Date')||'';const db=fval(b.fields,'Date','Assessment Date')||'';return db>da?1:-1;})
+    .slice(0,5);
+
+  // Bucket assets
+  const goodAssets=siteAssets.filter(a=>(fval(a.fields,'Asset Health Score')??null)>=80);
+  const attentionAssets=siteAssets.filter(a=>{const s=fval(a.fields,'Asset Health Score')??null;return s!==null&&s>=60&&s<80;});
+  const criticalAssets=siteAssets.filter(a=>{const s=fval(a.fields,'Asset Health Score')??null;return s!==null&&s<60;});
+  const noDataAssets=siteAssets.filter(a=>fval(a.fields,'Asset Health Score')===null);
+
+  // Bucket findings
+  const sevOrder={CRITICAL:0,HIGH:1,MODERATE:2,LOW:3};
+  const sortedFindings=[...findings].sort((a,b)=>(sevOrder[(a.fields['Severity']||'').toUpperCase()]??9)-(sevOrder[(b.fields['Severity']||'').toUpperCase()]??9));
+  const critFindings=findings.filter(fd=>(fd.fields['Severity']||'').toUpperCase()==='CRITICAL');
+
+  // Alert banner
+  const alertBanner=$('alert-banner');
+  if(critFindings.length>0||expiredValves.length>0) {
+    let msgs=[];
+    if(critFindings.length>0) msgs.push(`${critFindings.length} Critical Finding${critFindings.length>1?'s':''} Require Immediate Attention`);
+    if(expiredValves.length>0) msgs.push(`${expiredValves.length} Expired Relief Valve${expiredValves.length>1?'s':''} — Compliance Action Required`);
+    alertBanner.className='alert-banner critical';
+    alertBanner.innerHTML=`<div class="alert-dot"></div><span>${msgs.join(' &nbsp;|&nbsp; ')}</span>`;
+  } else {
+    alertBanner.className='alert-banner clear';
+    alertBanner.innerHTML=`<div class="alert-dot"></div><span>No Critical Issues — All Systems Monitored</span>`;
+  }
+
+  // Plain language summary
+  function plainSummaryText(score) {
+    if(score===null) return 'Assessment data is being collected. Scores will populate as inspections are completed.';
+    if(score>=80) return `This facility is in good operational condition with a score of ${Math.round(score)} out of 100. Regular maintenance should continue as scheduled.`;
+    if(score>=60) return `This facility scored ${Math.round(score)} out of 100 and requires attention. Several assets and systems need scheduled maintenance or repair to prevent further deterioration.`;
+    return `This facility scored ${Math.round(score)} out of 100 and is in critical condition. Immediate action is required to address safety, compliance, and mechanical issues before they result in equipment failure or regulatory violations.`;
+  }
+
+  let html='<main>';
+
+  // ── SCORES ──
+  html+=`<div><div class="section-label">Plant Condition Overview</div>
+  <div class="score-row">`;
+
+  // Reliability score left
+  const rc=scoreColor(relScore);
+  const rbw=relScore!==null?Math.round(relScore):0;
+  html+=`<div class="score-side-card animate" style="animation-delay:0.1s">
+    <div class="card-lbl">Reliability Score</div>
+    <div class="score-big" style="color:${rc}">${relScore!==null?Math.round(relScore):'—'}</div>
+    <div class="score-sublbl" style="color:${rc}">${scoreLabel(relScore)}</div>
+    <div class="score-bar"><div class="score-bar-fill" style="width:${rbw}%;background:${rc}"></div></div>
+    <div class="score-desc">Measures how well the plant or building is <strong>operating right now</strong> based on live compressor readings and equipment performance data.</div>
+  </div>`;
+
+  // Plant condition score center
+  const pc=scoreColor(plantScore);
+  const pdo=plantScore!==null?376-(plantScore/100)*376:376;
+  html+=`<div class="score-main-card animate" style="animation-delay:0.15s">
+    <div class="pcs-label">Plant Condition Score</div>
+    <div class="score-ring-wrap">
+      <div class="score-ring">
+        <svg width="130" height="130" viewBox="0 0 130 130">
+          <circle class="ring-bg" cx="65" cy="65" r="55"/>
+          <circle class="ring-fill" cx="65" cy="65" r="55" id="main-ring" style="stroke:${pc};stroke-dashoffset:${pdo}"/>
+        </svg>
+        <div class="score-center">
+          <div class="score-num">${plantScore!==null?Math.round(plantScore):'—'}</div>
+          <div class="score-max">/ 100</div>
+        </div>
+      </div>
+      <div class="score-status-lbl" style="color:${pc}">${scoreLabel(plantScore)}</div>
+    </div>
+  </div>`;
+
+  // Infrastructure score right
+  const ic=scoreColor(infraScore);
+  const ibw=infraScore!==null?Math.round(infraScore):0;
+  html+=`<div class="score-side-card animate" style="animation-delay:0.2s">
+    <div class="card-lbl">Infrastructure Score</div>
+    <div class="score-big" style="color:${ic}">${infraScore!==null?Math.round(infraScore):'—'}</div>
+    <div class="score-sublbl" style="color:${ic}">${scoreLabel(infraScore)}</div>
+    <div class="score-bar"><div class="score-bar-fill" style="width:${ibw}%;background:${ic}"></div></div>
+    <div class="score-desc">Measures the <strong>physical condition</strong> of equipment, assets, and infrastructure including compliance status and findings.</div>
+  </div>`;
+
+  html+=`</div></div>`;
+
+  // Plain summary
+  html+=`<div class="plain-summary ${scoreClass(plantScore)} animate" style="animation-delay:0.25s">
+    <div class="ps-title">What This Means For You</div>
+    <div class="ps-text">${plainSummaryText(plantScore)}</div>
+  </div>`;
+
+  // ── WHAT'S WORKING ──
+  html+=`<div><div class="section-label">What's Working <span class="slabel-badge">${goodAssets.length} Assets Operational</span></div>
+  <div class="status-section animate" style="animation-delay:0.3s">
+    <div class="status-header">
+      <div class="sh-title"><div class="status-dot green"></div>Operational Assets — No Action Required</div>
+      <div class="sh-count green">${goodAssets.length} Good</div>
+    </div>`;
+
+  if(goodAssets.length===0) {
+    html+=`<div class="empty-msg">No assets currently scoring in the operational range</div>`;
+  } else {
+    goodAssets.forEach(a=>{
+      const af=a.fields;
+      const aName=fval(af,'Asset Name','Name')||'Unknown Asset';
+      const hs=fval(af,'Asset Health Score')??null;
+      const sysLinked=af['System']||af['Systems']||[];
+      const sysName=sysLinked.length?(M.systems[sysLinked[0]]?.fields['Name']||'—'):'—';
+      html+=`<div class="asset-row">
+        <div class="asset-row-name">${aName}</div>
+        <div class="asset-row-system">${sysName}</div>
+        <div class="asset-score-wrap">
+          <span class="asset-score-num" style="color:var(--green)">${hs!==null?Math.round(hs):'—'}</span>
+          <div class="asset-mini-bar"><div class="asset-mini-fill" style="width:${hs??0}%;background:var(--green)"></div></div>
+        </div>
+        <span class="asset-status-pill pill-green">Operational</span>
+      </div>`;
+    });
+  }
+  html+=`</div></div>`;
+
+  // ── NEEDS ATTENTION ──
+  html+=`<div><div class="section-label">Needs Attention <span class="slabel-badge">${attentionAssets.length} Assets</span></div>
+  <div class="status-section animate" style="animation-delay:0.35s">
+    <div class="status-header">
+      <div class="sh-title"><div class="status-dot yellow"></div>Monitor Closely — Schedule Maintenance</div>
+      <div class="sh-count yellow">${attentionAssets.length} Items</div>
+    </div>`;
+
+  if(attentionAssets.length===0) {
+    html+=`<div class="empty-msg">No assets currently in the attention required range</div>`;
+  } else {
+    attentionAssets.forEach(a=>{
+      const af=a.fields;
+      const aName=fval(af,'Asset Name','Name')||'Unknown Asset';
+      const hs=fval(af,'Asset Health Score')??null;
+      const sysLinked=af['System']||af['Systems']||[];
+      const sysName=sysLinked.length?(M.systems[sysLinked[0]]?.fields['Name']||'—'):'—';
+      html+=`<div class="asset-row">
+        <div class="asset-row-name">${aName}</div>
+        <div class="asset-row-system">${sysName}</div>
+        <div class="asset-score-wrap">
+          <span class="asset-score-num" style="color:var(--yellow)">${hs!==null?Math.round(hs):'—'}</span>
+          <div class="asset-mini-bar"><div class="asset-mini-fill" style="width:${hs??0}%;background:var(--yellow)"></div></div>
+        </div>
+        <span class="asset-status-pill pill-yellow">Attention Required</span>
+      </div>`;
+    });
+  }
+  html+=`</div></div>`;
+
+  // ── CRITICAL ISSUES ──
+  const critFindingCount=sortedFindings.filter(fd=>(fd.fields['Severity']||'').toUpperCase()==='CRITICAL'||( fd.fields['Severity']||'').toUpperCase()==='HIGH').length;
+  html+=`<div><div class="section-label">Critical Issues <span class="slabel-badge">${criticalAssets.length} Assets + ${critFindingCount} Findings</span></div>
+  <div class="two-col">`;
+
+  // Critical assets
+  html+=`<div class="status-section animate" style="animation-delay:0.4s">
+    <div class="status-header">
+      <div class="sh-title"><div class="status-dot red"></div>Critical Assets — Immediate Action Required</div>
+      <div class="sh-count red">${criticalAssets.length} Critical</div>
+    </div>`;
+
+  if(criticalAssets.length===0) {
+    html+=`<div class="empty-msg">No assets currently in critical condition</div>`;
+  } else {
+    criticalAssets.forEach(a=>{
+      const af=a.fields;
+      const aName=fval(af,'Asset Name','Name')||'Unknown Asset';
+      const hs=fval(af,'Asset Health Score')??null;
+      const sysLinked=af['System']||af['Systems']||[];
+      const sysName=sysLinked.length?(M.systems[sysLinked[0]]?.fields['Name']||'—'):'—';
+      html+=`<div class="asset-row">
+        <div class="asset-row-name">${aName}</div>
+        <div class="asset-row-system">${sysName}</div>
+        <div class="asset-score-wrap">
+          <span class="asset-score-num" style="color:var(--red)">${hs!==null?Math.round(hs):'—'}</span>
+          <div class="asset-mini-bar"><div class="asset-mini-fill" style="width:${hs??0}%;background:var(--red)"></div></div>
+        </div>
+        <span class="asset-status-pill pill-red">Critical</span>
+      </div>`;
+    });
+  }
+  html+=`</div>`;
+
+  // Findings
+  html+=`<div class="status-section animate" style="animation-delay:0.45s">
+    <div class="status-header">
+      <div class="sh-title"><div class="status-dot red"></div>Active Findings — Documented Issues</div>
+      <div class="sh-count ${critFindings.length>0?'red':'yellow'}">${sortedFindings.length} Open</div>
+    </div>`;
+
+  if(sortedFindings.length===0) {
+    html+=`<div class="empty-msg">No open findings for this site</div>`;
+  } else {
+    sortedFindings.forEach(fd=>{
+      const ff=fd.fields;
+      const title=fval(ff,'Finding Title','Title','Name')||'Untitled Finding';
+      const sev=(ff['Severity']||'').toUpperCase();
+      const cat=fval(ff,'Category')||'';
+      const status=fval(ff,'Status')||'Open';
+      const aids=ff['Asset']||ff['Assets']||[];
+      const aName=aids.length?(M.assets[aids[0]]?.fields['Asset Name']||M.assets[aids[0]]?.fields['Name']||'—'):'—';
+      const barClass=sev==='CRITICAL'?'critical':sev==='HIGH'?'high':'moderate';
+      const pClass=sev==='CRITICAL'?'pill-red':sev==='HIGH'?'pill-yellow':'';
+
+      // Category plain language
+      let catExplain='';
+      if(cat.toUpperCase()==='LIFE & SAFETY') catExplain='Safety Risk — Requires Priority Response';
+      else if(cat.toUpperCase()==='MECHANICAL') catExplain='Equipment Issue — Schedule Repair';
+      else if(cat.toUpperCase()==='ENERGY') catExplain='Efficiency Issue — Review Operation';
+
+      html+=`<div class="finding-row">
+        <div class="finding-bar ${barClass}"></div>
+        <div class="finding-content">
+          <div class="finding-title">${title}</div>
+          <div class="finding-cat">
+            <span>Category:</span>${cat}${catExplain?` — ${catExplain}`:''}
+            &nbsp;&nbsp;<span>Asset:</span>${aName}
+            &nbsp;&nbsp;<span>Status:</span>${status}
+          </div>
+        </div>
+        ${pClass?`<span class="finding-pill ${pClass}">${sev.charAt(0)+sev.slice(1).toLowerCase()}</span>`:''}
+      </div>`;
+    });
+  }
+  html+=`</div></div></div>`;
+
+  // ── COMPLIANCE ──
+  html+=`<div><div class="section-label">Compliance & Safety Status</div>
+  <div class="status-section animate" style="animation-delay:0.5s">
+    <div class="status-header">
+      <div class="sh-title"><div class="status-dot ${expiredValves.length>0?'red':'green'}"></div>Relief Valve Compliance — ${expiredValves.length>0?'Action Required':'All Current'}</div>
+      <div class="sh-count ${expiredValves.length>0?'red':'green'}">${expiredValves.length>0?expiredValves.length+' Expired':'All Current'}</div>
+    </div>`;
+
+  if(expiredValves.length>0) {
+    html+=`<div class="plain-explain">
+      <div class="pe-lbl">What This Means</div>
+      <div class="pe-text">Relief valves protect pressure vessels from catastrophic failure. Expired relief valves are a life safety and regulatory compliance issue. These must be replaced immediately to meet IIAR and OSHA requirements.</div>
+    </div>`;
+  }
+
+  if(valves.length===0) {
+    html+=`<div class="empty-msg">No relief valves tracked for this site yet</div>`;
+  } else {
+    html+=`<div style="padding:16px 20px">
+      <div style="display:grid;grid-template-columns:80px 1fr 100px 90px;gap:8px;padding:0 0 8px;border-bottom:1px solid var(--border);margin-bottom:8px">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Valve ID</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Protected Asset</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;text-align:center">Expiry Date</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;text-align:right">Status</div>
+      </div>`;
+
+    const sortedValves=[...expiredValves,...valves.filter(v=>{
+      const exp=fval(v.fields,'Expiration Date','Expiry Date','Last Test Date');
+      return !exp||new Date(exp)>=new Date();
+    })];
+
+    sortedValves.forEach(v=>{
+      const vf=v.fields;
+      const vid=fval(vf,'Valve ID','Name')||'—';
+      const aids=vf['Asset']||vf['Assets']||[];
+      const aName=aids.length?(M.assets[aids[0]]?.fields['Asset Name']||M.assets[aids[0]]?.fields['Name']||'—'):'—';
+      const expDate=fval(vf,'Expiration Date','Expiry Date','Last Test Date');
+      const isExp=expDate&&new Date(expDate)<new Date();
+      const od=isExp?yearsOverdue(expDate):null;
+      html+=`<div class="valve-row">
+        <div class="valve-id">${vid}</div>
+        <div class="valve-asset">${aName}</div>
+        <div class="valve-expiry">${fmtDate(expDate)}</div>
+        ${isExp?`<div class="valve-status-expired">${od!==null?od+' YRS OVERDUE':'EXPIRED'}</div>`:`<div class="valve-status-ok">✓ CURRENT</div>`}
+      </div>`;
+    });
+    html+=`</div>`;
+  }
+  html+=`</div></div>`;
+
+  // ── RECOMMENDED ACTIONS ──
+  const actions=[];
+  critFindings.forEach(fd=>{
+    const title=fval(fd.fields,'Finding Title','Title','Name')||'Critical Finding';
+    const rec=fval(fd.fields,'Recommended Action')||'Schedule immediate inspection and repair';
+    const cost=fval(fd.fields,'Estimated Cost');
+    actions.push({priority:'CRITICAL',text:title+' — '+rec,cost:cost?'Est. $'+cost:null,color:'pill-red'});
+  });
+  expiredValves.forEach(v=>{
+    const vid=fval(v.fields,'Valve ID','Name')||'Relief Valve';
+    const od=yearsOverdue(fval(v.fields,'Expiration Date','Expiry Date','Last Test Date'));
+    actions.push({priority:'COMPLIANCE',text:`Replace ${vid} — Expired ${od?od+' years ago':''}. Required for PSM and OSHA compliance.`,cost:null,color:'pill-yellow'});
+  });
+  attentionAssets.forEach(a=>{
+    const aName=fval(a.fields,'Asset Name','Name')||'Asset';
+    const rec=fval(a.fields,'Recommended Action');
+    if(rec) actions.push({priority:'SCHEDULED',text:`${aName} — ${rec}`,cost:null,color:''});
+  });
+
+  if(actions.length>0) {
+    html+=`<div><div class="section-label">Recommended Actions — Priority Order</div>
+    <div class="status-section animate" style="animation-delay:0.55s">
+      <div class="status-header">
+        <div class="sh-title"><div class="status-dot yellow"></div>Action Items to Improve Your Score</div>
+        <div class="sh-count yellow">${actions.length} Items</div>
+      </div>`;
+    actions.forEach((act,i)=>{
+      html+=`<div class="action-row">
+        <span class="action-priority ${act.color||''}" style="${act.priority==='CRITICAL'?'color:var(--red);border:1px solid rgba(232,50,10,0.4);background:var(--red-dim)':act.priority==='COMPLIANCE'?'color:var(--yellow);border:1px solid rgba(245,166,35,0.3);background:var(--yellow-dim)':'color:var(--text-dim);border:1px solid var(--border2)'}">${act.priority}</span>
+        <div class="action-text">${act.text}</div>
+        ${act.cost?`<div class="action-cost">${act.cost}</div>`:''}
+      </div>`;
+    });
+    html+=`</div></div>`;
+  }
+
+  // ── COMPRESSOR READINGS ──
+  const readingEntries=Object.entries(readingMap);
+  if(readingEntries.length>0) {
+    html+=`<div><div class="section-label">Compressor Operating Data — Live Readings</div>`;
+    readingEntries.forEach(([aid,reading])=>{
+      const rf=reading.fields;
+      const asset=M.assets[aid];
+      const aName=fval(asset?.fields||{},'Asset Name','Name')||'Compressor';
+      const rDate=fmtDate(fval(rf,'Date','Reading Date'));
+      const rScore=fval(rf,'Weighted Reading Score','Reading Score');
+      const compType=(fval(asset?.fields||{},'Compressor Type','Type')||'').toUpperCase();
+      const isRecip=compType.includes('RECIP');
+
+      html+=`<div class="status-section animate" style="animation-delay:0.6s;margin-bottom:16px">
+        <div class="comp-header">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase">${aName} — Reading Date: ${rDate}</div>
+          ${rScore!==null?`<span class="asset-status-pill ${pillClass(rScore)}">${scoreLabel(rScore)} — Score: ${Math.round(rScore)}</span>`:''}
+        </div>
+        <div class="comp-grid">`;
+
+      if(isRecip) {
+        const ulStage=fval(rf,'Unloader Stage %','Unloader Stage');
+        const mAmps=fval(rf,'Motor Amps at Stage','Motor Amps');
+        const ulScore=fval(rf,'Unloader Amp Score');
+        const ampStat=fval(rf,'Amp Status');
+        const suctP=fval(rf,'Suction Pressure (PSIG)','Suction Pressure');
+        const dischP=fval(rf,'Discharge Pressure (PSIG)','Discharge Pressure');
+        const dischT=fval(rf,'Discharge Temp (°F)','Discharge Temp');
+        const oilP=fval(rf,'Oil Pressure (PSIG)','Oil Pressure');
+        const crkP=fval(rf,'Crankcase Pressure (PSIG)','Crankcase Pressure');
+        const fla=fval(asset?.fields||{},'Motor FLA (Nameplate)','Motor FLA','FLA');
+        const aFlag=ampStat==='ABNORMAL — NOTIFY SUPERVISOR'?'flag-red':'';
+        const aStat=ampStat==='NORMAL'?'normal':ampStat?'critical-s':'';
+        html+=`
+          <div class="comp-cell"><div class="comp-lbl">Unloader Stage</div><div class="comp-val">${ulStage!==null?ulStage+'%':'—'}</div><div class="comp-unit">Capacity</div><div class="comp-status normal">${ulStage!==null?'Recorded':'No Data'}</div></div>
+          <div class="comp-cell"><div class="comp-lbl">Motor Amps</div><div class="comp-val ${aFlag}">${mAmps!==null?mAmps+'A':'—'}</div><div class="comp-unit">${fla?'FLA: '+fla+'A':'Amps'}</div><div class="comp-status ${aStat}">${ampStat||(mAmps!==null?'Recorded':'No Data')}</div></div>
+          <div class="comp-cell"><div class="comp-lbl">Suction Pressure</div><div class="comp-val">${fmt(suctP)}</div><div class="comp-unit">PSIG</div><div class="comp-status normal">${suctP!==null?'Normal':'No Data'}</div></div>
+          <div class="comp-cell"><div class="comp-lbl">Discharge Pressure</div><div class="comp-val">${fmt(dischP)}</div><div class="comp-unit">PSIG</div><div class="comp-status normal">${dischP!==null?'Normal':'No Data'}</div></div>
+          <div class="comp-cell"><div class="comp-lbl">Discharge Temp</div><div class="comp-val">${fmt(dischT)}</div><div class="comp-unit">°F</div><div class="comp-status normal">${dischT!==null?'Normal':'No Data'}</div></div>
+          <div class="comp-cell"><div class="comp-lbl">Oil Pressure</div><div class="comp-val">${fmt(oilP)}</div><div class="comp-unit">PSIG</div><div class="comp-status normal">${oilP!==null?'Normal':'No Data'}</div></div>
+          <div class="comp-cell"><div class="comp-lbl">Crankcase Pressure</div><div class="comp-val">${fmt(crkP)}</div><div class="comp-unit">PSIG</div><div class="comp-status normal">${crkP!==null?'Normal':'No Data'}</div></div>
+          <div class="comp-cell"><div class="comp-lbl">Amp Score</div><div class="comp-val ${ulScore!==null&&ulScore<60?'flag-red':ulScore!==null&&ulScore<80?'flag-yellow':'flag-green'}">${ulScore!==null?Math.round(ulScore):'—'}</div><div class="comp-unit">/ 100</div><div class="comp-status ${ulScore!==null&&ulScore>=80?'normal':ulScore!==null&&ulScore>=60?'attention':'critical-s'}">${scoreLabel(ulScore)}</div></div>`;
+      } else {
+        const suctP=fval(rf,'Suction Pressure','Suction Reading');
+        const dischP=fval(rf,'Discharge Pressure');
+        const dischT=fval(rf,'Discharge Temp','Discharge Temp (°F)');
+        const mLoad=fval(rf,'Motor Load %','Motor Load');
+        const sv=fval(rf,'Slide Valve %','Slide Valve');
+        const oilDp=fval(rf,'Oil Filter ΔP','Oil ΔP','Net Oil Pressure');
+        const oilM=fval(rf,'Oil Maintenance','Oil Maint');
+        const filtM=fval(rf,'Filter Maintenance','Filter Maint');
+        const mFlag=mLoad!==null&&(mLoad<50||mLoad>105)?'flag-yellow':'';
+        const mStat=mLoad!==null?(mLoad<50?'attention':mLoad>105?'critical-s':'normal'):'';
+        html+=`
+          <div class="comp-cell"><div class="comp-lbl">Suction Pressure</div><div class="comp-val">${fmt(suctP)}</div><div class="comp-unit">${fval(rf,'Suction Units')||'PSIG'}</div><div class="comp-status normal">${suctP!==null?'Normal':'No Data'}</div></div>
+          <div class="comp-cell"><div class="comp-lbl">Discharge Pressure</div><div class="comp-val">${fmt(dischP)}</div><div class="comp-unit">PSIG</div><div class="comp-status normal">${dischP!==null?'Normal':'No Data'}</div></div>
+          <div class="comp-cell"><div class="comp-lbl">Discharge Temp</div><div class="comp-val">${fmt(dischT)}</div><div class="comp-unit">°F</div><div class="comp-status normal">${dischT!==null?'Normal':'No Data'}</div></div>
+          <div class="comp-cell"><div class="comp-lbl">Motor Load</div><div class="comp-val ${mFlag}">${mLoad!==null?mLoad+'%':'—'}</div><div class="comp-unit">% of FLA</div><div class="comp-status ${mStat}">${mLoad!==null?(mLoad<50?'Underloaded':mLoad>105?'Overloaded':'Normal'):'No Data'}</div></div>
+          <div class="comp-cell"><div class="comp-lbl">Slide Valve</div><div class="comp-val">${sv!==null?sv+'%':'—'}</div><div class="comp-unit">Capacity</div><div class="comp-status normal">${sv!==null?'Normal':'No Data'}</div></div>
+          <div class="comp-cell"><div class="comp-lbl">Net Oil Pressure</div><div class="comp-val">${fmt(oilDp)}</div><div class="comp-unit">PSID</div><div class="comp-status normal">${oilDp!==null?'Normal':'No Data'}</div></div>
+          <div class="comp-cell"><div class="comp-lbl">Oil Service</div><div class="comp-val" style="font-size:13px">${oilM||'—'}</div><div class="comp-unit">Status</div><div class="comp-status normal">${oilM!==null?'Recorded':'No Data'}</div></div>
+          <div class="comp-cell"><div class="comp-lbl">Filter Service</div><div class="comp-val" style="font-size:13px">${filtM||'—'}</div><div class="comp-unit">Status</div><div class="comp-status normal">${filtM!==null?'Recorded':'No Data'}</div></div>`;
+      }
+      html+=`</div></div>`;
+    });
+    html+=`</div>`;
+  }
+
+  // ── TREND HISTORY ──
+  if(snapshots.length>0) {
+    html+=`<div><div class="section-label">Plant Condition History — Score Trend</div>
+    <div class="status-section animate" style="animation-delay:0.65s">
+      <div class="status-header">
+        <div class="sh-title">Historical Plant Condition Scores — ${name}</div>
+      </div>
+      <div style="padding:16px 20px">`;
+    snapshots.forEach(sn=>{
+      const snf=sn.fields;
+      const snScore=fval(snf,'Plant Condition Score (New)','Plant Condition Score','Score');
+      const snDate=fmtDate(fval(snf,'Date','Assessment Date'));
+      const snColor=scoreColor(snScore);
+      const snW=snScore!==null?Math.round(snScore):0;
+      html+=`<div class="snap-row">
+        <div class="snap-date">${snDate}</div>
+        <div class="snap-score" style="color:${snColor}">${snScore!==null?Math.round(snScore):'—'}</div>
+        <div class="snap-bar"><div class="snap-fill" style="width:${snW}%;background:${snColor}"></div></div>
+        <span class="asset-status-pill ${pillClass(snScore)}" style="margin-left:12px">${scoreLabel(snScore)}</span>
+      </div>`;
+    });
+    html+=`</div></div></div>`;
+  }
+
+  html+=`</main>`;
+  $('dashboard-content').innerHTML=html;
+
+  // Animate ring
+  setTimeout(()=>{
+    const ring=document.getElementById('main-ring');
+    if(ring&&plantScore!==null) { ring.style.transition='stroke-dashoffset 1.5s ease'; ring.style.strokeDashoffset=String(376-(plantScore/100)*376); }
+  },150);
+}
+</script>
+</body>
+</html>

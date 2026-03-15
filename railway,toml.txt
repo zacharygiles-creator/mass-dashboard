@@ -1,0 +1,14 @@
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "node server.js"
+```
+
+Save it to `C:\Users\Zachary Giles\mass-dashboard\railway.toml`
+
+Then run:
+```
+git add railway.toml
+git commit -m "Force node server startup"
+git push
