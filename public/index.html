@@ -78,18 +78,18 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 .score-side-card .score-bar-fill { height:100%; position:absolute; top:0; left:0; transition:width 1s ease; }
 .score-side-card .score-desc { font-size:12px; color:var(--text-dim); margin-top:10px; line-height:1.5; }
 
-.score-main-card { background:var(--bg2); border:1px solid var(--border); padding:24px; position:relative; display:flex; flex-direction:column; align-items:center; }
+.score-main-card { background:var(--bg2); border:1px solid var(--border); padding:32px 24px; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; }
 .score-main-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
-.score-ring-wrap { display:flex; flex-direction:column; align-items:center; gap:12px; }
-.score-ring { position:relative; width:130px; height:130px; }
+.score-ring-wrap { display:flex; flex-direction:column; align-items:center; gap:20px; }
+.score-ring { position:relative; width:200px; height:200px; }
 .score-ring svg { transform:rotate(-90deg); }
-.ring-bg { fill:none; stroke:var(--border2); stroke-width:8; }
-.ring-fill { fill:none; stroke-width:8; stroke-linecap:round; stroke-dasharray:376; stroke-dashoffset:376; transition:stroke-dashoffset 1.5s ease; }
+.ring-bg { fill:none; stroke:var(--border2); stroke-width:10; }
+.ring-fill { fill:none; stroke-width:10; stroke-linecap:round; stroke-dasharray:534; stroke-dashoffset:534; transition:stroke-dashoffset 1.5s ease; }
 .score-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
-.score-num { font-family:'Orbitron',monospace; font-size:38px; font-weight:900; color:#fff; line-height:1; }
-.score-max { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--text-dim); margin-top:1px; }
-.score-status-lbl { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:3px; text-transform:uppercase; text-align:center; }
-.pcs-label { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; margin-bottom:6px; }
+.score-num { font-family:'Orbitron',monospace; font-size:64px; font-weight:900; color:#fff; line-height:1; }
+.score-max { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--text-dim); margin-top:4px; }
+.score-status-lbl { font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:3px; text-transform:uppercase; text-align:center; }
+.pcs-label { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; margin-bottom:12px; }
 
 /* PLAIN LANGUAGE SUMMARY */
 .plain-summary { background:var(--bg2); border:1px solid var(--border); border-left:4px solid var(--text-dim); padding:16px 20px; }
@@ -442,9 +442,9 @@ function renderDashboard(siteId) {
       <div class="pcs-label">Plant Condition Score</div>
       <div class="score-ring-wrap">
         <div class="score-ring">
-          <svg width="130" height="130" viewBox="0 0 130 130">
-            <circle class="ring-bg" cx="65" cy="65" r="55"/>
-            <circle class="ring-fill" cx="65" cy="65" r="55" id="main-ring" style="stroke:${pc};stroke-dashoffset:${pdo}"/>
+          <svg width="200" height="200" viewBox="0 0 200 200">
+            <circle class="ring-bg" cx="100" cy="100" r="85"/>
+            <circle class="ring-fill" cx="100" cy="100" r="85" id="main-ring" style="stroke:${pc};stroke-dashoffset:534"/>
           </svg>
           <div class="score-center">
             <div class="score-num">${plantScore!==null?Math.round(plantScore):'—'}</div>
@@ -740,7 +740,7 @@ function renderDashboard(siteId) {
 
   setTimeout(()=>{
     const ring=document.getElementById('main-ring');
-    if(ring&&plantScore!==null){ring.style.transition='stroke-dashoffset 1.5s ease';ring.style.strokeDashoffset=String(376-(plantScore/100)*376);}
+    if(ring&&plantScore!==null){ring.style.transition='stroke-dashoffset 1.5s ease';ring.style.strokeDashoffset=String(534-(plantScore/100)*534);}
   },150);
 }
 </script>
