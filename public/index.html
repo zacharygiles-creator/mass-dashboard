@@ -381,8 +381,16 @@ function renderDashboard(siteId) {
     return vSite===siteName||vSite===siteId;
   });
   const expiredValves=valves.filter(v=>{
+    const isExpired=v.fields['Is Expired'];
+    if(isExpired==='1'||isExpired===1) return true;
+    const status=(v.fields['Status']||'').toUpperCase();
+    if(status==='EXPIRED') return true;
     const exp=fval(v.fields,'Expiry Date','Expiration Date','Last Test Date');
     return exp && new Date(exp)<new Date();
+  });
+  const expiringValves=valves.filter(v=>{
+    const status=(v.fields['Status']||'').toUpperCase();
+    return status==='EXPIRING SOON';
   });
 
   // Readings
@@ -660,7 +668,11 @@ function renderDashboard(siteId) {
         <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;text-align:center">Expiry Date</div>
         <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;text-align:right">Status</div>
       </div>`;
-    const sortedValves=[...expiredValves,...valves.filter(v=>{const exp=fval(v.fields,'Expiry Date','Expiration Date','Last Test Date');return !exp||new Date(exp)>=new Date();})];
+    const sortedValves=[...expiredValves,...expiringValves,...valves.filter(v=>{
+      const isExp=v.fields['Is Expired'];
+      const status=(v.fields['Status']||'').toUpperCase();
+      return isExp!=='1'&&isExp!==1&&status!=='EXPIRED'&&status!=='EXPIRING SOON';
+    })];
     sortedValves.forEach(v=>{
       const vf=v.fields;
       const vid=fval(vf,'Valve I.D.','Valve ID','Name')||'—';
