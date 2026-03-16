@@ -374,9 +374,14 @@ function renderDashboard(siteId) {
   });
 
   // Valves
-  const valves=(D.valves?.records||[]).filter(v=>(v.fields['Asset']||v.fields['Assets']||[]).some(id=>assetIds.includes(id)));
+  const valves=(D.valves?.records||[]).filter(v=>{
+    const vSite=v.fields['Site']||'';
+    const siteName=fval(site.fields,'Name','Site Name')||'';
+    if(Array.isArray(vSite)) return vSite.includes(siteId)||vSite.includes(siteName);
+    return vSite===siteName||vSite===siteId;
+  });
   const expiredValves=valves.filter(v=>{
-    const exp=fval(v.fields,'Expiration Date','Expiry Date','Last Test Date');
+    const exp=fval(v.fields,'Expiry Date','Expiration Date','Last Test Date');
     return exp && new Date(exp)<new Date();
   });
 
@@ -654,12 +659,11 @@ function renderDashboard(siteId) {
         <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;text-align:center">Expiry Date</div>
         <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;text-align:right">Status</div>
       </div>`;
-    const sortedValves=[...expiredValves,...valves.filter(v=>{const exp=fval(v.fields,'Expiration Date','Expiry Date','Last Test Date');return !exp||new Date(exp)>=new Date();})];
+    const sortedValves=[...expiredValves,...valves.filter(v=>{const exp=fval(v.fields,'Expiry Date','Expiration Date','Last Test Date');return !exp||new Date(exp)>=new Date();})];
     sortedValves.forEach(v=>{
       const vf=v.fields;
       const vid=fval(vf,'Valve ID','Name')||'—';
-      const aids=vf['Asset']||vf['Assets']||[];
-      const aName=aids.length?(M.assets[aids[0]]?.fields['Asset Name']||M.assets[aids[0]]?.fields['Name']||'—'):'—';
+      const aName=fval(vf,'Protected Asset','Asset Name')||'—';
       const expDate=fval(vf,'Expiration Date','Expiry Date','Last Test Date');
       const isExp=expDate&&new Date(expDate)<new Date();
       const od=isExp?yearsOverdue(expDate):null;
@@ -684,7 +688,7 @@ function renderDashboard(siteId) {
   });
   expiredValves.forEach(v=>{
     const vid=fval(v.fields,'Valve ID','Name')||'Relief Valve';
-    const od=yearsOverdue(fval(v.fields,'Expiration Date','Expiry Date','Last Test Date'));
+    const od=yearsOverdue(fval(v.fields,'Expiry Date','Expiration Date','Last Test Date'));
     actions.push({priority:'COMPLIANCE',text:`Replace ${vid} — Expired ${od?od+' years ago':''}. Required for PSM and OSHA compliance.`,cost:null,impact:2});
   });
   attentionAssets.forEach(a=>{
