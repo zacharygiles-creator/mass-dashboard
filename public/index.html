@@ -11,8 +11,8 @@
   --yellow: #F5A623; --yellow-dim: rgba(245,166,35,0.15);
   --green: #2ECC71; --green-dim: rgba(46,204,113,0.12);
   --bg: #080808; --bg2: #0f0f0f; --bg3: #141414; --bg4: #1a1a1a;
-  --border: #1e1e1e; --border2: #2a2a2a;
-  --text: #e8e8e8; --text-dim: #666; --text-mid: #999;
+  --border: #2a2a2a; --border2: #333333;
+  --text: #e8e8e8; --text-dim: #888; --text-mid: #bbb;
 }
 * { margin:0; padding:0; box-sizing:border-box; }
 body { background:var(--bg); color:var(--text); font-family:'Rajdhani',sans-serif; min-height:100vh; overflow-x:hidden; }
@@ -61,7 +61,7 @@ select.site-dropdown:focus { border-color:var(--red); }
 main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direction:column; gap:24px; }
 
 /* SECTION LABEL */
-.section-label { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:4px; color:var(--text-dim); text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:10px; }
+.section-label { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:4px; color:#aaaaaa; text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:10px; }
 .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
 .section-label .slabel-badge { font-size:7px; padding:2px 8px; border:1px solid var(--border2); color:var(--text-dim); }
 
@@ -71,12 +71,12 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 .score-main-card { flex:1; justify-content:center; }
 
 .score-side-card { background:var(--bg2); border:1px solid var(--border); padding:20px 24px; position:relative; }
-.score-side-card .card-lbl { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-bottom:8px; }
+.score-side-card .card-lbl { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px; color:#aaaaaa; text-transform:uppercase; margin-bottom:8px; }
 .score-side-card .score-big { font-family:'Orbitron',monospace; font-size:48px; font-weight:900; line-height:1; }
 .score-side-card .score-sublbl { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase; margin-top:4px; }
 .score-side-card .score-bar { height:4px; background:var(--border2); margin-top:12px; position:relative; }
 .score-side-card .score-bar-fill { height:100%; position:absolute; top:0; left:0; transition:width 1s ease; }
-.score-side-card .score-desc { font-size:12px; color:var(--text-dim); margin-top:10px; line-height:1.5; }
+.score-side-card .score-desc { font-size:13px; color:#999999; margin-top:10px; line-height:1.5; }
 
 .score-main-card { background:var(--bg2); border:1px solid var(--border); padding:32px 24px; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; }
 .score-main-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
@@ -97,12 +97,12 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 .plain-summary.attention { border-left-color:var(--yellow); }
 .plain-summary.critical-state { border-left-color:var(--red); }
 .plain-summary .ps-title { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; margin-bottom:6px; }
-.plain-summary .ps-text { font-size:14px; color:var(--text); line-height:1.6; font-weight:500; }
+.plain-summary .ps-text { font-size:15px; color:#e0e0e0; line-height:1.6; font-weight:500; }
 
 /* STATUS SECTIONS */
 .status-section { background:var(--bg2); border:1px solid var(--border); }
 .status-header { padding:12px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
-.status-header .sh-title { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; display:flex; align-items:center; gap:8px; }
+.status-header .sh-title { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:#cccccc; text-transform:uppercase; display:flex; align-items:center; gap:8px; }
 .status-dot { width:8px; height:8px; border-radius:50%; }
 .status-dot.green { background:var(--green); }
 .status-dot.yellow { background:var(--yellow); }
@@ -115,7 +115,7 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 /* ASSET ROWS */
 .asset-row { padding:12px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:16px; }
 .asset-row:last-child { border-bottom:none; }
-.asset-row-name { font-size:14px; font-weight:600; color:#fff; flex:1; }
+.asset-row-name { font-size:14px; font-weight:600; color:#ffffff; flex:1; letter-spacing:0.3px; }
 .asset-row-system { font-size:11px; color:var(--text-dim); width:160px; font-family:'Share Tech Mono',monospace; letter-spacing:1px; }
 .asset-score-wrap { display:flex; align-items:center; gap:8px; }
 .asset-score-num { font-family:'Orbitron',monospace; font-size:16px; font-weight:700; width:36px; }
@@ -138,8 +138,8 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 .finding-bar.high { background:var(--yellow); }
 .finding-bar.moderate { background:var(--text-mid); }
 .finding-content { flex:1; }
-.finding-title { font-size:14px; font-weight:600; color:#fff; margin-bottom:3px; }
-.finding-cat { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; }
+.finding-title { font-size:15px; font-weight:700; color:#ffffff; margin-bottom:4px; }
+.finding-cat { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:1px; color:#999999; text-transform:uppercase; }
 .finding-cat span { color:var(--text-mid); margin-right:10px; }
 .finding-pill { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:1px; padding:3px 8px; text-transform:uppercase; align-self:center; }
 
@@ -152,7 +152,7 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 .action-row { padding:12px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:14px; }
 .action-row:last-child { border-bottom:none; }
 .action-priority { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:1px; padding:3px 8px; text-transform:uppercase; white-space:nowrap; }
-.action-text { flex:1; font-size:13px; color:var(--text); font-weight:500; }
+.action-text { flex:1; font-size:14px; color:#dddddd; font-weight:500; }
 .action-cost { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--text-dim); white-space:nowrap; }
 
 /* VALVE GRID */
@@ -359,7 +359,11 @@ function renderDashboard(siteId) {
   const sysIds=siteSystems.map(s=>s.id);
 
   // Assets
-  const siteAssets=(D.assets?.records||[]).filter(a=>(a.fields['System']||a.fields['Systems']||[]).some(id=>sysIds.includes(id)));
+  const sysNames=siteSystems.map(s=>fval(s.fields,'Name','System Name')||'');
+  const siteAssets=(D.assets?.records||[]).filter(a=>{
+    const linked=a.fields['System']||a.fields['Systems']||[];
+    return linked.some(id=>sysIds.includes(id)||sysNames.includes(id));
+  });
   const assetIds=siteAssets.map(a=>a.id);
 
   // Findings open
@@ -487,13 +491,16 @@ function renderDashboard(siteId) {
   siteSystems.forEach((sys,si)=>{
     const sf=sys.fields;
     const sysName=fval(sf,'Name','System Name')||'System';
-    const sysScore=fval(sf,'Weighted System Health Score','System Infrastructure Score','System Health Score');
+    const sysScore=fval(sf,'System Infrastructure Score','Weighted System Health Score','System Health Score');
     const sysCrit=fval(sf,'System Criticality','Criticality')||'';
     const sc2=scoreColor(sysScore);
     const sbw=sysScore!==null?Math.round(sysScore):0;
 
     // Assets in this system
-    const sysAssets=siteAssets.filter(a=>(a.fields['System']||a.fields['Systems']||[]).includes(sys.id));
+    const sysAssets=siteAssets.filter(a=>{
+      const linked=a.fields['System']||a.fields['Systems']||[];
+      return linked.includes(sys.id)||linked.includes(sysName);
+    });
     const sysGood=sysAssets.filter(a=>(fval(a.fields,'Asset Infrastructure Score')??null)>=80);
     const sysBad=sysAssets.filter(a=>{const s=fval(a.fields,'Asset Infrastructure Score')??null;return s!==null&&s<80;}).sort((a,b)=>(fval(a.fields,'Asset Infrastructure Score')??100)-(fval(b.fields,'Asset Infrastructure Score')??100));
 
@@ -501,7 +508,7 @@ function renderDashboard(siteId) {
       <div class="status-header">
         <div class="sh-title">
           <div class="status-dot ${sysScore>=80?'green':sysScore>=60?'yellow':'red'}"></div>
-          ${sysName}${sysCrit?` — ${sysCrit}`:''}
+          ${sysName}
         </div>
         <div style="display:flex;align-items:center;gap:12px">
           <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-dim)">System Score</div>
