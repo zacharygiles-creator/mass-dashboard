@@ -158,11 +158,11 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 /* VALVE GRID */
 .valve-row { display:grid; grid-template-columns:80px 1fr 100px 90px; gap:8px; align-items:center; padding:10px 14px; background:var(--bg3); border:1px solid var(--border); margin-bottom:6px; }
 .valve-row:last-child { margin-bottom:0; }
-.valve-id { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--text-mid); }
-.valve-asset { font-size:12px; font-weight:500; }
-.valve-expiry { font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--text-dim); text-align:center; }
-.valve-status-expired { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--red); text-align:right; }
-.valve-status-ok { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--green); text-align:right; }
+.valve-id { font-family:'Share Tech Mono',monospace; font-size:11px; color:#cccccc; font-weight:600; }
+.valve-asset { font-size:14px; font-weight:600; color:#ffffff; }
+.valve-expiry { font-family:'Share Tech Mono',monospace; font-size:11px; color:#bbbbbb; text-align:center; }
+.valve-status-expired { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--red); text-align:right; font-weight:700; }
+.valve-status-ok { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--green); text-align:right; font-weight:700; }
 
 /* COMPRESSOR */
 .comp-header { padding:12px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
@@ -418,6 +418,7 @@ function renderDashboard(siteId) {
     let msgs=[];
     if(critFindings.length>0) msgs.push(`${critFindings.length} Critical Finding${critFindings.length>1?'s':''} Require Immediate Attention`);
     if(expiredValves.length>0) msgs.push(`${expiredValves.length} Expired Relief Valve${expiredValves.length>1?'s':''} — Compliance Action Required`);
+    if(expiringValves.length>0) msgs.push(`${expiringValves.length} Relief Valve${expiringValves.length>1?'s':''} Expiring Soon — Schedule Replacement`);
     alertBanner.className='alert-banner critical';
     alertBanner.innerHTML=`<div class="alert-dot"></div><span>${msgs.join(' &nbsp;|&nbsp; ')}</span>`;
   } else {
@@ -662,8 +663,16 @@ function renderDashboard(siteId) {
     const sortedValves=[...expiredValves,...valves.filter(v=>{const exp=fval(v.fields,'Expiry Date','Expiration Date','Last Test Date');return !exp||new Date(exp)>=new Date();})];
     sortedValves.forEach(v=>{
       const vf=v.fields;
-      const vid=fval(vf,'Valve ID','Name')||'—';
-      const aName=fval(vf,'Protected Asset','Asset Name')||'—';
+      const vid=fval(vf,'Valve I.D.','Valve ID','Name')||'—';
+      const protectedAsset=vf['Protected Asset'];
+      let aName='—';
+      if(Array.isArray(protectedAsset)) {
+        // It's a linked record - look up the name
+        const aid=protectedAsset[0];
+        aName=M.assets[aid]?.fields['Asset Name']||M.assets[aid]?.fields['Name']||aid||'—';
+      } else if(protectedAsset) {
+        aName=protectedAsset;
+      }
       const expDate=fval(vf,'Expiration Date','Expiry Date','Last Test Date');
       const isExp=expDate&&new Date(expDate)<new Date();
       const od=isExp?yearsOverdue(expDate):null;
@@ -671,7 +680,7 @@ function renderDashboard(siteId) {
         <div class="valve-id">${vid}</div>
         <div class="valve-asset">${aName}</div>
         <div class="valve-expiry">${fmtDate(expDate)}</div>
-        ${isExp?`<div class="valve-status-expired">${od!==null?od+' YRS OVERDUE':'EXPIRED'}</div>`:`<div class="valve-status-ok">✓ CURRENT</div>`}
+        ${isExp?`<div class="valve-status-expired">${od!==null?od+' YRS OVERDUE':'EXPIRED'}</div>`:(()=>{const st=(vf['Status']||'').toUpperCase();return st==='EXPIRING SOON'?`<div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--yellow);text-align:right;font-weight:700">⚠ EXPIRING SOON</div>`:`<div class="valve-status-ok">✓ CURRENT</div>`;})()}
       </div>`;
     });
     html+=`</div>`;
@@ -713,10 +722,12 @@ function renderDashboard(siteId) {
       </div>`;
 
     actions.forEach(act=>{
-      html+=`<div class="action-row">
-        <span class="action-priority" style="${act.priority==='CRITICAL'?'color:var(--red);border:1px solid rgba(232,50,10,0.4);background:var(--red-dim)':act.priority==='COMPLIANCE'?'color:var(--yellow);border:1px solid rgba(245,166,35,0.3);background:var(--yellow-dim)':'color:var(--text-dim);border:1px solid var(--border2)'}">${act.priority}</span>
-        <div class="action-text">${act.text}</div>
-        ${act.cost?`<div class="action-cost">${act.cost}</div>`:''}
+      html+=`<div class="action-row" style="flex-direction:column;align-items:flex-start;gap:8px;padding:14px 20px">
+        <div style="display:flex;align-items:center;gap:10px;width:100%">
+          <span class="action-priority" style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;padding:4px 10px;text-transform:uppercase;${act.priority==='CRITICAL'?'color:var(--red);border:1px solid rgba(232,50,10,0.4);background:var(--red-dim)':act.priority==='COMPLIANCE'?'color:var(--yellow);border:1px solid rgba(245,166,35,0.3);background:var(--yellow-dim)':'color:var(--text-mid);border:1px solid var(--border2)'}">${act.priority}</span>
+          ${act.cost?`<span style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--green);font-weight:700;margin-left:auto">Estimated Cost: ${act.cost}</span>`:''}
+        </div>
+        <div style="font-size:14px;color:#dddddd;font-weight:500;line-height:1.5">${act.text}</div>
       </div>`;
     });
     html+=`</div></div>`;
