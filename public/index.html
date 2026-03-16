@@ -393,10 +393,10 @@ function renderDashboard(siteId) {
     .slice(0,5);
 
   // Bucket assets
-  const goodAssets=siteAssets.filter(a=>(fval(a.fields,'Asset Health Score')??null)>=80);
-  const attentionAssets=siteAssets.filter(a=>{const s=fval(a.fields,'Asset Health Score')??null;return s!==null&&s>=60&&s<80;});
-  const criticalAssets=siteAssets.filter(a=>{const s=fval(a.fields,'Asset Health Score')??null;return s!==null&&s<60;});
-  const noDataAssets=siteAssets.filter(a=>fval(a.fields,'Asset Health Score')===null);
+  const goodAssets=siteAssets.filter(a=>(fval(a.fields,'Asset Infrastructure Score')??null)>=80);
+  const attentionAssets=siteAssets.filter(a=>{const s=fval(a.fields,'Asset Infrastructure Score')??null;return s!==null&&s>=60&&s<80;});
+  const criticalAssets=siteAssets.filter(a=>{const s=fval(a.fields,'Asset Infrastructure Score')??null;return s!==null&&s<60;});
+  const noDataAssets=siteAssets.filter(a=>fval(a.fields,'Asset Infrastructure Score')===null);
 
   // Bucket findings
   const sevOrder={CRITICAL:0,HIGH:1,MODERATE:2,LOW:3};
@@ -494,14 +494,14 @@ function renderDashboard(siteId) {
 
     // Assets in this system
     const sysAssets=siteAssets.filter(a=>(a.fields['System']||a.fields['Systems']||[]).includes(sys.id));
-    const sysGood=sysAssets.filter(a=>(fval(a.fields,'Asset Health Score')??null)>=80);
-    const sysBad=sysAssets.filter(a=>{const s=fval(a.fields,'Asset Health Score')??null;return s!==null&&s<80;}).sort((a,b)=>(fval(a.fields,'Asset Health Score')??100)-(fval(b.fields,'Asset Health Score')??100));
+    const sysGood=sysAssets.filter(a=>(fval(a.fields,'Asset Infrastructure Score')??null)>=80);
+    const sysBad=sysAssets.filter(a=>{const s=fval(a.fields,'Asset Infrastructure Score')??null;return s!==null&&s<80;}).sort((a,b)=>(fval(a.fields,'Asset Infrastructure Score')??100)-(fval(b.fields,'Asset Infrastructure Score')??100));
 
     html+=`<div class="status-section animate" style="animation-delay:${0.3+si*0.05}s;margin-bottom:16px">
       <div class="status-header">
         <div class="sh-title">
           <div class="status-dot ${sysScore>=80?'green':sysScore>=60?'yellow':'red'}"></div>
-          ${sysName}${sysCrit?` — ${sysCrit} Criticality`:''}
+          ${sysName}${sysCrit?` — ${sysCrit}`:''}
         </div>
         <div style="display:flex;align-items:center;gap:12px">
           <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-dim)">System Score</div>
@@ -527,7 +527,7 @@ function renderDashboard(siteId) {
       sysBad.forEach(a=>{
         const af=a.fields;
         const aName=fval(af,'Asset Name','Name')||'Unknown Asset';
-        const hs=fval(af,'Asset Health Score')??null;
+        const hs=fval(af,'Asset Infrastructure Score')??null;
         const hc=hs>=60?'yellow':'red';
         const hcolor=hs>=60?'var(--yellow)':'var(--red)';
         html+=`<div class="asset-row">
