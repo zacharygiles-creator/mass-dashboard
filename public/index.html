@@ -31,7 +31,7 @@ header { position:relative; z-index:10; border-bottom:1px solid var(--border); b
 
 /* SITE SELECTOR */
 .site-selector-bar { position:relative; z-index:9; background:var(--bg3); border-bottom:1px solid var(--border); padding:0 32px; display:flex; align-items:center; gap:16px; height:48px; }
-.site-label { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; white-space:nowrap; }
+.site-label { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; color:#cccccc; text-transform:uppercase; white-space:nowrap; }
 .site-select-wrap { position:relative; }
 select.site-dropdown {
   font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; color:#fff;
@@ -52,7 +52,7 @@ select.site-dropdown:focus { border-color:var(--red); }
 /* SITE BANNER */
 .site-banner { position:relative; z-index:5; background:var(--bg3); border-bottom:1px solid var(--border); padding:16px 32px; display:flex; align-items:center; justify-content:space-between; }
 .site-banner::before { content:''; position:absolute; top:0; left:0; width:4px; height:100%; background:var(--red); }
-.site-info .site-lbl { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; margin-bottom:3px; }
+.site-info .site-lbl { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:#bbbbbb; text-transform:uppercase; margin-bottom:3px; }
 .site-info .site-name { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:3px; color:#fff; line-height:1; }
 .site-info .site-meta { font-size:12px; color:var(--text-dim); margin-top:3px; }
 .site-info .site-meta span { color:var(--text-mid); }
@@ -61,9 +61,9 @@ select.site-dropdown:focus { border-color:var(--red); }
 main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direction:column; gap:24px; }
 
 /* SECTION LABEL */
-.section-label { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:4px; color:#aaaaaa; text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:10px; }
+.section-label { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:3px; color:#dddddd; text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:10px; }
 .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
-.section-label .slabel-badge { font-size:7px; padding:2px 8px; border:1px solid var(--border2); color:var(--text-dim); }
+.section-label .slabel-badge { font-size:9px; padding:2px 8px; border:1px solid var(--border2); color:#aaaaaa; }
 
 /* SCORE ROW */
 .score-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; align-items:stretch; }
@@ -71,9 +71,9 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 .score-main-card { flex:1; justify-content:center; }
 
 .score-side-card { background:var(--bg2); border:1px solid var(--border); padding:20px 24px; position:relative; }
-.score-side-card .card-lbl { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px; color:#aaaaaa; text-transform:uppercase; margin-bottom:8px; }
+.score-side-card .card-lbl { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; color:#dddddd; text-transform:uppercase; margin-bottom:8px; }
 .score-side-card .score-big { font-family:'Orbitron',monospace; font-size:48px; font-weight:900; line-height:1; }
-.score-side-card .score-sublbl { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase; margin-top:4px; }
+.score-side-card .score-sublbl { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; margin-top:4px; }
 .score-side-card .score-bar { height:4px; background:var(--border2); margin-top:12px; position:relative; }
 .score-side-card .score-bar-fill { height:100%; position:absolute; top:0; left:0; transition:width 1s ease; }
 .score-side-card .score-desc { font-size:13px; color:#999999; margin-top:10px; line-height:1.5; }
@@ -88,21 +88,21 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 .score-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
 .score-num { font-family:'Orbitron',monospace; font-size:64px; font-weight:900; color:#fff; line-height:1; }
 .score-max { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--text-dim); margin-top:4px; }
-.score-status-lbl { font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:3px; text-transform:uppercase; text-align:center; }
-.pcs-label { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; margin-bottom:12px; }
+.score-status-lbl { font-family:'Share Tech Mono',monospace; font-size:13px; letter-spacing:3px; text-transform:uppercase; text-align:center; }
+.pcs-label { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; color:#dddddd; text-transform:uppercase; margin-bottom:12px; }
 
 /* PLAIN LANGUAGE SUMMARY */
 .plain-summary { background:var(--bg2); border:1px solid var(--border); border-left:4px solid var(--text-dim); padding:16px 20px; }
 .plain-summary.good { border-left-color:var(--green); }
 .plain-summary.attention { border-left-color:var(--yellow); }
 .plain-summary.critical-state { border-left-color:var(--red); }
-.plain-summary .ps-title { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; margin-bottom:6px; }
+.plain-summary .ps-title { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; color:#dddddd; text-transform:uppercase; margin-bottom:8px; }
 .plain-summary .ps-text { font-size:15px; color:#e0e0e0; line-height:1.6; font-weight:500; }
 
 /* STATUS SECTIONS */
 .status-section { background:var(--bg2); border:1px solid var(--border); }
 .status-header { padding:12px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
-.status-header .sh-title { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:#cccccc; text-transform:uppercase; display:flex; align-items:center; gap:8px; }
+.status-header .sh-title { font-family:'Rajdhani',sans-serif; font-size:15px; font-weight:600; letter-spacing:1px; color:#ffffff; text-transform:uppercase; display:flex; align-items:center; gap:8px; }
 .status-dot { width:8px; height:8px; border-radius:50%; }
 .status-dot.green { background:var(--green); }
 .status-dot.yellow { background:var(--yellow); }
