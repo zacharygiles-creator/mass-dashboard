@@ -171,7 +171,7 @@ app.post('/api/lead', async (req, res) => {
           'Company Name': company || '',
           'Role': role || '',
           'Message': message || '',
-          'Submitted At': submittedAt || new Date().toISOString()
+          'Submitted At': new Date().toISOString()
         }
       })
     });
