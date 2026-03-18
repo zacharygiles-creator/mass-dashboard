@@ -254,19 +254,66 @@ const $ = id => document.getElementById(id);
 // ── COLOR HELPERS ────────────────────────────────────────
 function scoreColor(s) {
   if (s === null || s === undefined) return 'var(--text-dim)';
-  return s >= 80 ? 'var(--green)' : s >= 60 ? 'var(--yellow)' : 'var(--red)';
+  return s >= 85 ? 'var(--green)' : s >= 70 ? '#7BC67E' : s >= 55 ? 'var(--yellow)' : s >= 40 ? '#E8820A' : 'var(--red)';
 }
 function scoreClass(s) {
   if (s === null || s === undefined) return '';
-  return s >= 80 ? 'good' : s >= 60 ? 'attention' : 'critical-state';
+  return s >= 70 ? 'good' : s >= 55 ? 'attention' : 'critical-state';
 }
 function scoreLabel(s) {
   if (s === null || s === undefined) return 'No Data';
-  return s >= 80 ? 'Operational' : s >= 60 ? 'Attention Required' : 'Critical';
+  return s >= 85 ? 'Operational' : s >= 70 ? 'Good Standing' : s >= 55 ? 'Attention Required' : s >= 40 ? 'Action Required' : 'Critical';
 }
 function pillClass(s) {
   if (s === null || s === undefined) return '';
-  return s >= 80 ? 'pill-green' : s >= 60 ? 'pill-yellow' : 'pill-red';
+  return s >= 70 ? 'pill-green' : s >= 55 ? 'pill-yellow' : 'pill-red';
+}
+function serviceLifeStatus(installDateStr, score) {
+  if (!installDateStr || score === null) return null;
+  const d = new Date(installDateStr);
+  if (isNaN(d)) return null;
+  const age = Math.floor((new Date() - d) / (1000*60*60*24*365.25));
+  if (age < 1) return { label: 'NEW INSTALLATION', color: 'var(--green)', age };
+  if (age <= 7) {
+    if (score >= 85) return { label: 'EARLY SERVICE LIFE — EXCELLENT', color: 'var(--green)', age };
+    if (score >= 70) return { label: 'EARLY SERVICE LIFE — GOOD', color: '#7BC67E', age };
+    return { label: 'EARLY SERVICE LIFE — BELOW EXPECTED', color: 'var(--red)', age };
+  }
+  if (age <= 15) {
+    if (score >= 75) return { label: 'MID SERVICE LIFE — GOOD STANDING', color: '#7BC67E', age };
+    if (score >= 55) return { label: 'MID SERVICE LIFE — MONITOR CLOSELY', color: 'var(--yellow)', age };
+    return { label: 'MID SERVICE LIFE — PLAN REPLACEMENT', color: 'var(--red)', age };
+  }
+  if (age <= 25) {
+    if (score >= 65) return { label: 'LATE SERVICE LIFE — WELL MAINTAINED', color: '#7BC67E', age };
+    if (score >= 45) return { label: 'LATE SERVICE LIFE — BUDGET REPLACEMENT', color: 'var(--yellow)', age };
+    return { label: 'LATE SERVICE LIFE — REPLACE', color: 'var(--red)', age };
+  }
+  if (score >= 65) return { label: 'EXTENDED SERVICE LIFE — WELL MAINTAINED', color: '#7BC67E', age };
+  if (score >= 45) return { label: 'EXTENDED SERVICE LIFE — REPLACEMENT OVERDUE', color: 'var(--yellow)', age };
+  return { label: 'END OF SERVICE LIFE — REPLACE IMMEDIATELY', color: 'var(--red)', age };
+}
+function assetPrognosis(installDateStr, score, findingCount) {
+  if (!installDateStr || score === null) return null;
+  const d = new Date(installDateStr);
+  if (isNaN(d)) return null;
+  const age = Math.floor((new Date() - d) / (1000*60*60*24*365.25));
+  const hasFindings = findingCount > 0;
+  if (age <= 7 && score < 70 && hasFindings)
+    return { verdict: 'RESTORE', color: '#7BC67E', text: `This asset is underperforming for its age. A ${age} year old asset should be scoring above 85. Active findings are reducing this score. Address the items in the roadmap and this score should recover significantly.` };
+  if (age <= 7 && score >= 70)
+    return { verdict: null, text: `This asset is in ${score >= 85 ? 'excellent' : 'good'} condition for its age. No significant action required at this time.` };
+  if (age > 7 && age <= 15 && score >= 70)
+    return { verdict: 'RESTORE', color: '#7BC67E', text: `This asset is performing well for its age. Address any identified findings to maintain the current score. Capital replacement planning is not yet required.` };
+  if (age > 7 && age <= 15 && score < 70 && hasFindings)
+    return { verdict: 'RESTORE', color: '#7BC67E', text: `This asset has active findings reducing its score. Addressing these items should restore performance. Begin monitoring more closely as the asset approaches later service life.` };
+  if (age > 15 && score >= 65 && !hasFindings)
+    return { verdict: 'MONITOR', color: 'var(--yellow)', text: `This asset is ${age} years old and scoring well with no active findings — a reflection of good maintenance history. Begin including replacement in your ${age > 20 ? '1-3 year' : '3-5 year'} capital budget as part of long term planning.` };
+  if (age > 15 && score >= 55 && hasFindings)
+    return { verdict: 'RESTORE', color: '#7BC67E', text: `This asset is ${age} years old with active findings reducing its score. Completing the recommended work will improve the score. Given the asset age, begin budgeting for replacement as a parallel planning item.` };
+  if (age > 15 && score < 55)
+    return { verdict: 'REPLACE', color: 'var(--red)', text: `This asset is ${age} years old with a significantly deteriorated score${hasFindings ? ' and active findings' : ''}. Repairs may return it to operational status temporarily but the underlying condition suggests replacement is the appropriate long term solution.` };
+  return null;
 }
 function fmt(v, d=1) {
   if (v === null || v === undefined || v === '') return '—';
@@ -410,9 +457,9 @@ function renderDashboard(siteId) {
     .slice(0,5);
 
   // Bucket assets
-  const goodAssets=siteAssets.filter(a=>(fval(a.fields,'Asset Infrastructure Score')??null)>=80);
-  const attentionAssets=siteAssets.filter(a=>{const s=fval(a.fields,'Asset Infrastructure Score')??null;return s!==null&&s>=60&&s<80;});
-  const criticalAssets=siteAssets.filter(a=>{const s=fval(a.fields,'Asset Infrastructure Score')??null;return s!==null&&s<60;});
+  const goodAssets=siteAssets.filter(a=>(fval(a.fields,'Asset Infrastructure Score')??null)>=70);
+  const attentionAssets=siteAssets.filter(a=>{const s=fval(a.fields,'Asset Infrastructure Score')??null;return s!==null&&s>=55&&s<70;});
+  const criticalAssets=siteAssets.filter(a=>{const s=fval(a.fields,'Asset Infrastructure Score')??null;return s!==null&&s<55;});
   const noDataAssets=siteAssets.filter(a=>fval(a.fields,'Asset Infrastructure Score')===null);
 
   // Bucket findings
@@ -437,8 +484,10 @@ function renderDashboard(siteId) {
   // Plain language summary
   function plainSummaryText(score) {
     if(score===null) return 'Assessment data is being collected. Scores will populate as inspections are completed.';
-    if(score>=80) return `This facility is in good operational condition with a score of ${Math.round(score)} out of 100. Regular maintenance should continue as scheduled.`;
-    if(score>=60) return `This facility scored ${Math.round(score)} out of 100 and requires attention. Several assets and systems need scheduled maintenance or repair to prevent further deterioration.`;
+    if(score>=85) return `This facility is in excellent operational condition with a score of ${Math.round(score)} out of 100. Regular maintenance should continue as scheduled.`;
+    if(score>=70) return `This facility is in good standing with a score of ${Math.round(score)} out of 100. Minor items may need attention but overall condition is sound.`;
+    if(score>=55) return `This facility scored ${Math.round(score)} out of 100 and requires attention. Several assets and systems need scheduled maintenance or repair to prevent further deterioration.`;
+    if(score>=40) return `This facility scored ${Math.round(score)} out of 100 and requires action within 30 days. Multiple assets are in declining condition and deferred maintenance is compounding the risk.`;
     return `This facility scored ${Math.round(score)} out of 100 and is in critical condition. Immediate action is required to address safety, compliance, and mechanical issues before they result in equipment failure or regulatory violations.`;
   }
 
@@ -515,8 +564,8 @@ function renderDashboard(siteId) {
       const linked=a.fields['System']||a.fields['Systems']||[];
       return linked.includes(sys.id)||linked.includes(sysName);
     });
-    const sysGood=sysAssets.filter(a=>(fval(a.fields,'Asset Infrastructure Score')??null)>=80);
-    const sysBad=sysAssets.filter(a=>{const s=fval(a.fields,'Asset Infrastructure Score')??null;return s!==null&&s<80;}).sort((a,b)=>(fval(a.fields,'Asset Infrastructure Score')??100)-(fval(b.fields,'Asset Infrastructure Score')??100));
+    const sysGood=sysAssets.filter(a=>(fval(a.fields,'Asset Infrastructure Score')??null)>=70);
+    const sysBad=sysAssets.filter(a=>{const s=fval(a.fields,'Asset Infrastructure Score')??null;return s!==null&&s<70;}).sort((a,b)=>(fval(a.fields,'Asset Infrastructure Score')??100)-(fval(b.fields,'Asset Infrastructure Score')??100));
 
     html+=`<div class="status-section animate" style="animation-delay:${0.3+si*0.05}s;margin-bottom:16px">
       <div class="status-header">
@@ -549,15 +598,31 @@ function renderDashboard(siteId) {
         const af=a.fields;
         const aName=fval(af,'Asset Name','Name')||'Unknown Asset';
         const hs=fval(af,'Asset Infrastructure Score')??null;
-        const hc=hs>=60?'yellow':'red';
-        const hcolor=hs>=60?'var(--yellow)':'var(--red)';
-        html+=`<div class="asset-row">
-          <div class="asset-row-name">${aName}</div>
-          <div class="asset-score-wrap">
-            <span class="asset-score-num" style="color:${hcolor}">${hs!==null?Math.round(hs):'—'}</span>
-            <div class="asset-mini-bar"><div class="asset-mini-fill" style="width:${hs??0}%;background:${hcolor}"></div></div>
+        const hcolor=scoreColor(hs);
+        const installDate=fval(af,'Install Date')||null;
+        const sls=serviceLifeStatus(installDate, hs);
+        const aFindings=(D.findings?.records||[]).filter(fd=>{
+          const aids=fd.fields['Asset']||fd.fields['Assets']||[];
+          const status=(fd.fields['Status']||'').toUpperCase();
+          return aids.includes(a.id)&&status!=='RESOLVED';
+        });
+        const prog=assetPrognosis(installDate, hs, aFindings.length);
+        html+=`<div style="border-bottom:1px solid var(--border);padding:12px 20px;">
+          <div style="display:flex;align-items:center;gap:16px;margin-bottom:${sls||prog?'8px':'0'}">
+            <div class="asset-row-name" style="flex:1">${aName}</div>
+            <div class="asset-score-wrap">
+              <span class="asset-score-num" style="color:${hcolor}">${hs!==null?Math.round(hs):'—'}</span>
+              <div class="asset-mini-bar"><div class="asset-mini-fill" style="width:${hs??0}%;background:${hcolor}"></div></div>
+            </div>
+            <span class="asset-status-pill ${pillClass(hs)}">${scoreLabel(hs)}</span>
           </div>
-          <span class="asset-status-pill pill-${hc}">${hs>=60?'Attention Required':'Critical'}</span>
+          ${sls?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:${prog?'6px':'0'}">
+            <div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:1px;color:${sls.color};text-transform:uppercase">${sls.label} — ${sls.age} YRS</div>
+          </div>`:''}
+          ${prog?`<div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+            ${prog.verdict?`<span style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:1px;padding:2px 8px;text-transform:uppercase;color:${prog.color};border:1px solid ${prog.color};background:${prog.color}22">${prog.verdict}</span>`:''}
+            <div style="font-size:12px;color:#999999;line-height:1.5;flex:1">${prog.text}</div>
+          </div>`:''}
         </div>`;
       });
     } else if(sysGood.length===0) {
