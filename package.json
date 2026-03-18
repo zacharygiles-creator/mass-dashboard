@@ -1,1 +1,1 @@
-{"name":"mass-dashboard","version":"1.0.0","main":"server.js","scripts":{"start":"node server.js"},"dependencies":{"dotenv":"17.3.1","express":"5.2.1","node-fetch":"3.3.2"}}
+{"name":"mass-dashboard","version":"1.0.0","main":"server.js","scripts":{"start":"node server.js"},"dependencies":{"dotenv":"17.3.1","express":"5.2.1","express-session":"^1.19.0","node-fetch":"3.3.2"}}

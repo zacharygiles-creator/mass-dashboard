@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MASSCORE — Login</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body {
+  background:#080808;
+  color:#e8e8e8;
+  font-family:'Rajdhani',sans-serif;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+}
+body::before {
+  content:'';
+  position:fixed;
+  inset:0;
+  background-image:linear-gradient(rgba(255,255,255,0.012) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.012) 1px,transparent 1px);
+  background-size:32px 32px;
+  pointer-events:none;
+}
+.login-wrap {
+  position:relative;
+  z-index:1;
+  width:100%;
+  max-width:420px;
+  padding:24px;
+}
+.logo {
+  text-align:center;
+  margin-bottom:40px;
+}
+.logo-text {
+  font-family:'Orbitron',monospace;
+  font-size:36px;
+  font-weight:900;
+  letter-spacing:4px;
+  line-height:1;
+}
+.logo-text .mass { color:#ffffff; }
+.logo-text .core { color:#E8320A; }
+.logo-sub {
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px;
+  letter-spacing:3px;
+  color:#666;
+  text-transform:uppercase;
+  margin-top:6px;
+}
+.login-card {
+  background:#0f0f0f;
+  border:1px solid #2a2a2a;
+  border-top:3px solid #E8320A;
+  padding:32px;
+}
+.login-title {
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;
+  letter-spacing:3px;
+  color:#888;
+  text-transform:uppercase;
+  margin-bottom:24px;
+}
+.field {
+  margin-bottom:20px;
+}
+.field label {
+  display:block;
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px;
+  letter-spacing:2px;
+  color:#666;
+  text-transform:uppercase;
+  margin-bottom:8px;
+}
+.field input {
+  width:100%;
+  background:#141414;
+  border:1px solid #2a2a2a;
+  color:#fff;
+  font-family:'Rajdhani',sans-serif;
+  font-size:16px;
+  padding:12px 14px;
+  outline:none;
+  transition:border-color 0.2s;
+}
+.field input:focus {
+  border-color:#E8320A;
+}
+.btn-login {
+  width:100%;
+  background:#E8320A;
+  color:#fff;
+  border:none;
+  font-family:'Orbitron',monospace;
+  font-size:11px;
+  font-weight:700;
+  letter-spacing:3px;
+  padding:14px;
+  cursor:pointer;
+  text-transform:uppercase;
+  margin-top:8px;
+  transition:background 0.2s;
+}
+.btn-login:hover { background:#c42a08; }
+.btn-login:disabled { background:#444; cursor:not-allowed; }
+.error-msg {
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px;
+  letter-spacing:1px;
+  color:#E8320A;
+  text-transform:uppercase;
+  margin-top:12px;
+  text-align:center;
+  min-height:16px;
+}
+.back-link {
+  text-align:center;
+  margin-top:20px;
+}
+.back-link a {
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px;
+  letter-spacing:2px;
+  color:#555;
+  text-decoration:none;
+  text-transform:uppercase;
+}
+.back-link a:hover { color:#888; }
+</style>
+</head>
+<body>
+<div class="login-wrap">
+  <div class="logo">
+    <div class="logo-text"><span class="mass">MASS</span><span class="core">CORE</span></div>
+    <div class="logo-sub">Mechanical Assessment Scoring System</div>
+  </div>
+  <div class="login-card">
+    <div class="login-title">Dashboard Access</div>
+    <div class="field">
+      <label>Username</label>
+      <input type="text" id="username" placeholder="Enter username" autocomplete="username">
+    </div>
+    <div class="field">
+      <label>Password</label>
+      <input type="password" id="password" placeholder="Enter password" autocomplete="current-password">
+    </div>
+    <button class="btn-login" id="login-btn" onclick="doLogin()">Access Dashboard</button>
+    <div class="error-msg" id="error-msg"></div>
+  </div>
+  <div class="back-link"><a href="/home.html">← Back to masscore.com</a></div>
+</div>
+
+<script>
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') doLogin();
+});
+
+async function doLogin() {
+  const username = document.getElementById('username').value.trim();
+  const password = document.getElementById('password').value;
+  const btn = document.getElementById('login-btn');
+  const err = document.getElementById('error-msg');
+
+  if (!username || !password) {
+    err.textContent = 'Please enter your username and password';
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = 'Verifying...';
+  err.textContent = '';
+
+  try {
+    const res = await fetch('/api/login', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ username, password })
+    });
+    const data = await res.json();
+    if (data.success) {
+      window.location.href = '/dashboard';
+    } else {
+      err.textContent = 'Invalid username or password';
+      btn.disabled = false;
+      btn.textContent = 'Access Dashboard';
+    }
+  } catch (e) {
+    err.textContent = 'Connection error — please try again';
+    btn.disabled = false;
+    btn.textContent = 'Access Dashboard';
+  }
+}
+</script>
+</body>
+</html>
