@@ -148,6 +148,47 @@ app.get('/api/data', requireAuth, async (req, res) => {
   }
 });
 
+// Lead submission endpoint
+app.post('/api/lead', async (req, res) => {
+  try {
+    const fetch = (await import('node-fetch')).default;
+    const baseId = process.env.AIRTABLE_BASE_ID;
+    const apiKey = process.env.AIRTABLE_API_KEY;
+    const { firstName, lastName, email, phone, company, role, message, submittedAt } = req.body;
+
+    const response = await fetch(`https://api.airtable.com/v0/${baseId}/Leads`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${apiKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        fields: {
+          'First Name': firstName || '',
+          'Last Name': lastName || '',
+          'Email': email || '',
+          'Phone Number': phone || '',
+          'Company Name': company || '',
+          'Role': role || '',
+          'Message': message || '',
+          'Submitted At': submittedAt || new Date().toISOString()
+        }
+      })
+    });
+
+    const result = await response.json();
+    if (result.id) {
+      res.json({ success: true });
+    } else {
+      console.error('Airtable error:', result);
+      res.status(500).json({ success: false, error: 'Failed to save lead' });
+    }
+  } catch (err) {
+    console.error('Lead submission error:', err);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`MASSCORE running at http://localhost:${port}`);
 });

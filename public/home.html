@@ -502,14 +502,27 @@ async function submitForm(e) {
     submittedAt: new Date().toISOString()
   };
 
-  // Store in localStorage as backup
-  const leads = JSON.parse(localStorage.getItem('masscore_leads') || '[]');
-  leads.push(data);
-  localStorage.setItem('masscore_leads', JSON.stringify(leads));
-
-  // Show success
-  form.style.display = 'none';
-  document.getElementById('success-msg').style.display = 'block';
+  try {
+    const res = await fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const result = await res.json();
+    if (result.success) {
+      form.style.display = 'none';
+      document.getElementById('success-msg').style.display = 'block';
+    } else {
+      throw new Error('Failed');
+    }
+  } catch(err) {
+    // Fallback to localStorage if API fails
+    const leads = JSON.parse(localStorage.getItem('masscore_leads') || '[]');
+    leads.push(data);
+    localStorage.setItem('masscore_leads', JSON.stringify(leads));
+    form.style.display = 'none';
+    document.getElementById('success-msg').style.display = 'block';
+  }
 }
 
 // Smooth scroll
