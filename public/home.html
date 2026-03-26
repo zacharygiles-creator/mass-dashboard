@@ -10,7 +10,7 @@
 :root {
   --red:#E8320A; --dark:#080808; --bg2:#0f0f0f; --bg3:#141414;
   --border:#1e1e1e; --border2:#2a2a2a;
-  --text:#e8e8e8; --mid:#888; --dim:#555;
+  --text:#e8e8e8; --mid:#aaa; --dim:#888;
 }
 body { background:var(--dark); color:var(--text); font-family:'Rajdhani',sans-serif; overflow-x:hidden; }
 body::before {
@@ -56,16 +56,24 @@ nav {
 }
 .hero-title {
   font-family:'Orbitron',monospace; font-size:clamp(36px,6vw,72px);
-  font-weight:900; line-height:1.1; margin-bottom:24px;
+  font-weight:900; line-height:1.1; margin-bottom:16px;
 }
 .hero-title .mass { color:#fff; }
 .hero-title .core { color:var(--red); }
+.hero-hook {
+  font-family:'Rajdhani',sans-serif; font-size:clamp(18px,2.5vw,26px);
+  font-weight:600; color:#fff; margin-bottom:8px; line-height:1.4;
+}
+.hero-hook-sub {
+  font-family:'Rajdhani',sans-serif; font-size:clamp(15px,1.8vw,19px);
+  font-weight:400; color:#aaa; margin-bottom:32px; line-height:1.5;
+}
 .hero-subtitle {
-  font-size:clamp(16px,2vw,20px); color:#999; line-height:1.7;
+  font-size:clamp(15px,1.8vw,18px); color:#999; line-height:1.7;
   max-width:680px; margin:0 auto 48px;
 }
 .hero-subtitle strong { color:#fff; }
-.hero-cta { display:flex; align-items:center; gap:16px; justify-content:center; flex-wrap:wrap; }
+.hero-cta { display:flex; align-items:center; gap:16px; justify-content:center; flex-wrap:wrap; margin-bottom:48px; }
 .btn-primary {
   background:var(--red); color:#fff; border:none;
   font-family:'Orbitron',monospace; font-size:10px; font-weight:700;
@@ -83,6 +91,12 @@ nav {
   display:inline-block;
 }
 .btn-secondary:hover { border-color:#fff; }
+.hero-beta {
+  font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:3px;
+  color:#aaa; text-transform:uppercase;
+  border:1px solid var(--border); padding:8px 20px; display:inline-block;
+}
+.hero-beta span { color:#7BC67E; }
 
 /* STATS BAR */
 .stats-bar {
@@ -97,7 +111,7 @@ nav {
 }
 .stat-item:last-child { border-right:none; }
 .stat-value { font-family:'Orbitron',monospace; font-size:36px; font-weight:900; color:var(--red); }
-.stat-label { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px; color:var(--mid); text-transform:uppercase; margin-top:6px; }
+.stat-label { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px; color:#aaa; text-transform:uppercase; margin-top:6px; }
 
 /* SECTIONS */
 section { position:relative; z-index:1; padding:100px 48px; max-width:1200px; margin:0 auto; }
@@ -109,7 +123,7 @@ section { position:relative; z-index:1; padding:100px 48px; max-width:1200px; ma
   font-family:'Orbitron',monospace; font-size:clamp(24px,3vw,36px);
   font-weight:700; color:#fff; margin-bottom:20px; line-height:1.2;
 }
-.section-body { font-size:17px; color:#888; line-height:1.8; max-width:680px; }
+.section-body { font-size:17px; color:#aaa; line-height:1.8; max-width:680px; }
 .section-rule { height:1px; background:var(--border); margin-bottom:60px; }
 
 /* TWO COL */
@@ -128,7 +142,36 @@ section { position:relative; z-index:1; padding:100px 48px; max-width:1200px; ma
   color:var(--red); margin-bottom:12px; opacity:0.4;
 }
 .problem-card-title { font-size:18px; font-weight:700; color:#fff; margin-bottom:10px; }
-.problem-card-body { font-size:14px; color:#666; line-height:1.7; }
+.problem-card-body { font-size:14px; color:#aaa; line-height:1.7; }
+
+/* FLOW SECTION */
+.flow-steps { display:grid; grid-template-columns:repeat(4,1fr); gap:0; margin-top:48px; position:relative; }
+@media(max-width:900px) { .flow-steps { grid-template-columns:1fr 1fr; } }
+@media(max-width:500px) { .flow-steps { grid-template-columns:1fr; } }
+.flow-step {
+  background:var(--bg2); border:1px solid var(--border);
+  border-right:none; padding:28px 24px; position:relative;
+}
+.flow-step:last-child { border-right:1px solid var(--border); }
+.flow-step-arrow {
+  position:absolute; right:-12px; top:50%; transform:translateY(-50%);
+  width:24px; height:24px; background:var(--dark); border:1px solid var(--border);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--red); z-index:2;
+}
+.flow-step:last-child .flow-step-arrow { display:none; }
+.flow-step-num {
+  font-family:'Orbitron',monospace; font-size:10px; font-weight:900;
+  color:var(--red); letter-spacing:2px; margin-bottom:12px;
+}
+.flow-step-title { font-size:16px; font-weight:700; color:#fff; margin-bottom:8px; }
+.flow-step-body { font-size:13px; color:#aaa; line-height:1.6; }
+.flow-step-tag {
+  display:inline-block; margin-top:12px;
+  font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:2px;
+  color:var(--red); text-transform:uppercase;
+  border:1px solid var(--border2); padding:4px 8px;
+}
 
 /* ACRONYM */
 .acronym-wrap { display:grid; grid-template-columns:1fr 1fr; gap:48px; margin-top:48px; }
@@ -146,7 +189,7 @@ section { position:relative; z-index:1; padding:100px 48px; max-width:1200px; ma
 }
 .acronym-content { flex:1; padding-top:4px; }
 .acronym-word { font-size:16px; font-weight:700; color:#fff; text-transform:uppercase; letter-spacing:1px; margin-bottom:4px; }
-.acronym-desc { font-size:13px; color:#666; line-height:1.6; }
+.acronym-desc { font-size:13px; color:#aaa; line-height:1.6; }
 
 /* SCORES DEMO */
 .score-demo { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; margin-top:48px; }
@@ -157,7 +200,7 @@ section { position:relative; z-index:1; padding:100px 48px; max-width:1200px; ma
 .score-card-label { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px; color:var(--mid); text-transform:uppercase; margin-bottom:12px; }
 .score-card-num { font-family:'Orbitron',monospace; font-size:48px; font-weight:900; line-height:1; margin-bottom:6px; }
 .score-card-status { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase; }
-.score-card-desc { font-size:13px; color:#555; margin-top:12px; line-height:1.6; }
+.score-card-desc { font-size:13px; color:#aaa; margin-top:12px; line-height:1.6; }
 
 /* WAITLIST */
 .waitlist-wrap {
@@ -166,11 +209,11 @@ section { position:relative; z-index:1; padding:100px 48px; max-width:1200px; ma
   max-width:640px; margin:0 auto;
 }
 .waitlist-title { font-family:'Orbitron',monospace; font-size:24px; font-weight:700; color:#fff; margin-bottom:8px; }
-.waitlist-sub { font-size:15px; color:#666; margin-bottom:32px; line-height:1.6; }
+.waitlist-sub { font-size:15px; color:#aaa; margin-bottom:32px; line-height:1.6; }
 .form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
 @media(max-width:600px) { .form-row { grid-template-columns:1fr; } }
 .form-field { display:flex; flex-direction:column; gap:6px; }
-.form-field label { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px; color:#555; text-transform:uppercase; }
+.form-field label { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px; color:#aaa; text-transform:uppercase; }
 .form-field input, .form-field select, .form-field textarea {
   background:var(--bg3); border:1px solid var(--border2); color:#fff;
   font-family:'Rajdhani',sans-serif; font-size:15px; padding:10px 12px; outline:none;
@@ -219,18 +262,22 @@ footer {
 
 <!-- HERO -->
 <div class="hero">
-  <div class="hero-eyebrow">Mechanical Assessment Scoring System</div>
+  <div class="hero-eyebrow">Built by Industrial Refrigeration & HVAC Technicians</div>
   <div class="hero-title">
     <span class="mass">MASS</span><span class="core">CORE</span>
   </div>
+  <div class="hero-hook">Every service software stops at the refrigeration technician.</div>
+  <div class="hero-hook-sub">MASSCORE was built by technicians who got tired of watching what happens next.</div>
   <p class="hero-subtitle">
-    The health technology industry figured out how to turn raw data into a number anyone can act on.
-    <strong>MASSCORE applies that same principle to mechanical infrastructure.</strong>
-    One Plant Condition Score. Every pressure reading, temperature, amp draw, and physical condition assessment — weighted and interpreted.
+    One Plant Condition Score. Every compressor reading, pressure differential, amp draw, physical condition assessment, and open finding —
+    <strong>weighted, interpreted, and communicated to everyone who needs to act on it.</strong>
   </p>
   <div class="hero-cta">
-    <a href="#contact" class="btn-primary">Request Access</a>
+    <a href="#contact" class="btn-primary">Join the Waitlist</a>
     <a href="#product" class="btn-secondary">See How It Works</a>
+  </div>
+  <div class="hero-beta">
+    Currently in beta · Deployed at select US facilities · <span>Full launch Fall 2026</span>
   </div>
 </div>
 
@@ -238,11 +285,11 @@ footer {
 <div class="stats-bar">
   <div class="stat-item">
     <div class="stat-value">$15B+</div>
-    <div class="stat-label">Industrial Refrigeration — Initial Market</div>
+    <div class="stat-label">Industrial Refrigeration & HVAC — Initial Market</div>
   </div>
   <div class="stat-item">
-    <div class="stat-value">$500B+</div>
-    <div class="stat-label">Total HVAC & Mechanical Services</div>
+    <div class="stat-value">30+</div>
+    <div class="stat-label">Years Combined Field Experience Behind The Methodology</div>
   </div>
   <div class="stat-item">
     <div class="stat-value">0</div>
@@ -256,176 +303,240 @@ footer {
   <div class="section-rule"></div>
   <div class="two-col">
     <div>
-      <div class="section-title">The industry has never had a standard way to score mechanical condition.</div>
-      <p class="section-body">Facility owners and property managers receive service reports after every maintenance visit. Those reports range from a single line — "unit good" — to pages of technical jargon written for engineers, not owners. Even the most detailed report leaves the client asking the same question: what is the actual condition of my plant or building?</p>
+      <div class="section-title">If you've ever written "unit good" and known it wasn't the whole story — this was built for you.</div>
+      <p class="section-body">Every refrigeration and HVAC contractor in the country faces the same problem. The technician performs the inspection. Writes up findings — if they write them up at all. Hands the report to a service coordinator who passes it to an account manager who's supposed to quote the work. Somewhere in that chain the information dies.</p>
     </div>
     <div>
-      <p class="section-body" style="margin-bottom:20px">There is no standardized scoring framework. No weighted methodology that accounts for asset criticality, physical condition, and operational data together. The result is deferred maintenance, surprise failures, and million-dollar decisions made on gut feel.</p>
-      <p class="section-body">Over time this information gap has created a deeper problem — eroding trust between facility owners and the contractors they depend on. Without objective data, clients cannot verify the quality of service they receive.</p>
+      <p class="section-body" style="margin-bottom:20px">The account manager is quoting blind. The customer is making million-dollar decisions with no objective data. Upper management is approving maintenance budgets based on gut feel and vague service reports. And the technician — the one person who actually knows what's happening in that machine room — has no way to communicate what they saw in a language that moves anyone to action.</p>
+      <p class="section-body">This isn't a people problem. It's a systems problem. There has never been a standard way to score, communicate, and trend the condition of a refrigeration or HVAC plant. Until now.</p>
     </div>
   </div>
   <div class="problem-cards">
     <div class="problem-card">
       <div class="problem-card-num">01</div>
-      <div class="problem-card-title">No Scoring Standard</div>
-      <div class="problem-card-body">Every contractor assesses differently. Every report looks different. There is no shared language for mechanical condition — until now.</div>
+      <div class="problem-card-title">The Report Goes Nowhere</div>
+      <div class="problem-card-body">Technicians write subjective reports — or don't write them at all. Findings that should trigger quotes sit in a PDF nobody reads. Deferred maintenance gets worse every visit.</div>
     </div>
     <div class="problem-card">
       <div class="problem-card-num">02</div>
-      <div class="problem-card-title">No Transparency</div>
-      <div class="problem-card-body">Facility owners make million-dollar maintenance decisions with no objective data. They trust a verbal recommendation or they don't. There is no middle ground.</div>
+      <div class="problem-card-title">Everyone Is Working Blind</div>
+      <div class="problem-card-body">Account managers quote without knowing current plant condition. Customers approve work without understanding urgency. Upper management funds budgets without data. The whole service chain operates on assumption.</div>
     </div>
     <div class="problem-card">
       <div class="problem-card-num">03</div>
-      <div class="problem-card-title">No Early Warning</div>
-      <div class="problem-card-body">Equipment doesn't fail suddenly. It degrades. But without a scoring system that trends over time, nobody sees the decline until it becomes a crisis.</div>
+      <div class="problem-card-title">Trust Has Eroded</div>
+      <div class="problem-card-body">Without objective data, clients can't verify the quality of service they receive. Assessments are subjective. Second opinions contradict first opinions. The cheapest contractor wins — not the best one.</div>
     </div>
   </div>
 </section>
 
+<!-- HOW IT WORKS / FLOW -->
+<section id="flow" style="background:var(--bg2);max-width:100%;padding:100px 48px;">
+<div style="max-width:1200px;margin:0 auto;">
+  <div class="section-label">Where MASSCORE Fits</div>
+  <div class="section-rule"></div>
+  <div class="section-title" style="max-width:700px">The first platform that connects the technician all the way to the boardroom.</div>
+  <p class="section-body" style="margin-bottom:0">Every other service software stops at the technician level. MASSCORE starts there — and builds a continuous flow of scored, interpreted, actionable information that serves every person in the service chain simultaneously.</p>
+
+  <div class="flow-steps">
+    <div class="flow-step">
+      <div class="flow-step-arrow">→</div>
+      <div class="flow-step-num">01</div>
+      <div class="flow-step-title">Technician</div>
+      <div class="flow-step-body">Performs the initial plant assessment and ongoing inspections the MASSCORE way. Answers structured rubric questions. Logs compressor readings. Documents findings. No interpretation required — just observation.</div>
+      <div class="flow-step-tag">Feeds the engine</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-arrow">→</div>
+      <div class="flow-step-num">02</div>
+      <div class="flow-step-title">The Engine</div>
+      <div class="flow-step-body">MASSCORE converts every data point into a Plant Condition Score. Asset integrity. Operational health. Findings. Compliance. All weighted by criticality and rolled into one number with a full breakdown behind it.</div>
+      <div class="flow-step-tag">Produces the score</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-arrow">→</div>
+      <div class="flow-step-num">03</div>
+      <div class="flow-step-title">Account Manager</div>
+      <div class="flow-step-body">Sees the live dashboard. Quotes work directly from the findings list. Every proposal is backed by a score. No more blind quoting. No more missed opportunities. The dashboard becomes the sales tool.</div>
+      <div class="flow-step-tag">Quotes from data</div>
+    </div>
+    <div class="flow-step">
+      <div class="flow-step-num">04</div>
+      <div class="flow-step-title">Customer & Management</div>
+      <div class="flow-step-body">The facility owner and their management team see the same dashboard in plain language. Plant Condition Score. Capital roadmap. Priority repairs with estimated costs. Finally — a tool to make sound decisions and justify the budget.</div>
+      <div class="flow-step-tag">Acts with confidence</div>
+    </div>
+  </div>
+
+  <div style="margin-top:40px;padding:28px;background:var(--dark);border:1px solid var(--border2);border-left:4px solid var(--red);">
+    <div style="font-size:17px;color:#fff;line-height:1.7;">For the first time in this industry — the technician, the contractor, and the facility owner are all working from the same place. The same data. The same score. The same roadmap. <strong style="color:var(--red)">No more translation. No more lost findings. No more decisions made blind.</strong></div>
+  </div>
+</div>
+</section>
+
 <!-- SOLUTION / ACRONYM -->
-<section id="solution" style="background:var(--bg2);max-width:100%;padding:100px 48px;">
+<section id="solution" style="max-width:100%;padding:100px 48px;">
 <div style="max-width:1200px;margin:0 auto;">
   <div class="section-label">The Solution</div>
   <div class="section-rule"></div>
-  <div class="section-title" style="max-width:700px">Two systems. One score. Built by the people who know what the numbers actually mean.</div>
-  <p class="section-body" style="margin-bottom:0">MASSCORE is a proprietary mechanical assessment scoring system built on 30 years of combined field experience in industrial ammonia refrigeration — the most complex and regulated mechanical environment in existence. If the methodology works here, it works anywhere.</p>
+  <div class="section-title" style="max-width:700px">Two scores. One number. Built on 30 years of field experience in the most complex mechanical environment in existence.</div>
+  <p class="section-body" style="margin-bottom:0">MASSCORE is a proprietary mechanical assessment scoring system developed by industrial ammonia refrigeration technicians. If the methodology holds up in an ammonia machine room — it holds up anywhere. Every asset class. Every failure mode. Every reading that matters.</p>
 
   <div class="acronym-wrap">
     <div class="acronym-block">
       <div class="acronym-header" style="color:#fff">MASS</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin-bottom:20px;">Plant Integrity Score — 42%</div>
       <div class="acronym-row">
         <div class="acronym-letter" style="color:#fff">M</div>
         <div class="acronym-content">
           <div class="acronym-word">Mechanical</div>
-          <div class="acronym-desc">Built for the most complex mechanical systems in existence. Every asset class. Every failure mode. Every reading that matters.</div>
+          <div class="acronym-desc">Built for ammonia refrigeration, chiller plants, cold storage, and commercial HVAC. Every asset class. Every failure mode that matters in the field.</div>
         </div>
       </div>
       <div class="acronym-row">
         <div class="acronym-letter" style="color:#fff">A</div>
         <div class="acronym-content">
           <div class="acronym-word">Assessment</div>
-          <div class="acronym-desc">A structured, repeatable methodology that accounts for asset criticality, physical condition, and live operational data — not a checklist.</div>
+          <div class="acronym-desc">A structured, rubric-driven assessment methodology that produces consistent scores regardless of which technician performs it. The system removes subjectivity.</div>
         </div>
       </div>
       <div class="acronym-row">
         <div class="acronym-letter" style="color:#fff">S</div>
         <div class="acronym-content">
           <div class="acronym-word">Scoring</div>
-          <div class="acronym-desc">Raw data means nothing without interpretation. Every reading, every finding, every component condition feeds a weighted algorithm.</div>
+          <div class="acronym-desc">Every asset scored by its physical condition — stripped of serviceable components. What is the irreversible structural state of this equipment right now?</div>
         </div>
       </div>
       <div class="acronym-row">
         <div class="acronym-letter" style="color:#fff">S</div>
         <div class="acronym-content">
           <div class="acronym-word">System</div>
-          <div class="acronym-desc">A complete system — asset class weighting, criticality-based rollups, reliability diagnostics, and compliance tracking — working together.</div>
+          <div class="acronym-desc">Asset class weighting, criticality-based rollups, service life status, and prognosis logic — working as a complete system to produce the Plant Integrity Score.</div>
         </div>
       </div>
+      <div style="margin-top:20px;padding:16px;background:var(--dark);border:1px solid var(--border2);font-size:13px;color:#aaa;line-height:1.7;">
+        The Plant Integrity Score answers one question: <strong style="color:#fff">what is the ceiling of this asset's potential regardless of how well it is maintained?</strong> It degrades with age, repair history, and structural deterioration. It cannot be recovered by replacing components.
+      </div>
     </div>
+
     <div class="acronym-block">
       <div class="acronym-header" style="color:#E8320A">CORE</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin-bottom:20px;">Plant Health Score — 58%</div>
       <div class="acronym-row">
         <div class="acronym-letter" style="color:#E8320A">C</div>
         <div class="acronym-content">
           <div class="acronym-word">Condition</div>
-          <div class="acronym-desc">The Plant Condition Score tells you the current state of your facility — not what happened last month, but what the data says right now.</div>
+          <div class="acronym-desc">Component health. Compressor readings. Oil temperatures, filter differentials, amp draw — every operational parameter that reflects current condition.</div>
         </div>
       </div>
       <div class="acronym-row">
         <div class="acronym-letter" style="color:#E8320A">O</div>
         <div class="acronym-content">
           <div class="acronym-word">Operations</div>
-          <div class="acronym-desc">Operations don't fail suddenly — they degrade over time. CORE tracks that degradation continuously so you see the decline before it becomes a crisis.</div>
+          <div class="acronym-desc">How well is this plant being maintained right now? The Plant Health Score responds to service work — fix it, the score rises. Defer it, the score falls.</div>
         </div>
       </div>
       <div class="acronym-row">
         <div class="acronym-letter" style="color:#E8320A">R</div>
         <div class="acronym-content">
           <div class="acronym-word">Reliability</div>
-          <div class="acronym-desc">Every compressor reading, every pressure differential, every amp draw feeds a weighted Reliability Score. Not a feeling — a score.</div>
+          <div class="acronym-desc">Open findings apply score penalties by severity. Resolve them — the score recovers. The roadmap tells you exactly which repairs move the score the most.</div>
         </div>
       </div>
       <div class="acronym-row">
         <div class="acronym-letter" style="color:#E8320A">E</div>
         <div class="acronym-content">
           <div class="acronym-word">Engine</div>
-          <div class="acronym-desc">The intelligence engine underneath the score. The algorithm that converts 30 years of field expertise into a number anyone can understand and act on.</div>
+          <div class="acronym-desc">The intelligence layer. The algorithm that converts 30 years of field expertise into a number that a plant manager, a CFO, and a technician can all act on.</div>
         </div>
+      </div>
+      <div style="margin-top:20px;padding:16px;background:var(--dark);border:1px solid var(--border2);font-size:13px;color:#aaa;line-height:1.7;">
+        The Plant Health Score answers one question: <strong style="color:#fff">how well is this facility being maintained right now?</strong> It's the score that responds to your team's work — and the score that justifies the next service contract renewal.
       </div>
     </div>
   </div>
 
-  <div style="margin-top:48px;padding:32px;background:var(--dark);border:1px solid var(--border2);border-left:4px solid var(--red);max-width:700px">
+  <div style="margin-top:48px;padding:32px;background:var(--bg2);border:1px solid var(--border2);border-left:4px solid var(--red);max-width:700px">
     <div style="font-family:'Orbitron',monospace;font-size:24px;font-weight:900;margin-bottom:12px">
       <span style="color:#fff">MASS</span><span style="color:#E8320A">CORE</span>
-      <span style="font-size:16px;color:#555;font-weight:400;margin:0 12px">—</span>
-      <span style="font-size:14px;color:#888;font-weight:400;font-family:'Rajdhani',sans-serif">The methodology and the engine. The assessment and the intelligence. Two systems — one score.</span>
+      <span style="font-size:16px;color:#aaa;font-weight:400;margin:0 12px">—</span>
+      <span style="font-size:14px;color:#888;font-weight:400;font-family:'Rajdhani',sans-serif">The methodology and the engine. The asset and its condition. Two scores — one truth.</span>
     </div>
-    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#555;letter-spacing:1px">
-      Reliability Score + Infrastructure Score = Plant Condition Score
+    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#aaa;letter-spacing:1px">
+      Plant Integrity Score (42%) + Plant Health Score (58%) = Plant Condition Score
     </div>
   </div>
 </div>
 </section>
 
 <!-- PRODUCT -->
-<section id="product">
+<section id="product" style="background:var(--bg2);max-width:100%;padding:100px 48px;">
+<div style="max-width:1200px;margin:0 auto;">
   <div class="section-label">The Product</div>
   <div class="section-rule"></div>
   <div class="section-title">A live platform. Real data. Deployed today.</div>
-  <p class="section-body" style="margin-bottom:48px">MASSCORE is not a concept. It is a working software platform pulling live data from active client sites — displaying Plant Condition Scores, system health breakdowns, active findings, relief valve compliance status, and a Score Improvement Roadmap that tells every facility owner exactly what to fix and what it costs.</p>
+  <p class="section-body" style="margin-bottom:16px">MASSCORE is not a concept. It is a working software platform currently deployed at select industrial refrigeration and HVAC facilities across the United States — displaying Plant Condition Scores, system health breakdowns, active findings, compliance status, and a Score Improvement Roadmap that tells every facility owner exactly what to fix and what it costs.</p>
+  <p class="section-body" style="margin-bottom:48px">Full platform launch is scheduled for <strong style="color:#fff">Fall 2026.</strong> Early access is available now for qualified refrigeration and HVAC contractors and facility operators.</p>
 
   <div class="score-demo">
     <div class="score-card">
       <div class="score-card-label">Plant Condition Score</div>
       <div class="score-card-num" style="color:#E8320A">66</div>
       <div class="score-card-status" style="color:#E8320A">Attention Required</div>
-      <div class="score-card-desc">One number. Every asset, every system, every compliance item — weighted and combined into a single score anyone can understand.</div>
+      <div class="score-card-desc">One number. Every asset, every system, every compliance item — weighted and combined into a single score anyone can understand and act on.</div>
     </div>
     <div class="score-card">
-      <div class="score-card-label">Reliability Score</div>
-      <div class="score-card-num" style="color:#7BC67E">83</div>
+      <div class="score-card-label">Plant Integrity Score</div>
+      <div class="score-card-num" style="color:#7BC67E">74</div>
       <div class="score-card-status" style="color:#7BC67E">Good Standing</div>
-      <div class="score-card-desc">How the plant is operating right now. Based on live compressor readings, amp draw analysis, and equipment performance data.</div>
+      <div class="score-card-desc">The bones of this plant are solid. The structural and physical condition of the assets — independent of maintenance history — is sound.</div>
     </div>
     <div class="score-card">
-      <div class="score-card-label">Infrastructure Score</div>
+      <div class="score-card-label">Plant Health Score</div>
       <div class="score-card-num" style="color:#E8320A">54</div>
       <div class="score-card-status" style="color:#E8320A">Action Required</div>
-      <div class="score-card-desc">The physical condition of the infrastructure. Asset condition, component health, findings, and compliance status — all weighted by criticality.</div>
+      <div class="score-card-desc">Deferred maintenance is dragging this score down. Component condition, open findings, and compliance items are all pulling against a solid asset base.</div>
     </div>
   </div>
 
-  <div style="margin-top:60px;padding:32px;background:var(--bg2);border:1px solid var(--border);border-left:4px solid #7BC67E">
+  <div style="margin-top:32px;padding:20px 28px;background:var(--dark);border:1px solid var(--border2);font-size:14px;color:#aaa;line-height:1.7;">
+    <strong style="color:#fff">Same score. Different story.</strong> A Plant Integrity Score of 74 with a Plant Health Score of 54 tells a completely different story than the reverse. MASSCORE communicates both — so the contractor and the client always understand what the number actually means.
+  </div>
+
+  <div style="margin-top:40px;padding:32px;background:var(--bg3);border:1px solid var(--border);border-left:4px solid #7BC67E">
     <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:#7BC67E;text-transform:uppercase;margin-bottom:12px">Score Improvement Roadmap</div>
     <div style="font-size:17px;color:#fff;margin-bottom:8px">Your current Plant Condition Score is <strong style="color:#E8320A">66</strong>. By addressing the priority items below your score could reach an estimated <strong style="color:#7BC67E">78</strong> out of 100.</div>
-    <div style="font-size:14px;color:#555">MASSCORE doesn't just tell you where you stand — it tells you exactly what to fix, in priority order, with estimated costs attached.</div>
+    <div style="font-size:14px;color:#aaa">MASSCORE doesn't just tell you where you stand — it tells you exactly what to fix, in priority order, with estimated costs attached. Every quote your account manager submits is backed by the score.</div>
   </div>
+</div>
 </section>
 
 <!-- CONTACT / WAITLIST -->
-<section id="contact" style="background:var(--bg2);max-width:100%;padding:100px 48px;">
+<section id="contact" style="max-width:100%;padding:100px 48px;">
 <div style="max-width:1200px;margin:0 auto;">
-  <div class="section-label">Get Access</div>
+  <div class="section-label">Get Early Access</div>
   <div class="section-rule"></div>
   <div class="two-col" style="align-items:center">
     <div>
-      <div class="section-title">Request beta access or get your facility scored.</div>
-      <p class="section-body">MASSCORE is currently in beta deployment with select industrial refrigeration contractors and facility operators. Fill out the form to request access or to find out what your Plant Condition Score looks like.</p>
+      <div class="section-title">Join the waitlist. Be first when we launch Fall 2026.</div>
+      <p class="section-body" style="margin-bottom:24px">MASSCORE is currently in beta deployment with select industrial refrigeration and HVAC contractors and facility operators across the United States. Fill out the form to join the waitlist or to request an early access assessment for your facility.</p>
       <div style="margin-top:32px">
         <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin-bottom:12px">Currently Serving</div>
-        <div style="font-size:15px;color:#666;line-height:2">
+        <div style="font-size:15px;color:#aaa;line-height:2">
           Industrial Ammonia Refrigeration<br>
           Commercial HVAC & Chiller Plants<br>
           Cold Storage & Food Processing Facilities<br>
           Industrial Process Refrigeration
         </div>
       </div>
+      <div style="margin-top:32px;padding:20px;background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--red);">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin-bottom:8px">Beta Status</div>
+        <div style="font-size:14px;color:#aaa;line-height:1.7">MASSCORE is live and deployed. We are selectively onboarding contractors and facilities ahead of our Fall 2026 public launch. Early access participants receive priority onboarding, reduced launch pricing, and direct input into the platform roadmap.</div>
+      </div>
     </div>
     <div class="waitlist-wrap">
-      <div class="waitlist-title">Request Access</div>
-      <div class="waitlist-sub">Tell us about your facility or contracting operation and we'll be in touch.</div>
+      <div class="waitlist-title">Join the Waitlist</div>
+      <div class="waitlist-sub">Tell us about your facility or contracting operation and we'll be in touch before launch.</div>
       <form id="contact-form" onsubmit="submitForm(event)">
         <div class="form-row">
           <div class="form-field">
@@ -466,10 +577,10 @@ footer {
           <label>Tell us about your facility or operation</label>
           <textarea name="message" rows="3" placeholder="Number of sites, system types, what you're looking for..."></textarea>
         </div>
-        <button type="submit" class="btn-primary form-submit">Submit Request</button>
+        <button type="submit" class="btn-primary form-submit">Join the Waitlist</button>
       </form>
       <div class="success-msg" id="success-msg">
-        ✓ Request received — we'll be in touch shortly
+        ✓ You're on the list — we'll be in touch before launch
       </div>
     </div>
   </div>
@@ -479,7 +590,7 @@ footer {
 <!-- FOOTER -->
 <footer>
   <div class="footer-logo"><span class="mass">MASS</span><span class="core">CORE</span></div>
-  <div class="footer-copy">© 2026 MASSCORE — Confidential & Proprietary — All Rights Reserved</div>
+  <div class="footer-copy">© 2026 MASSCORE LLC — Confidential & Proprietary — All Rights Reserved</div>
   <div class="footer-login"><a href="/login.html">Dashboard Login →</a></div>
 </footer>
 
@@ -515,7 +626,6 @@ async function submitForm(e) {
       throw new Error('Failed');
     }
   } catch(err) {
-    // Fallback to localStorage if API fails
     const leads = JSON.parse(localStorage.getItem('masscore_leads') || '[]');
     leads.push(data);
     localStorage.setItem('masscore_leads', JSON.stringify(leads));
@@ -524,7 +634,6 @@ async function submitForm(e) {
   }
 }
 
-// Smooth scroll
 document.querySelectorAll('a[href^="#"]').forEach(a => {
   a.addEventListener('click', e => {
     e.preventDefault();
