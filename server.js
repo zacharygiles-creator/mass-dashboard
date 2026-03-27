@@ -107,7 +107,7 @@ app.get('/api/data', requireAuth, async (req, res) => {
       'Systems',
       'Assets',
       'Findings',
-      'Relief%20Valves',
+      'Compliance',
       'Compressor%20Readings',
       'Components',
       'Plant%20Condition%20Snapshots',

@@ -787,9 +787,10 @@ function renderDashboard(siteId) {
         const integOneLiner=assetIntegrityText(assetInteg);
         const healthOneLiner=assetHealthText(assetHealth, openFindingsCount);
 
-        const hiddenAttr = isHidden ? `id="${sysExpandId}-${aIdx}" class="collapsible-content" style="display:none"` : '';
+        const hiddenWrapStart = isHidden ? `<div id="${sysExpandId}-${aIdx}" style="display:none">` : '';
+        const hiddenWrapEnd = isHidden ? `</div>` : '';
         if(isGoodAsset){
-          html+=`<div ${hiddenAttr} style="border-bottom:1px solid var(--border);padding:12px 20px;opacity:0.8">
+          html+=hiddenWrapStart+`<div style="border-bottom:1px solid var(--border);padding:12px 20px;opacity:0.8">
             <div style="display:grid;grid-template-columns:35% 22% 22% 21%;align-items:center;gap:8px">
               <div>
                 <div style="font-size:13px;font-weight:600;color:#cccccc;margin-bottom:3px">${aName}</div>
@@ -811,9 +812,9 @@ function renderDashboard(siteId) {
                 <span style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;padding:5px 10px;text-transform:uppercase;color:var(--green);border:1px solid var(--green);background:var(--green-dim);text-align:center">GOOD STANDING</span>
               </div>
             </div>
-          </div>`;
+          </div>`+hiddenWrapEnd;
         } else {
-          html+=`<div ${hiddenAttr} style="border-bottom:1px solid var(--border);padding:14px 20px;">
+          html+=hiddenWrapStart+`<div style="border-bottom:1px solid var(--border);padding:14px 20px;">
             <div style="display:grid;grid-template-columns:35% 22% 22% 21%;align-items:start;gap:8px">
               <div>
                 <div style="font-size:14px;font-weight:600;color:#ffffff;margin-bottom:4px">${aName}</div>
@@ -837,7 +838,7 @@ function renderDashboard(siteId) {
                 ${prog&&prog.verdict?`<span style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;padding:5px 10px;text-transform:uppercase;color:${prog.color};border:1px solid ${prog.color};background:${prog.color}18;margin-bottom:6px;display:block;text-align:center">${prog.verdict}</span><div style="font-size:11px;color:#777777;line-height:1.4;text-align:center">${prog.text}</div>`:`<div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);text-transform:uppercase;text-align:center">Insufficient<br>Data</div>`}
               </div>
             </div>
-          </div>`;
+          </div>`+hiddenWrapEnd;
         }
       });
 
