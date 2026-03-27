@@ -790,25 +790,25 @@ function renderDashboard(siteId) {
         const hiddenWrapStart = isHidden ? `<div id="${sysExpandId}-${aIdx}" style="display:none">` : '';
         const hiddenWrapEnd = isHidden ? `</div>` : '';
         if(isGoodAsset){
-          html+=hiddenWrapStart+`<div style="border-bottom:1px solid var(--border);padding:12px 20px;opacity:0.8">
-            <div style="display:grid;grid-template-columns:35% 22% 22% 21%;align-items:center;gap:8px">
+          html+=hiddenWrapStart+`<div style="border-bottom:1px solid var(--border);padding:14px 20px;">
+            <div style="display:grid;grid-template-columns:35% 22% 22% 21%;align-items:start;gap:8px">
               <div>
-                <div style="font-size:13px;font-weight:600;color:#cccccc;margin-bottom:3px">${aName}</div>
+                <div style="font-size:14px;font-weight:600;color:#ffffff;margin-bottom:4px">${aName}</div>
                 ${aType?`<div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase">${aType}</div>`:''}
               </div>
               <div>
-                <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Integrity</div>
-                <div style="font-family:'Orbitron',monospace;font-size:18px;font-weight:700;color:${integColor};line-height:1;margin-bottom:4px">${assetInteg!==null&&!isNaN(assetInteg)?Math.round(assetInteg):'—'}</div>
-                <div style="height:2px;background:var(--border2);position:relative;margin-bottom:4px"><div style="height:100%;position:absolute;top:0;left:0;width:${assetInteg??0}%;background:${integColor}"></div></div>
-                <div style="font-size:11px;color:#666666;line-height:1.3">${integOneLiner}</div>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Integrity</div>
+                <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:${integColor};line-height:1;margin-bottom:5px">${assetInteg!==null&&!isNaN(assetInteg)?Math.round(assetInteg):'—'}</div>
+                <div style="height:3px;background:var(--border2);position:relative;margin-bottom:5px"><div style="height:100%;position:absolute;top:0;left:0;width:${assetInteg??0}%;background:${integColor}"></div></div>
+                <div style="font-size:11px;color:#888888;line-height:1.3">${integOneLiner}</div>
               </div>
               <div>
-                <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Health</div>
-                <div style="font-family:'Orbitron',monospace;font-size:18px;font-weight:700;color:${healthColor};line-height:1;margin-bottom:4px">${assetHealth!==null&&!isNaN(assetHealth)?Math.round(assetHealth):'—'}</div>
-                <div style="height:2px;background:var(--border2);position:relative;margin-bottom:4px"><div style="height:100%;position:absolute;top:0;left:0;width:${assetHealth??0}%;background:${healthColor}"></div></div>
-                <div style="font-size:11px;color:#666666;line-height:1.3">${healthOneLiner}</div>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Health</div>
+                <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:${healthColor};line-height:1;margin-bottom:5px">${assetHealth!==null&&!isNaN(assetHealth)?Math.round(assetHealth):'—'}</div>
+                <div style="height:3px;background:var(--border2);position:relative;margin-bottom:5px"><div style="height:100%;position:absolute;top:0;left:0;width:${assetHealth??0}%;background:${healthColor}"></div></div>
+                <div style="font-size:11px;color:#888888;line-height:1.3">${healthOneLiner}</div>
               </div>
-              <div style="display:flex;align-items:center;justify-content:center">
+              <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:18px">
                 <span style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;padding:5px 10px;text-transform:uppercase;color:var(--green);border:1px solid var(--green);background:var(--green-dim);text-align:center">GOOD STANDING</span>
               </div>
             </div>
