@@ -520,6 +520,34 @@ function renderDashboard(siteId) {
     return 'This score reflects a plant with significant open maintenance needs. It is important to note that a low Plant Health Score does not reflect the integrity of the plant\'s assets — only their current operational state.';
   }
 
+  function assetIntegrityText(score) {
+    if (score === null || score === undefined || isNaN(score)) return 'No integrity score recorded yet.';
+    if (score >= 85) return 'Near new or excellently maintained condition. Asset integrity is very high.';
+    if (score >= 70) return 'Good structural condition. Asset is performing well for its age.';
+    if (score >= 55) return 'Visible deterioration consistent with age. Asset is functional but degrading.';
+    if (score >= 40) return 'Significant structural deterioration present. Capital planning conversations warranted.';
+    return 'Severely deteriorated condition. Replacement should be in active planning.';
+  }
+
+  function assetHealthText(score, findingCount) {
+    if (score === null || score === undefined || isNaN(score)) return 'No health score recorded yet.';
+    if (score >= 85) return 'Well maintained. Components and operational data are within healthy range.';
+    if (score >= 70) return 'Good operational health. Minor items may be open but nothing critical.';
+    if (score >= 55) return findingCount > 0 ? 'Maintenance items are affecting this score. Addressing findings will move it up.' : 'Operational health is acceptable. Continue monitoring.';
+    if (score >= 40) return 'Deferred maintenance is dragging this score down. Repairs can recover this number — see findings.';
+    return 'Significant maintenance needs identified. This score can recover — see findings and roadmap.';
+  }
+
+  function assetServiceLifeColor(score, age) {
+    if (age === null || score === null) return scoreColor(score);
+    if (age > 15) {
+      if (score >= 55) return 'var(--green)';
+      if (score >= 40) return 'var(--yellow)';
+      return 'var(--red)';
+    }
+    return scoreColor(score);
+  }
+
   function plainSummaryText(score) {
     if(score===null || score===undefined || isNaN(score)) return 'This facility does not have enough data to generate a score yet. Complete the initial assessment to establish a baseline Plant Condition Score.';
     if(score>=85) return `This facility is in excellent operational condition with a score of ${Math.round(score)} out of 100. Regular maintenance should continue as scheduled.`;
@@ -581,12 +609,12 @@ function renderDashboard(siteId) {
     <!-- RIGHT: Interpretation cards -->
     <div class="score-interp-stack">
       <div class="score-interp-card animate" style="animation-delay:0.25s">
-        <div class="interp-lbl">Plant Integrity — What This Means</div>
-        <div class="interp-text">${integrityInterpText(infraScore)}</div>
-      </div>
-      <div class="score-interp-card animate" style="animation-delay:0.3s">
         <div class="interp-lbl">Plant Health — What This Means</div>
         <div class="interp-text">${healthInterpText(relScore)}</div>
+      </div>
+      <div class="score-interp-card animate" style="animation-delay:0.3s">
+        <div class="interp-lbl">Plant Integrity — What This Means</div>
+        <div class="interp-text">${integrityInterpText(infraScore)}</div>
         <div class="score-interp-footer">The score describes what is. The Score Improvement Roadmap tells you what to do.</div>
       </div>
     </div>
@@ -661,18 +689,24 @@ function renderDashboard(siteId) {
       </div>`;
 
 
-    // Problem assets
-    if(sysBad.length>0) {
-      sysBad.forEach(a=>{
+    // All assets sorted: critical first, attention next, good last
+    const allSortedAssets=[
+      ...sysCritical,
+      ...sysAttention.filter(a=>!sysCritical.includes(a)),
+      ...sysGood.filter(a=>!sysAttention.includes(a)&&!sysCritical.includes(a))
+    ];
+
+    if(allSortedAssets.length>0) {
+      allSortedAssets.forEach(a=>{
         const af=a.fields;
         const aName=fval(af,'Asset Name','Name')||'Unknown Asset';
         const assetInteg=fval(af,'Asset Integrity Score')??null;
         const assetHealth=fval(af,'Asset Health Score')??null;
-        const hs=assetInteg; // keep for prognosis/service life calcs
         const integColor=scoreColor(assetInteg);
         const healthColor=scoreColor(assetHealth);
         const installDate=fval(af,'Install Date')||null;
         const sls=serviceLifeStatus(installDate, assetInteg);
+        const slsColor=sls?assetServiceLifeColor(assetInteg,sls.age):null;
         const aFindings=(D.findings?.records||[]).filter(fd=>{
           const aids=fd.fields['Asset']||fd.fields['Assets']||[];
           const status=(fd.fields['Status']||'').toUpperCase();
@@ -681,31 +715,63 @@ function renderDashboard(siteId) {
         const prog=assetPrognosis(installDate, assetInteg, aFindings.length);
         const aType=(fval(af,'Asset Type','Type')||'').toUpperCase();
         const openFindingsCount=aFindings.length;
-        html+=`<div style="border-bottom:1px solid var(--border);padding:14px 20px;">
-          <div style="display:grid;grid-template-columns:35% 22% 22% 21%;align-items:start;gap:8px">
-            <div>
-              <div style="font-size:14px;font-weight:600;color:#ffffff;margin-bottom:4px">${aName}</div>
-              ${aType?`<div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase">${aType}</div>`:''}
+        const isGoodAsset=!sysCritical.includes(a)&&!sysAttention.includes(a);
+        const integOneLiner=assetIntegrityText(assetInteg);
+        const healthOneLiner=assetHealthText(assetHealth, openFindingsCount);
+
+        if(isGoodAsset){
+          html+=`<div style="border-bottom:1px solid var(--border);padding:12px 20px;opacity:0.8">
+            <div style="display:grid;grid-template-columns:35% 22% 22% 21%;align-items:center;gap:8px">
+              <div>
+                <div style="font-size:13px;font-weight:600;color:#cccccc;margin-bottom:3px">${aName}</div>
+                ${aType?`<div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase">${aType}</div>`:''}
+              </div>
+              <div>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Integrity</div>
+                <div style="font-family:'Orbitron',monospace;font-size:18px;font-weight:700;color:${integColor};line-height:1;margin-bottom:4px">${assetInteg!==null&&!isNaN(assetInteg)?Math.round(assetInteg):'—'}</div>
+                <div style="height:2px;background:var(--border2);position:relative;margin-bottom:4px"><div style="height:100%;position:absolute;top:0;left:0;width:${assetInteg??0}%;background:${integColor}"></div></div>
+                <div style="font-size:11px;color:#666666;line-height:1.3">${integOneLiner}</div>
+              </div>
+              <div>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:3px">Health</div>
+                <div style="font-family:'Orbitron',monospace;font-size:18px;font-weight:700;color:${healthColor};line-height:1;margin-bottom:4px">${assetHealth!==null&&!isNaN(assetHealth)?Math.round(assetHealth):'—'}</div>
+                <div style="height:2px;background:var(--border2);position:relative;margin-bottom:4px"><div style="height:100%;position:absolute;top:0;left:0;width:${assetHealth??0}%;background:${healthColor}"></div></div>
+                <div style="font-size:11px;color:#666666;line-height:1.3">${healthOneLiner}</div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:center">
+                <span style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;padding:5px 10px;text-transform:uppercase;color:var(--green);border:1px solid var(--green);background:var(--green-dim);text-align:center">GOOD STANDING</span>
+              </div>
             </div>
-            <div>
-              <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Integrity</div>
-              <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:${integColor};line-height:1;margin-bottom:5px">${assetInteg!==null&&!isNaN(assetInteg)?Math.round(assetInteg):'—'}</div>
-              <div style="height:3px;background:var(--border2);position:relative;margin-bottom:5px"><div style="height:100%;position:absolute;top:0;left:0;width:${assetInteg??0}%;background:${integColor}"></div></div>
-              ${sls?`<div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:0.5px;color:${sls.color};text-transform:uppercase;line-height:1.4">${sls.label} · ${sls.age} YRS</div>`:`<div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim)">No install date</div>`}
+          </div>`;
+        } else {
+          html+=`<div style="border-bottom:1px solid var(--border);padding:14px 20px;">
+            <div style="display:grid;grid-template-columns:35% 22% 22% 21%;align-items:start;gap:8px">
+              <div>
+                <div style="font-size:14px;font-weight:600;color:#ffffff;margin-bottom:4px">${aName}</div>
+                ${aType?`<div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase">${aType}</div>`:''}
+              </div>
+              <div>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Integrity</div>
+                <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:${integColor};line-height:1;margin-bottom:5px">${assetInteg!==null&&!isNaN(assetInteg)?Math.round(assetInteg):'—'}</div>
+                <div style="height:3px;background:var(--border2);position:relative;margin-bottom:5px"><div style="height:100%;position:absolute;top:0;left:0;width:${assetInteg??0}%;background:${integColor}"></div></div>
+                ${sls?`<div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:0.5px;color:${slsColor};text-transform:uppercase;line-height:1.4;margin-bottom:4px">${sls.label} · ${sls.age} YRS</div>`:''}
+                <div style="font-size:11px;color:#888888;line-height:1.3">${integOneLiner}</div>
+              </div>
+              <div>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Health</div>
+                <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:${healthColor};line-height:1;margin-bottom:5px">${assetHealth!==null&&!isNaN(assetHealth)?Math.round(assetHealth):'—'}</div>
+                <div style="height:3px;background:var(--border2);position:relative;margin-bottom:5px"><div style="height:100%;position:absolute;top:0;left:0;width:${assetHealth??0}%;background:${healthColor}"></div></div>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:0.5px;text-transform:uppercase;color:${openFindingsCount>0?'var(--yellow)':'var(--text-dim)'};margin-bottom:4px">${openFindingsCount>0?openFindingsCount+' Open Finding'+(openFindingsCount!==1?'s':''):'No Open Findings'}</div>
+                <div style="font-size:11px;color:#888888;line-height:1.3">${healthOneLiner}</div>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:18px">
+                ${prog&&prog.verdict?`<span style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;padding:5px 10px;text-transform:uppercase;color:${prog.color};border:1px solid ${prog.color};background:${prog.color}18;margin-bottom:6px;display:block;text-align:center">${prog.verdict}</span><div style="font-size:11px;color:#777777;line-height:1.4;text-align:center">${prog.text}</div>`:`<div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);text-transform:uppercase;text-align:center">Insufficient<br>Data</div>`}
+              </div>
             </div>
-            <div>
-              <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Health</div>
-              <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:${healthColor};line-height:1;margin-bottom:5px">${assetHealth!==null&&!isNaN(assetHealth)?Math.round(assetHealth):'—'}</div>
-              <div style="height:3px;background:var(--border2);position:relative;margin-bottom:5px"><div style="height:100%;position:absolute;top:0;left:0;width:${assetHealth??0}%;background:${healthColor}"></div></div>
-              <div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:0.5px;text-transform:uppercase;color:${openFindingsCount>0?'var(--yellow)':'var(--text-dim)'}">${openFindingsCount>0?openFindingsCount+' Open Finding'+(openFindingsCount!==1?'s':''):'No Open Findings'}</div>
-            </div>
-            <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:18px">
-              ${prog&&prog.verdict?`<span style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;padding:5px 10px;text-transform:uppercase;color:${prog.color};border:1px solid ${prog.color};background:${prog.color}18;margin-bottom:6px;display:block;text-align:center">${prog.verdict}</span><div style="font-size:11px;color:#777777;line-height:1.4;text-align:center">${prog.text}</div>`:`<div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);text-transform:uppercase;text-align:center">Insufficient<br>Data</div>`}
-            </div>
-          </div>
-        </div>`;
+          </div>`;
+        }
       });
-    } else if(sysGood.length===0) {
+    } else {
       html+=`<div class="empty-msg">No asset scores recorded for this system yet</div>`;
     }
 
