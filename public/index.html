@@ -192,6 +192,14 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 .snap-bar { flex:1; height:3px; background:var(--border2); position:relative; }
 .snap-fill { height:100%; position:absolute; top:0; left:0; }
 
+/* COLLAPSIBLE */
+.expand-btn { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; padding:10px 20px; border:none; background:transparent; cursor:pointer; width:100%; text-align:left; border-top:1px solid var(--border); display:flex; align-items:center; gap:8px; transition:color 0.2s; }
+.expand-btn:hover { color:#fff; }
+.expand-btn .expand-arrow { transition:transform 0.2s; display:inline-block; }
+.expand-btn.expanded .expand-arrow { transform:rotate(180deg); }
+.collapsible-content { display:none; }
+.collapsible-content.expanded { display:block; }
+
 /* LOADING */
 .loading-state { display:flex; flex-direction:column; align-items:center; justify-content:center; height:400px; gap:16px; position:relative; z-index:5; }
 .spinner { width:36px; height:36px; border:2px solid var(--border2); border-top-color:var(--red); border-radius:50%; animation:spin 0.8s linear infinite; }
@@ -256,6 +264,61 @@ footer { position:relative; z-index:5; border-top:1px solid var(--border); paddi
 
 <script>
 const $ = id => document.getElementById(id);
+
+function toggleExpandAssets(expandId, btnId, total, maxVisible) {
+  const btn = document.getElementById(btnId);
+  const expanded = btn.classList.contains('expanded');
+  // Toggle all hidden asset rows
+  for(let i = maxVisible; i < total; i++) {
+    const el = document.getElementById(expandId + '-' + i);
+    if(el) el.style.display = expanded ? 'none' : 'block';
+  }
+  btn.classList.toggle('expanded', !expanded);
+  btn.querySelector('.expand-label').textContent = expanded
+    ? `Show all ${total} assets (${total - maxVisible} more)`
+    : `Show less ▲`;
+  btn.querySelector('.expand-arrow').style.transform = expanded ? '' : 'rotate(180deg)';
+}
+
+function toggleExpandValves(expandId, btnId, total, maxVisible) {
+  const btn = document.getElementById(btnId);
+  const expanded = btn.classList.contains('expanded');
+  for(let i = maxVisible; i < total; i++) {
+    const el = document.getElementById(expandId + '-' + i);
+    if(el) el.style.display = expanded ? 'none' : '';
+  }
+  btn.classList.toggle('expanded', !expanded);
+  btn.querySelector('.expand-label').textContent = expanded
+    ? `Show all ${total} valves (${total - maxVisible} more)`
+    : `Show less ▲`;
+  btn.querySelector('.expand-arrow').style.transform = expanded ? '' : 'rotate(180deg)';
+}
+
+function toggleExpandVessels(expandId, btnId, total, maxVisible) {
+  const btn = document.getElementById(btnId);
+  const expanded = btn.classList.contains('expanded');
+  for(let i = maxVisible; i < total; i++) {
+    const el = document.getElementById(expandId + '-' + i);
+    if(el) el.style.display = expanded ? 'none' : 'grid';
+  }
+  btn.classList.toggle('expanded', !expanded);
+  btn.querySelector('.expand-label').textContent = expanded
+    ? `Show all ${total} vessels (${total - maxVisible} more)`
+    : `Show less ▲`;
+  btn.querySelector('.expand-arrow').style.transform = expanded ? '' : 'rotate(180deg)';
+}
+
+function toggleExpand(btnId, contentId) {
+  const btn = document.getElementById(btnId);
+  const content = document.getElementById(contentId);
+  if (!btn || !content) return;
+  const expanded = content.classList.contains('expanded');
+  content.classList.toggle('expanded', !expanded);
+  btn.classList.toggle('expanded', !expanded);
+  const count = btn.getAttribute('data-count');
+  const label = btn.getAttribute('data-label');
+  btn.querySelector('.expand-label').textContent = expanded ? `Show all ${count} ${label} ▼` : `Show less ▲`;
+}
 
 // ── COLOR HELPERS ────────────────────────────────────────
 function scoreColor(s) {
@@ -696,8 +759,13 @@ function renderDashboard(siteId) {
       ...sysGood.filter(a=>!sysAttention.includes(a)&&!sysCritical.includes(a))
     ];
 
+    const maxVisible = 4;
+    const sysExpandId = `sys-expand-${si}`;
+    const sysBtnId = `sys-btn-${si}`;
+
     if(allSortedAssets.length>0) {
-      allSortedAssets.forEach(a=>{
+      allSortedAssets.forEach((a, aIdx)=>{
+        const isHidden = aIdx >= maxVisible;
         const af=a.fields;
         const aName=fval(af,'Asset Name','Name')||'Unknown Asset';
         const assetInteg=fval(af,'Asset Integrity Score')??null;
@@ -719,8 +787,9 @@ function renderDashboard(siteId) {
         const integOneLiner=assetIntegrityText(assetInteg);
         const healthOneLiner=assetHealthText(assetHealth, openFindingsCount);
 
+        const hiddenAttr = isHidden ? `id="${sysExpandId}-${aIdx}" class="collapsible-content" style="display:none"` : '';
         if(isGoodAsset){
-          html+=`<div style="border-bottom:1px solid var(--border);padding:12px 20px;opacity:0.8">
+          html+=`<div ${hiddenAttr} style="border-bottom:1px solid var(--border);padding:12px 20px;opacity:0.8">
             <div style="display:grid;grid-template-columns:35% 22% 22% 21%;align-items:center;gap:8px">
               <div>
                 <div style="font-size:13px;font-weight:600;color:#cccccc;margin-bottom:3px">${aName}</div>
@@ -744,7 +813,7 @@ function renderDashboard(siteId) {
             </div>
           </div>`;
         } else {
-          html+=`<div style="border-bottom:1px solid var(--border);padding:14px 20px;">
+          html+=`<div ${hiddenAttr} style="border-bottom:1px solid var(--border);padding:14px 20px;">
             <div style="display:grid;grid-template-columns:35% 22% 22% 21%;align-items:start;gap:8px">
               <div>
                 <div style="font-size:14px;font-weight:600;color:#ffffff;margin-bottom:4px">${aName}</div>
@@ -771,6 +840,15 @@ function renderDashboard(siteId) {
           </div>`;
         }
       });
+
+      // Add expand button if needed
+      if(allSortedAssets.length > maxVisible) {
+        const hiddenCount = allSortedAssets.length - maxVisible;
+        html+=`<button id="${sysBtnId}" data-count="${allSortedAssets.length}" data-label="assets" onclick="toggleExpandAssets('${sysExpandId}','${sysBtnId}',${allSortedAssets.length},${maxVisible})" class="expand-btn">
+          <span class="expand-arrow">▼</span>
+          <span class="expand-label">Show all ${allSortedAssets.length} assets (${hiddenCount} more)</span>
+        </button>`;
+      }
     } else {
       html+=`<div class="empty-msg">No asset scores recorded for this system yet</div>`;
     }
@@ -884,13 +962,15 @@ function renderDashboard(siteId) {
       const status=(v.fields['Status']||'').toUpperCase();
       return isExp!=='1'&&isExp!==1&&status!=='EXPIRED'&&status!=='EXPIRING SOON';
     })];
-    sortedValves.forEach(v=>{
+    const maxValves = 3;
+    const valveExpandId = 'valve-expand-' + name.replace(/\s/g,'');
+    const valveBtnId = 'valve-btn-' + name.replace(/\s/g,'');
+    sortedValves.forEach((v, vIdx)=>{
       const vf=v.fields;
       const vid=fval(vf,'Valve I.D.','Valve ID','Name')||'—';
       const protectedAsset=vf['Protected Asset'];
       let aName='—';
       if(Array.isArray(protectedAsset)) {
-        // It's a linked record - look up the name
         const aid=protectedAsset[0];
         aName=M.assets[aid]?.fields['Asset Name']||M.assets[aid]?.fields['Name']||aid||'—';
       } else if(protectedAsset) {
@@ -899,13 +979,21 @@ function renderDashboard(siteId) {
       const expDate=fval(vf,'Expiration Date','Expiry Date','Last Test Date');
       const isExp=expDate&&new Date(expDate)<new Date();
       const od=isExp?yearsOverdue(expDate):null;
-      html+=`<div class="valve-row">
+      const valveHidden = vIdx >= maxValves ? `id="${valveExpandId}-${vIdx}" style="display:none"` : '';
+      html+=`<div class="valve-row" ${valveHidden}>
         <div class="valve-id">${vid}</div>
         <div class="valve-asset">${aName}</div>
         <div class="valve-expiry">${fmtDate(expDate)}</div>
         ${isExp?`<div class="valve-status-expired">${od!==null?od+' YRS OVERDUE':'EXPIRED'}</div>`:(()=>{const st=(vf['Status']||'').toUpperCase();return st==='EXPIRING SOON'?`<div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--yellow);text-align:right;font-weight:700">⚠ EXPIRING SOON</div>`:`<div class="valve-status-ok">✓ CURRENT</div>`;})()}
       </div>`;
     });
+    if(sortedValves.length > maxValves) {
+      const hiddenValveCount = sortedValves.length - maxValves;
+      html+=`<button id="${valveBtnId}" class="expand-btn" onclick="toggleExpandValves('${valveExpandId}','${valveBtnId}',${sortedValves.length},${maxValves})">
+        <span class="expand-arrow">▼</span>
+        <span class="expand-label">Show all ${sortedValves.length} valves (${hiddenValveCount} more)</span>
+      </button>`;
+    }
     html+=`</div>`;
   }
   html+=`</div></div>`;
@@ -983,21 +1071,53 @@ function renderDashboard(siteId) {
 
   // ── VESSEL REGISTRY ──
   const siteVessels = siteAssets.filter(a => (fval(a.fields,'Asset Type','Type')||'').toUpperCase() === 'VESSEL');
+  const maxVessels = 4;
+  const vesselExpandId = 'vessel-expand-' + (name||'').replace(/\s/g,'');
+  const vesselBtnId = 'vessel-btn-' + (name||'').replace(/\s/g,'');
+
   html+=`<div><div class="section-label">Vessel Registry</div>
   <div class="status-section animate" style="animation-delay:0.9s">
     <div class="status-header">
       <div class="sh-title">
-        <div class="status-dot ${siteVessels.length>0?'green':'red'}"></div>
-        Pressure Vessel Registry
+        <div class="status-dot ${siteVessels.length>0?'green':'yellow'}"></div>
+        Pressure Vessel Compliance Registry
       </div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#cccccc;letter-spacing:1px">${siteVessels.length} Vessel${siteVessels.length!==1?'s':''} Registered</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#cccccc;letter-spacing:1px">${siteVessels.length} Vessel${siteVessels.length!==1?'s':''} on Record</div>
     </div>
-    <div style="padding:16px 20px">
-      <div style="font-size:13px;color:#888888;line-height:1.6;margin-bottom:12px">Detailed vessel registry including ASME documentation, inspection history, and pressure ratings. Full vessel registry view coming in a future release.</div>
-      <div style="display:flex;flex-wrap:wrap;gap:8px">
-        ${siteVessels.length===0?'<div style="font-family:Share Tech Mono,monospace;font-size:9px;color:var(--text-dim);letter-spacing:1px">No vessels registered for this site yet</div>':siteVessels.map(v=>{const vn=fval(v.fields,'Asset Name','Name')||'Vessel';const vs=fval(v.fields,'Asset Integrity Score')??null;const vc=scoreColor(vs);return '<div style="background:var(--bg3);border:1px solid var(--border);padding:8px 14px;display:flex;align-items:center;gap:8px"><div style="width:6px;height:6px;border-radius:50%;background:'+vc+'"></div><div style="font-size:13px;color:#cccccc;font-weight:600">'+vn+'</div>'+(vs!==null&&!isNaN(vs)?'<div style="font-family:Orbitron,monospace;font-size:12px;font-weight:700;color:'+vc+'">'+Math.round(vs)+'</div>':'')+'</div>';}).join('')}
+    ${siteVessels.length===0?`<div class="empty-msg">No vessels registered for this site yet</div>`:`
+    <div style="padding:12px 20px 0">
+      <div style="display:grid;grid-template-columns:1fr 90px 110px 110px 100px 100px;gap:8px;padding:0 0 8px;border-bottom:1px solid var(--border);margin-bottom:4px">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Vessel</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Tag</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">National Board #</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">ASME Stamp</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Install Date</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Design Press.</div>
       </div>
-    </div>
+      ${siteVessels.map((v,vIdx)=>{
+        const vf=v.fields;
+        const vName=fval(vf,'Asset Name','Name')||'—';
+        const vTag=fval(vf,'Asset Tag')||'—';
+        const nbNum=fval(vf,'National Board Number')||'—';
+        const asme=fval(vf,'ASME Stamp Number')||'—';
+        const instDate=fval(vf,'Install Date')||null;
+        const designPress=fval(vf,'Design Pressure (PSIG)')||'—';
+        const age=instDate?Math.floor((new Date()-new Date(instDate))/(1000*60*60*24*365.25)):null;
+        const hidden=vIdx>=maxVessels?`id="${vesselExpandId}-${vIdx}" style="display:none"`:'';
+        return `<div ${hidden} style="display:grid;grid-template-columns:1fr 90px 110px 110px 100px 100px;gap:8px;padding:10px 0;border-bottom:1px solid var(--border)">
+          <div style="font-size:13px;font-weight:600;color:#cccccc">${vName}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#aaaaaa">${vTag}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#aaaaaa">${nbNum}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#aaaaaa">${asme}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#aaaaaa">${instDate?fmtDate(instDate)+'<br><span style="font-size:9px;color:var(--text-dim)">'+(age!==null?age+' yrs':'')+'</span>':'—'}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#aaaaaa">${designPress!=='—'?designPress+' PSIG':designPress}</div>
+        </div>`;
+      }).join('')}
+      ${siteVessels.length>maxVessels?`<button id="${vesselBtnId}" class="expand-btn" onclick="toggleExpandVessels('${vesselExpandId}','${vesselBtnId}',${siteVessels.length},${maxVessels})">
+        <span class="expand-arrow">▼</span>
+        <span class="expand-label">Show all ${siteVessels.length} vessels (${siteVessels.length-maxVessels} more)</span>
+      </button>`:''}
+    </div>`}
   </div></div>`;
 
   html+=`</main>`;
