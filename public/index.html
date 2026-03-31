@@ -13,7 +13,7 @@
   --orange: #E8820A; --orange-dim: rgba(232,130,10,0.15);
   --bg: #080808; --bg2: #0f0f0f; --bg3: #141414; --bg4: #1a1a1a;
   --border: #2a2a2a; --border2: #333333;
-  --text: #e8e8e8; --text-dim: #777; --text-mid: #aaa;
+  --text: #e8e8e8; --text-dim: #999; --text-mid: #aaa;
   --shadow: 0 4px 24px rgba(0,0,0,0.5);
   --shadow-sm: 0 2px 12px rgba(0,0,0,0.4);
 }
@@ -27,10 +27,10 @@ header { position:relative; z-index:10; border-bottom:1px solid var(--border); b
 .logo-text .mass { font-family:'Orbitron',monospace; font-size:20px; font-weight:900; letter-spacing:3px; line-height:1; }
 .logo-text .mass span.core { color:var(--red); }
 .logo-text .mass span.mass { color:#fff; }
-.logo-text .sub { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:3px; color:var(--text-dim); margin-top:2px; }
+.logo-text .sub { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:3px; color:var(--text-dim); margin-top:2px; }
 .header-right { display:flex; align-items:center; gap:16px; }
-.live-badge { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px; color:var(--green); border:1px solid rgba(46,204,113,0.3); padding:4px 10px; }
-.header-date { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--text-dim); letter-spacing:1px; }
+.live-badge { font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:2px; color:var(--green); border:1px solid rgba(46,204,113,0.3); padding:4px 10px; }
+.header-date { font-family:'Share Tech Mono',monospace; font-size:12px; color:var(--text-dim); letter-spacing:1px; }
 
 /* SITE SELECTOR */
 .site-selector-bar { position:relative; z-index:9; background:var(--bg3); border-bottom:1px solid var(--border); padding:0 32px; display:flex; align-items:center; gap:16px; height:48px; }
@@ -46,7 +46,7 @@ select.site-dropdown:focus { border-color:var(--red); }
 .select-arrow { position:absolute; right:12px; top:50%; transform:translateY(-50%); pointer-events:none; color:var(--red); font-size:10px; }
 
 /* ALERT BANNER */
-.alert-banner { position:relative; z-index:8; padding:10px 32px; display:flex; align-items:center; gap:12px; font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; text-transform:uppercase; }
+.alert-banner { position:relative; z-index:8; padding:10px 32px; display:flex; align-items:center; gap:12px; font-family:'Share Tech Mono',monospace; font-size:12px; letter-spacing:2px; text-transform:uppercase; }
 .alert-banner.critical { background:rgba(232,50,10,0.12); border-bottom:1px solid rgba(232,50,10,0.3); color:var(--red); }
 .alert-banner.clear { background:rgba(46,204,113,0.08); border-bottom:1px solid rgba(46,204,113,0.2); color:var(--green); }
 .alert-dot { width:8px; height:8px; border-radius:50%; background:currentColor; animation:pulse 1.5s ease infinite; }
@@ -55,7 +55,7 @@ select.site-dropdown:focus { border-color:var(--red); }
 /* SITE BANNER */
 .site-banner { position:relative; z-index:5; background:var(--bg3); border-bottom:1px solid var(--border); padding:16px 32px; display:flex; align-items:center; justify-content:space-between; }
 .site-banner::before { content:''; position:absolute; top:0; left:0; width:4px; height:100%; background:var(--red); }
-.site-info .site-lbl { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:#bbbbbb; text-transform:uppercase; margin-bottom:3px; }
+.site-info .site-lbl { font-family:'Share Tech Mono',monospace; font-size:12px; letter-spacing:2px; color:#bbbbbb; text-transform:uppercase; margin-bottom:3px; }
 .site-info .site-name { font-family:'Bebas Neue',sans-serif; font-size:30px; letter-spacing:3px; color:#fff; line-height:1; }
 .site-info .site-meta { font-size:12px; color:var(--text-dim); margin-top:3px; }
 .site-info .site-meta span { color:var(--text-mid); }
@@ -66,7 +66,7 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 /* SECTION LABEL */
 .section-label { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:3px; color:#dddddd; text-transform:uppercase; margin-bottom:12px; display:flex; align-items:center; gap:10px; }
 .section-label::after { content:''; flex:1; height:1px; background:var(--border); }
-.section-label .slabel-badge { font-size:9px; padding:2px 8px; border:1px solid var(--border2); color:#aaaaaa; }
+.section-label .slabel-badge { font-size:12px; padding:2px 8px; border:1px solid var(--border2); color:#aaaaaa; }
 
 /* SCORE ROW */
 .score-row { display:grid; grid-template-columns:1fr 1fr 1fr; gap:16px; align-items:stretch; }
@@ -74,9 +74,9 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 .score-interp-stack { display:flex; flex-direction:column; gap:16px; }
 .score-main-card { flex:1; justify-content:center; }
 .score-interp-card { background:var(--bg2); border:1px solid var(--border); padding:16px 20px; position:relative; flex:1; display:flex; flex-direction:column; }
-.score-interp-card .interp-lbl { font-family:"Share Tech Mono",monospace; font-size:8px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-bottom:10px; }
+.score-interp-card .interp-lbl { font-family:"Share Tech Mono",monospace; font-size:11px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-bottom:10px; }
 .score-interp-card .interp-text { font-size:13px; color:#cccccc; line-height:1.6; flex:1; }
-.score-interp-footer { font-family:"Share Tech Mono",monospace; font-size:7px; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; margin-top:12px; padding-top:10px; border-top:1px solid var(--border); }
+.score-interp-footer { font-family:"Share Tech Mono",monospace; font-size:10px; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; margin-top:12px; padding-top:10px; border-top:1px solid var(--border); }
 
 .score-side-card { background:var(--bg2); border:1px solid var(--border); padding:20px 24px; position:relative; }
 .score-side-card .card-lbl { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; color:#dddddd; text-transform:uppercase; margin-bottom:8px; }
@@ -84,7 +84,7 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 .score-side-card .score-sublbl { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; text-transform:uppercase; margin-top:4px; }
 .score-side-card .score-bar { height:4px; background:var(--border2); margin-top:12px; position:relative; }
 .score-side-card .score-bar-fill { height:100%; position:absolute; top:0; left:0; transition:width 1s ease; }
-.score-side-card .score-desc { font-size:13px; color:#999999; margin-top:10px; line-height:1.5; }
+.score-side-card .score-desc { font-size:13px; color:#aaaaaa; margin-top:10px; line-height:1.5; }
 
 .score-main-card { background:var(--bg2); border:1px solid var(--border); padding:20px 16px; position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; }
 .score-main-card::before { content:''; position:absolute; top:0; left:0; right:0; height:3px; }
@@ -95,7 +95,7 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 .ring-fill { fill:none; stroke-width:8; stroke-linecap:round; stroke-dasharray:373; stroke-dashoffset:373; transition:stroke-dashoffset 1.5s ease; }
 .score-center { position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; }
 .score-num { font-family:'Orbitron',monospace; font-size:48px; font-weight:900; color:#fff; line-height:1; }
-.score-max { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--text-dim); margin-top:4px; }
+.score-max { font-family:'Share Tech Mono',monospace; font-size:13px; color:var(--text-dim); margin-top:4px; }
 .score-status-lbl { font-family:'Share Tech Mono',monospace; font-size:13px; letter-spacing:3px; text-transform:uppercase; text-align:center; }
 .pcs-label { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; color:#dddddd; text-transform:uppercase; margin-bottom:12px; }
 
@@ -115,7 +115,7 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 .status-dot.green { background:var(--green); }
 .status-dot.yellow { background:var(--yellow); }
 .status-dot.red { background:var(--red); }
-.sh-count { font-family:'Share Tech Mono',monospace; font-size:8px; padding:3px 10px; text-transform:uppercase; }
+.sh-count { font-family:'Share Tech Mono',monospace; font-size:11px; padding:3px 10px; text-transform:uppercase; }
 .sh-count.green { color:var(--green); border:1px solid rgba(46,204,113,0.3); background:var(--green-dim); }
 .sh-count.yellow { color:var(--yellow); border:1px solid rgba(245,166,35,0.3); background:var(--yellow-dim); }
 .sh-count.red { color:var(--red); border:1px solid rgba(232,50,10,0.4); background:var(--red-dim); }
@@ -124,16 +124,16 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 .asset-row { padding:12px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:16px; }
 .asset-row:last-child { border-bottom:none; }
 .asset-row-name { font-size:14px; font-weight:600; color:#ffffff; flex:1; letter-spacing:0.3px; }
-.asset-row-system { font-size:11px; color:var(--text-dim); width:160px; font-family:'Share Tech Mono',monospace; letter-spacing:1px; }
+.asset-row-system { font-size:13px; color:var(--text-dim); width:160px; font-family:'Share Tech Mono',monospace; letter-spacing:1px; }
 .asset-score-wrap { display:flex; align-items:center; gap:8px; }
 .asset-score-num { font-family:'Orbitron',monospace; font-size:16px; font-weight:700; width:36px; }
 .asset-mini-bar { width:80px; height:3px; background:var(--border2); position:relative; }
 .asset-mini-fill { height:100%; position:absolute; top:0; left:0; }
-.asset-status-pill { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:1px; padding:3px 8px; text-transform:uppercase; }
+.asset-status-pill { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:1px; padding:3px 8px; text-transform:uppercase; }
 .pill-green { color:var(--green); border:1px solid rgba(46,204,113,0.3); background:var(--green-dim); }
 .pill-yellow { color:var(--yellow); border:1px solid rgba(245,166,35,0.3); background:var(--yellow-dim); }
 .pill-red { color:var(--red); border:1px solid rgba(232,50,10,0.4); background:var(--red-dim); }
-.empty-msg { padding:24px 20px; font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; text-align:center; }
+.empty-msg { padding:24px 20px; font-family:'Share Tech Mono',monospace; font-size:12px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; text-align:center; }
 
 /* TWO COL */
 .two-col { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
@@ -147,21 +147,21 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 .finding-bar.moderate { background:var(--text-mid); }
 .finding-content { flex:1; }
 .finding-title { font-size:15px; font-weight:700; color:#ffffff; margin-bottom:4px; }
-.finding-cat { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:1px; color:#999999; text-transform:uppercase; }
+.finding-cat { font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:1px; color:#aaaaaa; text-transform:uppercase; }
 .finding-cat span { color:var(--text-mid); margin-right:10px; }
-.finding-pill { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:1px; padding:3px 8px; text-transform:uppercase; align-self:center; }
+.finding-pill { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:1px; padding:3px 8px; text-transform:uppercase; align-self:center; }
 
 /* WHAT THIS MEANS */
 .plain-explain { padding:14px 20px; border-top:1px solid var(--border); }
-.plain-explain .pe-lbl { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-bottom:6px; }
+.plain-explain .pe-lbl { font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:2px; color:#cccccc; text-transform:uppercase; margin-bottom:6px; font-weight:600; }
 .plain-explain .pe-text { font-size:13px; color:var(--text-mid); line-height:1.6; }
 
 /* RECOMMENDED ACTIONS */
 .action-row { padding:12px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:14px; }
 .action-row:last-child { border-bottom:none; }
-.action-priority { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:1px; padding:3px 8px; text-transform:uppercase; white-space:nowrap; }
+.action-priority { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:1px; padding:3px 8px; text-transform:uppercase; white-space:nowrap; }
 .action-text { flex:1; font-size:14px; color:#dddddd; font-weight:500; }
-.action-cost { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--text-dim); white-space:nowrap; }
+.action-cost { font-family:'Share Tech Mono',monospace; font-size:12px; color:var(--text-dim); white-space:nowrap; }
 
 /* VALVE GRID */
 .valve-row { display:grid; grid-template-columns:80px 1fr 100px 90px; gap:8px; align-items:center; padding:10px 14px; background:var(--bg3); border:1px solid var(--border); margin-bottom:6px; }
@@ -176,13 +176,13 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 .comp-header { padding:12px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
 .comp-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:1px; background:var(--border); }
 .comp-cell { background:var(--bg3); padding:14px 18px; }
-.comp-lbl { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-bottom:5px; }
+.comp-lbl { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-bottom:5px; }
 .comp-val { font-family:'Orbitron',monospace; font-size:20px; font-weight:700; color:#fff; line-height:1; }
 .comp-val.flag-red { color:var(--red); }
 .comp-val.flag-yellow { color:var(--yellow); }
 .comp-val.flag-green { color:var(--green); }
-.comp-unit { font-family:'Share Tech Mono',monospace; font-size:7px; color:var(--text-dim); margin-top:2px; }
-.comp-status { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:1px; margin-top:5px; text-transform:uppercase; }
+.comp-unit { font-family:'Share Tech Mono',monospace; font-size:10px; color:var(--text-dim); margin-top:2px; }
+.comp-status { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:1px; margin-top:5px; text-transform:uppercase; }
 .comp-status.normal { color:var(--green); }
 .comp-status.attention { color:var(--yellow); }
 .comp-status.critical-s { color:var(--red); }
@@ -190,13 +190,13 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 /* SNAPSHOT */
 .snap-row { display:flex; align-items:center; gap:12px; padding:10px 0; border-bottom:1px solid var(--border); }
 .snap-row:last-child { border-bottom:none; }
-.snap-date { font-family:'Share Tech Mono',monospace; font-size:9px; color:var(--text-dim); width:100px; }
+.snap-date { font-family:'Share Tech Mono',monospace; font-size:12px; color:var(--text-dim); width:100px; }
 .snap-score { font-family:'Orbitron',monospace; font-size:18px; font-weight:700; width:50px; }
 .snap-bar { flex:1; height:3px; background:var(--border2); position:relative; }
 .snap-fill { height:100%; position:absolute; top:0; left:0; }
 
 /* COLLAPSIBLE */
-.expand-btn { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; padding:10px 20px; border:none; background:transparent; cursor:pointer; width:100%; text-align:left; border-top:1px solid var(--border); display:flex; align-items:center; gap:8px; transition:color 0.2s; }
+.expand-btn { font-family:'Share Tech Mono',monospace; font-size:12px; letter-spacing:2px; color:#aaaaaa; text-transform:uppercase; padding:10px 20px; border:none; background:transparent; cursor:pointer; width:100%; text-align:left; border-top:1px solid var(--border); display:flex; align-items:center; gap:8px; transition:color 0.2s; }
 .expand-btn:hover { color:#fff; }
 .expand-btn .expand-arrow { transition:transform 0.2s; display:inline-block; }
 .expand-btn.expanded .expand-arrow { transform:rotate(180deg); }
@@ -206,26 +206,26 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 
 /* ── HMI PANEL ── */
 .hmi-panel { background:var(--bg2); border:1px solid var(--border); position:relative; }
-.hmi-panel::before { content:'PLANT CONDITION MONITOR'; position:absolute; top:-1px; left:20px; font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:3px; color:var(--text-dim); background:var(--bg2); padding:0 8px; text-transform:uppercase; }
+.hmi-panel::before { content:'PLANT CONDITION MONITOR'; position:absolute; top:-1px; left:20px; font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:3px; color:var(--text-dim); background:var(--bg2); padding:0 8px; text-transform:uppercase; }
 .hmi-top-bar { display:flex; align-items:stretch; border-bottom:1px solid var(--border); }
 .hmi-pcs-block { padding:24px 32px; border-right:1px solid var(--border); display:flex; flex-direction:column; justify-content:center; min-width:220px; }
-.hmi-pcs-tag { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; margin-bottom:6px; display:flex; align-items:center; gap:6px; }
+.hmi-pcs-tag { font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:3px; color:#cccccc; text-transform:uppercase; margin-bottom:6px; display:flex; align-items:center; gap:6px; }
 .hmi-pcs-tag::before { content:''; width:4px; height:4px; background:var(--red); display:inline-block; }
 .hmi-pcs-value { font-family:'Orbitron',monospace; font-size:80px; font-weight:900; line-height:0.9; margin-bottom:4px; }
-.hmi-pcs-denom { font-family:'Share Tech Mono',monospace; font-size:11px; color:var(--text-dim); }
+.hmi-pcs-denom { font-family:'Share Tech Mono',monospace; font-size:13px; color:var(--text-dim); }
 .hmi-pcs-status { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:3px; text-transform:uppercase; margin-top:8px; }
 .hmi-scores-block { flex:1; display:grid; grid-template-columns:1fr 1fr; }
 .hmi-score-cell { padding:16px 24px; border-right:1px solid var(--border); border-bottom:1px solid var(--border); position:relative; }
 .hmi-score-cell:nth-child(2) { border-right:none; }
 .hmi-score-cell:nth-child(3) { border-bottom:none; }
 .hmi-score-cell:nth-child(4) { border-right:none; border-bottom:none; }
-.hmi-cell-tag { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-bottom:4px; }
+.hmi-cell-tag { font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:2px; color:#cccccc; text-transform:uppercase; margin-bottom:4px; }
 .hmi-cell-value { font-family:'Orbitron',monospace; font-size:36px; font-weight:700; line-height:1; }
-.hmi-cell-status { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px; text-transform:uppercase; margin-top:4px; margin-bottom:8px; }
+.hmi-cell-status { font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:2px; text-transform:uppercase; margin-top:4px; margin-bottom:8px; }
 .hmi-cell-bar { height:3px; background:var(--border2); position:relative; margin-bottom:8px; }
 .hmi-cell-bar-fill { height:100%; position:absolute; top:0; left:0; transition:width 1.2s ease; }
-.hmi-cell-narrative { font-size:11px; color:var(--text-dim); line-height:1.5; }
-.hmi-cell-sublabel { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:1px; color:var(--border2); text-transform:uppercase; margin-top:6px; border-top:1px solid var(--border); padding-top:6px; }
+.hmi-cell-narrative { font-size:13px; color:var(--text-dim); line-height:1.5; }
+.hmi-cell-sublabel { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; margin-top:6px; border-top:1px solid var(--border); padding-top:6px; }
 .hmi-narrative-bar { padding:12px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; gap:16px; background:var(--bg3); }
 .hmi-narrative-text { font-size:14px; color:#cccccc; line-height:1.5; flex:1; font-weight:500; }
 .hmi-status-lights { display:flex; align-items:center; gap:8px; flex-shrink:0; }
@@ -235,55 +235,55 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 .hmi-light.on-red { background:var(--red); box-shadow:0 0 6px var(--red); animation:pulse 1s ease infinite; }
 .hmi-light.off { background:var(--border2); }
 .hmi-how-calc { padding:12px 24px; }
-.how-calc-toggle { display:flex; align-items:center; gap:8px; cursor:pointer; font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; border:none; background:none; padding:0; transition:color 0.2s; user-select:none; }
+.how-calc-toggle { display:flex; align-items:center; gap:8px; cursor:pointer; font-family:'Share Tech Mono',monospace; font-size:12px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; border:none; background:none; padding:0; transition:color 0.2s; user-select:none; }
 .how-calc-toggle:hover { color:#fff; }
-.how-calc-arrow { transition:transform 0.25s; display:inline-block; font-size:8px; }
+.how-calc-arrow { transition:transform 0.25s; display:inline-block; font-size:11px; }
 .how-calc-toggle.open .how-calc-arrow { transform:rotate(180deg); }
 .how-calc-body { display:none; margin-top:12px; background:var(--bg3); border:1px solid var(--border); padding:16px; }
 .how-calc-body.open { display:block; }
 .how-calc-row { display:flex; align-items:center; justify-content:space-between; padding:8px 0; border-bottom:1px solid var(--border); }
 .how-calc-row:last-child { border-bottom:none; }
-.how-calc-label { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:1px; color:var(--text-mid); text-transform:uppercase; }
+.how-calc-label { font-family:'Share Tech Mono',monospace; font-size:12px; letter-spacing:1px; color:var(--text-mid); text-transform:uppercase; }
 .how-calc-value { font-family:'Orbitron',monospace; font-size:16px; font-weight:700; }
-.how-calc-note { font-size:11px; color:var(--text-dim); margin-top:12px; line-height:1.5; }
+.how-calc-note { font-size:13px; color:var(--text-dim); margin-top:12px; line-height:1.5; }
 
 /* ── COMPRESSOR VITALS ── */
 .vitals-grid { display:grid; grid-template-columns:repeat(2,1fr); gap:16px; }
 .vital-card { background:var(--bg2); border:1px solid var(--border); box-shadow:var(--shadow-sm); overflow:hidden; }
 .vital-card-header { padding:14px 20px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
 .vital-card-name { font-family:'Bebas Neue',sans-serif; font-size:18px; letter-spacing:2px; color:#fff; }
-.vital-card-type { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; margin-top:2px; }
+.vital-card-type { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; margin-top:2px; }
 .vital-card-score-num { font-family:'Orbitron',monospace; font-size:24px; font-weight:700; }
-.vital-card-score-lbl { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; text-align:right; }
+.vital-card-score-lbl { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; text-align:right; }
 .vital-readings { display:grid; grid-template-columns:repeat(6,minmax(110px,1fr)); gap:1px; background:var(--border); overflow-x:auto; }
 .vital-reading { background:var(--bg3); padding:12px 14px; min-width:110px; }
-.vital-reading-lbl { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; margin-bottom:4px; }
+.vital-reading-lbl { font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:1px; color:#cccccc; text-transform:uppercase; margin-bottom:4px; }
 .vital-reading-val { font-family:'Orbitron',monospace; font-size:18px; font-weight:700; line-height:1; }
-.vital-reading-unit { font-family:'Share Tech Mono',monospace; font-size:7px; color:var(--text-dim); margin-top:2px; }
-.vital-reading-status { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:1px; text-transform:uppercase; margin-top:4px; }
+.vital-reading-unit { font-family:'Share Tech Mono',monospace; font-size:11px; color:#aaaaaa; margin-top:2px; }
+.vital-reading-status { font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:1px; text-transform:uppercase; margin-top:4px; }
 .vital-reading-status.vrs-normal { color:var(--green); }
 .vital-reading-status.vrs-attention { color:var(--yellow); }
 .vital-reading-status.vrs-critical { color:var(--red); }
 .vital-trend-section { padding:12px 20px 16px; border-top:1px solid var(--border); }
-.vital-trend-title { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-bottom:10px; }
+.vital-trend-title { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; margin-bottom:10px; }
 .vital-charts-grid { display:grid; grid-template-columns:repeat(6,minmax(120px,1fr)); gap:12px; overflow-x:auto; padding-bottom:4px; }
-.vital-chart-lbl { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; margin-bottom:4px; }
+.vital-chart-lbl { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; margin-bottom:4px; }
 .vital-card-footer { padding:8px 20px; border-top:1px solid var(--border); display:flex; align-items:center; gap:10px; }
-.vital-last-reading { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; }
+.vital-last-reading { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; }
 .vital-health-bar { height:3px; background:var(--border2); border-radius:2px; position:relative; overflow:hidden; flex:1; }
 .vital-health-fill { height:100%; border-radius:2px; }
-.vital-offline { padding:20px; text-align:center; font-family:'Share Tech Mono',monospace; font-size:8px; color:var(--text-dim); letter-spacing:2px; text-transform:uppercase; }
+.vital-offline { padding:20px; text-align:center; font-family:'Share Tech Mono',monospace; font-size:13px; color:var(--text-dim); letter-spacing:2px; text-transform:uppercase; }
 .history-chart-wrap { padding:20px; }
 
 /* LOADING */
 .loading-state { display:flex; flex-direction:column; align-items:center; justify-content:center; height:400px; gap:16px; position:relative; z-index:5; }
 .spinner { width:36px; height:36px; border:2px solid var(--border2); border-top-color:var(--red); border-radius:50%; animation:spin 0.8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
-.loading-txt { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; }
+.loading-txt { font-family:'Share Tech Mono',monospace; font-size:12px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; }
 
 /* FOOTER */
 footer { position:relative; z-index:5; border-top:1px solid var(--border); padding:14px 32px; display:flex; align-items:center; justify-content:space-between; background:var(--bg2); margin-top:20px; }
-.footer-txt { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; }
+.footer-txt { font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--text-dim); text-transform:uppercase; }
 
 @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
 .animate { animation:fadeUp 0.4s ease forwards; opacity:0; }
@@ -301,7 +301,7 @@ footer { position:relative; z-index:5; border-top:1px solid var(--border); paddi
   <div class="header-right">
     <div class="live-badge">● Live Dashboard</div>
     <div class="header-date" id="header-date"></div>
-    <a href="/api/logout" style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:#555;text-decoration:none;text-transform:uppercase;border:1px solid #2a2a2a;padding:6px 12px;margin-left:8px">Logout</a>
+    <a href="/api/logout" style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;color:#555;text-decoration:none;text-transform:uppercase;border:1px solid #2a2a2a;padding:6px 12px;margin-left:8px">Logout</a>
   </div>
 </header>
 
@@ -409,12 +409,12 @@ function renderHistoryChart(containerId, labels, data, color) {
     const areaD = 'M'+pts[0].x.toFixed(1)+','+(pad.t+iH)+' '+pts.map(p=>p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ')+' '+(pts[pts.length-1].x).toFixed(1)+','+(pad.t+iH)+' Z';
     const gridLines = [0,25,50,75,100].map(v => {
       const y = pad.t + iH - ((v-minV)/(maxV-minV))*iH;
-      return '<line x1="'+pad.l+'" y1="'+y.toFixed(1)+'" x2="'+(pad.l+iW)+'" y2="'+y.toFixed(1)+'" stroke="#222" stroke-width="1"/>'
-           + '<text x="'+(pad.l-4)+'" y="'+(y+3).toFixed(1)+'" font-family="Share Tech Mono,monospace" font-size="8" fill="#444" text-anchor="end">'+v+'</text>';
+      return '<line x1="'+pad.l+'" y1="'+y.toFixed(1)+'" x2="'+(pad.l+iW)+'" y2="'+y.toFixed(1)+'" stroke="#333" stroke-width="1"/>'
+           + '<text x="'+(pad.l-4)+'" y="'+(y+3).toFixed(1)+'" font-family="Share Tech Mono,monospace" font-size="8" fill="#888" text-anchor="end">'+v+'</text>';
     }).join('');
     const dots = pts.map(p=>'<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="4" fill="'+color+'" stroke="#080808" stroke-width="2"/>'
       +'<text x="'+p.x.toFixed(1)+'" y="'+(p.y-8).toFixed(1)+'" font-family="Share Tech Mono,monospace" font-size="9" fill="'+color+'" text-anchor="middle" font-weight="700">'+Math.round(p.v)+'</text>').join('');
-    const xLabels = pts.map(p=>'<text x="'+p.x.toFixed(1)+'" y="'+(H-4)+'" font-family="Share Tech Mono,monospace" font-size="8" fill="#444" text-anchor="middle">'+p.l+'</text>').join('');
+    const xLabels = pts.map(p=>'<text x="'+p.x.toFixed(1)+'" y="'+(H-4)+'" font-family="Share Tech Mono,monospace" font-size="8" fill="#888" text-anchor="middle">'+p.l+'</text>').join('');
     el.innerHTML = '<svg width="100%" height="'+H+'" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'
       + '<defs><linearGradient id="hg'+containerId+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+color+'" stop-opacity="0.12"/><stop offset="100%" stop-color="'+color+'" stop-opacity="0"/></linearGradient></defs>'
       + gridLines
@@ -602,7 +602,7 @@ document.addEventListener('DOMContentLoaded', async()=>{
     M.customers = buildMap(D.customers?.records);
     buildDropdown();
   } catch(e) {
-    $('dashboard-content').innerHTML = `<div class="loading-state"><div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--red);text-transform:uppercase">Failed to load — check server connection</div></div>`;
+    $('dashboard-content').innerHTML = `<div class="loading-state"><div style="font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:3px;color:var(--red);text-transform:uppercase">Failed to load — check server connection</div></div>`;
   }
 });
 
@@ -928,13 +928,13 @@ function renderDashboard(siteId) {
           <div class="hmi-pcs-status" style="color:${pc}">${scoreLabel(plantScore)}</div>
           ${deltaHtml(pcsDelta)}
         </div>
-        ${pcsDelta!==null?`<div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;margin-top:4px">SINCE LAST VISIT</div>`:''}
+        ${pcsDelta!==null?`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;margin-top:4px">SINCE LAST VISIT</div>`:''}
       </div>
 
       <!-- HEALTH + INTEGRITY CELLS -->
       <div class="hmi-scores-block">
         <div class="hmi-score-cell">
-          <div class="hmi-cell-tag">PLANT HEALTH SCORE</div>
+          <div class="hmi-cell-tag">🔧 PLANT HEALTH SCORE</div>
           <div style="display:flex;align-items:baseline;gap:6px">
             <div class="hmi-cell-value" style="color:${rc}">${(relScore!==null&&!isNaN(relScore))?Math.round(relScore):'—'}</div>
             ${deltaHtml(healthDelta, true)}
@@ -945,7 +945,7 @@ function renderDashboard(siteId) {
           <div class="hmi-cell-sublabel">RESPONDS TO SERVICE WORK</div>
         </div>
         <div class="hmi-score-cell">
-          <div class="hmi-cell-tag">PLANT INTEGRITY SCORE</div>
+          <div class="hmi-cell-tag">🛡️ PLANT INTEGRITY SCORE</div>
           <div style="display:flex;align-items:baseline;gap:6px">
             <div class="hmi-cell-value" style="color:${ic}">${(infraScore!==null&&!isNaN(infraScore))?Math.round(infraScore):'—'}</div>
             ${deltaHtml(integDelta, true)}
@@ -973,28 +973,28 @@ function renderDashboard(siteId) {
           <div style="display:flex;flex-direction:column;gap:8px">
             <div style="display:flex;align-items:center;gap:10px">
               <div class="hmi-light ${pcsLight}"></div>
-              <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-mid);letter-spacing:1px">PLANT CONDITION</div>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-mid);letter-spacing:1px">PLANT CONDITION</div>
               <div style="font-family:'Orbitron',monospace;font-size:10px;font-weight:700;color:${pc};margin-left:auto">${(plantScore!==null&&!isNaN(plantScore))?Math.round(plantScore):'—'}</div>
             </div>
             <div style="display:flex;align-items:center;gap:10px">
               <div class="hmi-light ${healthLight}"></div>
-              <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-mid);letter-spacing:1px">PLANT HEALTH</div>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-mid);letter-spacing:1px">🔧 PLANT HEALTH</div>
               <div style="font-family:'Orbitron',monospace;font-size:10px;font-weight:700;color:${rc};margin-left:auto">${(relScore!==null&&!isNaN(relScore))?Math.round(relScore):'—'}</div>
             </div>
             <div style="display:flex;align-items:center;gap:10px">
               <div class="hmi-light ${integLight}"></div>
-              <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-mid);letter-spacing:1px">PLANT INTEGRITY</div>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-mid);letter-spacing:1px">🛡️ PLANT INTEGRITY</div>
               <div style="font-family:'Orbitron',monospace;font-size:10px;font-weight:700;color:${ic};margin-left:auto">${(infraScore!==null&&!isNaN(infraScore))?Math.round(infraScore):'—'}</div>
             </div>
             <div style="display:flex;align-items:center;gap:10px">
               <div class="hmi-light ${findingsLight}"></div>
-              <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-mid);letter-spacing:1px">FINDINGS</div>
-              <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${sortedFindings.length>0?'var(--yellow)':'var(--green)'};margin-left:auto">${sortedFindings.length} OPEN</div>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-mid);letter-spacing:1px">FINDINGS</div>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:${sortedFindings.length>0?'var(--yellow)':'var(--green)'};margin-left:auto">${sortedFindings.length} OPEN</div>
             </div>
             <div style="display:flex;align-items:center;gap:10px">
               <div class="hmi-light ${valveLight}"></div>
-              <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:var(--text-mid);letter-spacing:1px">COMPLIANCE</div>
-              <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${expiredValves.length>0?'var(--red)':'var(--green)'};margin-left:auto">${expiredValves.length>0?expiredValves.length+' EXPIRED':'CURRENT'}</div>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-mid);letter-spacing:1px">COMPLIANCE</div>
+              <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:${expiredValves.length>0?'var(--red)':'var(--green)'};margin-left:auto">${expiredValves.length>0?expiredValves.length+' EXPIRED':'CURRENT'}</div>
             </div>
           </div>
         </div>
@@ -1003,7 +1003,7 @@ function renderDashboard(siteId) {
 
     <!-- NARRATIVE BAR -->
     <div class="hmi-narrative-bar">
-      <div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;white-space:nowrap;margin-right:8px">SYSTEM STATUS //</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:var(--text-dim);text-transform:uppercase;white-space:nowrap;margin-right:8px">SYSTEM STATUS //</div>
       <div class="hmi-narrative-text">${narrative}</div>
       <div class="hmi-status-lights">
         <div class="hmi-light ${pcsLight}"></div>
@@ -1022,11 +1022,11 @@ function renderDashboard(siteId) {
       </button>
       <div class="how-calc-body" id="hc-body-pcs">
         <div class="how-calc-row">
-          <span class="how-calc-label">Plant Health Score — current operational condition</span>
+          <span class="how-calc-label">🔧 Plant Health Score — current operational condition</span>
           <span class="how-calc-value" style="color:${rc}">${(relScore!==null&&!isNaN(relScore))?Math.round(relScore):'—'}</span>
         </div>
         <div class="how-calc-row">
-          <span class="how-calc-label">Plant Integrity Score — physical asset condition</span>
+          <span class="how-calc-label">🛡️ Plant Integrity Score — physical asset condition</span>
           <span class="how-calc-value" style="color:${ic}">${(infraScore!==null&&!isNaN(infraScore))?Math.round(infraScore):'—'}</span>
         </div>
         <div class="how-calc-row">
@@ -1167,7 +1167,7 @@ function renderDashboard(siteId) {
         <div class="vital-health-bar" style="margin:0 8px">
           <div class="vital-health-fill" style="width:${(assetHealth!==null&&!isNaN(assetHealth))?Math.round(assetHealth):0}%;background:${healthColor}"></div>
         </div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;color:${machineStatus.toUpperCase()==='RUNNING'?'var(--green)':'var(--text-dim)'}">${machineStatus||'—'}</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:${machineStatus.toUpperCase()==='RUNNING'?'var(--green)':'var(--text-dim)'}">${machineStatus||'—'}</div>
       </div>
       </div>`;
     });
@@ -1233,21 +1233,21 @@ function renderDashboard(siteId) {
         <div style="display:flex;align-items:center;gap:12px;flex:1;flex-wrap:wrap">
           <div style="display:flex;align-items:center;gap:6px">
             <div style="width:5px;height:5px;border-radius:50%;background:var(--text-dim)"></div>
-            <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:#aaaaaa;letter-spacing:1px">${totalAssets} Asset${totalAssets!==1?'s':''} Under Management</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#aaaaaa;letter-spacing:1px">${totalAssets} Asset${totalAssets!==1?'s':''} Under Management</div>
           </div>
-          ${needAttention>0?`<div style="display:flex;align-items:center;gap:6px"><div style="width:5px;height:5px;border-radius:50%;background:var(--yellow)"></div><div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--yellow);letter-spacing:1px">${needAttention} Requiring Attention</div></div>`:''}
-          ${isCritical>0?`<div style="display:flex;align-items:center;gap:6px"><div style="width:5px;height:5px;border-radius:50%;background:var(--red)"></div><div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--red);letter-spacing:1px">${isCritical} Critical</div></div>`:''}
-          ${needAttention===0&&isCritical===0?`<div style="display:flex;align-items:center;gap:6px"><div style="width:5px;height:5px;border-radius:50%;background:var(--green)"></div><div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--green);letter-spacing:1px">All Within Range</div></div>`:''}
+          ${needAttention>0?`<div style="display:flex;align-items:center;gap:6px"><div style="width:5px;height:5px;border-radius:50%;background:var(--yellow)"></div><div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--yellow);letter-spacing:1px">${needAttention} Requiring Attention</div></div>`:''}
+          ${isCritical>0?`<div style="display:flex;align-items:center;gap:6px"><div style="width:5px;height:5px;border-radius:50%;background:var(--red)"></div><div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--red);letter-spacing:1px">${isCritical} Critical</div></div>`:''}
+          ${needAttention===0&&isCritical===0?`<div style="display:flex;align-items:center;gap:6px"><div style="width:5px;height:5px;border-radius:50%;background:var(--green)"></div><div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--green);letter-spacing:1px">All Within Range</div></div>`:''}
         </div>
         <div style="display:flex;align-items:center;gap:16px">
           <div style="text-align:center">
-            <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">Integrity</div>
-            <div style="font-family:'Orbitron',monospace;font-size:20px;font-weight:700;color:${sc2i}">${sysIntegScore!==null&&!isNaN(sysIntegScore)?Math.round(sysIntegScore):'—'}</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#cccccc;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">🔧 Health</div>
+            <div style="font-family:'Orbitron',monospace;font-size:20px;font-weight:700;color:${sc2h}">${sysHealthScore!==null&&!isNaN(sysHealthScore)?Math.round(sysHealthScore):'—'}</div>
           </div>
           <div style="width:1px;height:32px;background:var(--border)"></div>
           <div style="text-align:center">
-            <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">Health</div>
-            <div style="font-family:'Orbitron',monospace;font-size:20px;font-weight:700;color:${sc2h}">${sysHealthScore!==null&&!isNaN(sysHealthScore)?Math.round(sysHealthScore):'—'}</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#cccccc;letter-spacing:1px;text-transform:uppercase;margin-bottom:2px">🛡️ Integrity</div>
+            <div style="font-family:'Orbitron',monospace;font-size:20px;font-weight:700;color:${sc2i}">${sysIntegScore!==null&&!isNaN(sysIntegScore)?Math.round(sysIntegScore):'—'}</div>
           </div>
         </div>
       </div>
@@ -1300,22 +1300,22 @@ function renderDashboard(siteId) {
             <div style="display:grid;grid-template-columns:35% 22% 22% 21%;align-items:start;gap:8px">
               <div>
                 <div style="font-size:14px;font-weight:600;color:#ffffff;margin-bottom:4px">${aName}</div>
-                ${aType?`<div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase">${aType}</div>`:''}
+                ${aType?`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase">${aType}</div>`:''}
               </div>
               <div>
-                <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Integrity</div>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#cccccc;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">🛡️ Integrity</div>
                 <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:${integColor};line-height:1;margin-bottom:5px">${assetInteg!==null&&!isNaN(assetInteg)?Math.round(assetInteg):'—'}</div>
                 <div style="height:3px;background:var(--border2);position:relative;margin-bottom:5px"><div style="height:100%;position:absolute;top:0;left:0;width:${assetInteg??0}%;background:${integColor}"></div></div>
                 <div style="font-size:11px;color:#888888;line-height:1.3">${integOneLiner}</div>
               </div>
               <div>
-                <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Health</div>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#cccccc;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">🔧 Health</div>
                 <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:${healthColor};line-height:1;margin-bottom:5px">${assetHealth!==null&&!isNaN(assetHealth)?Math.round(assetHealth):'—'}</div>
                 <div style="height:3px;background:var(--border2);position:relative;margin-bottom:5px"><div style="height:100%;position:absolute;top:0;left:0;width:${assetHealth??0}%;background:${healthColor}"></div></div>
                 <div style="font-size:11px;color:#888888;line-height:1.3">${healthOneLiner}</div>
               </div>
               <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:18px">
-                <span style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;padding:5px 10px;text-transform:uppercase;color:var(--green);border:1px solid var(--green);background:var(--green-dim);text-align:center">GOOD STANDING</span>
+                <span style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;padding:5px 10px;text-transform:uppercase;color:var(--green);border:1px solid var(--green);background:var(--green-dim);text-align:center">GOOD STANDING</span>
               </div>
             </div>
           </div>`+hiddenWrapEnd;
@@ -1324,24 +1324,24 @@ function renderDashboard(siteId) {
             <div style="display:grid;grid-template-columns:35% 22% 22% 21%;align-items:start;gap:8px">
               <div>
                 <div style="font-size:14px;font-weight:600;color:#ffffff;margin-bottom:4px">${aName}</div>
-                ${aType?`<div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase">${aType}</div>`:''}
+                ${aType?`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase">${aType}</div>`:''}
               </div>
               <div>
-                <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Integrity</div>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#cccccc;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">🛡️ Integrity</div>
                 <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:${integColor};line-height:1;margin-bottom:5px">${assetInteg!==null&&!isNaN(assetInteg)?Math.round(assetInteg):'—'}</div>
                 <div style="height:3px;background:var(--border2);position:relative;margin-bottom:5px"><div style="height:100%;position:absolute;top:0;left:0;width:${assetInteg??0}%;background:${integColor}"></div></div>
-                ${sls?`<div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:0.5px;color:${slsColor};text-transform:uppercase;line-height:1.4;margin-bottom:4px">${sls.label} · ${sls.age} YRS</div>`:''}
+                ${sls?`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:0.5px;color:${slsColor};text-transform:uppercase;line-height:1.4;margin-bottom:4px">${sls.label} · ${sls.age} YRS</div>`:''}
                 <div style="font-size:11px;color:#888888;line-height:1.3">${integOneLiner}</div>
               </div>
               <div>
-                <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">Health</div>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#cccccc;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">🔧 Health</div>
                 <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:${healthColor};line-height:1;margin-bottom:5px">${assetHealth!==null&&!isNaN(assetHealth)?Math.round(assetHealth):'—'}</div>
                 <div style="height:3px;background:var(--border2);position:relative;margin-bottom:5px"><div style="height:100%;position:absolute;top:0;left:0;width:${assetHealth??0}%;background:${healthColor}"></div></div>
-                <div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:0.5px;text-transform:uppercase;color:${openFindingsCount>0?'var(--yellow)':'var(--text-dim)'};margin-bottom:4px">${openFindingsCount>0?openFindingsCount+' Open Finding'+(openFindingsCount!==1?'s':''):'No Open Findings'}</div>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:0.5px;text-transform:uppercase;color:${openFindingsCount>0?'var(--yellow)':'var(--text-dim)'};margin-bottom:4px">${openFindingsCount>0?openFindingsCount+' Open Finding'+(openFindingsCount!==1?'s':''):'No Open Findings'}</div>
                 <div style="font-size:11px;color:#888888;line-height:1.3">${healthOneLiner}</div>
               </div>
               <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:18px">
-                ${prog&&prog.verdict?`<span style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;padding:5px 10px;text-transform:uppercase;color:${prog.color};border:1px solid ${prog.color};background:${prog.color}18;margin-bottom:6px;display:block;text-align:center">${prog.verdict}</span><div style="font-size:11px;color:#777777;line-height:1.4;text-align:center">${prog.text}</div>`:`<div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);text-transform:uppercase;text-align:center">Insufficient<br>Data</div>`}
+                ${prog&&prog.verdict?`<span style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;padding:5px 10px;text-transform:uppercase;color:${prog.color};border:1px solid ${prog.color};background:${prog.color}18;margin-bottom:6px;display:block;text-align:center">${prog.verdict}</span><div style="font-size:11px;color:#777777;line-height:1.4;text-align:center">${prog.text}</div>`:`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);text-transform:uppercase;text-align:center">Insufficient<br>Data</div>`}
               </div>
             </div>
           </div>`+hiddenWrapEnd;
@@ -1459,10 +1459,10 @@ function renderDashboard(siteId) {
   } else {
     html+=`<div style="padding:16px 20px">
       <div style="display:grid;grid-template-columns:80px 1fr 100px 90px;gap:8px;padding:0 0 8px;border-bottom:1px solid var(--border);margin-bottom:8px">
-        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Valve ID</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Protected Asset</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;text-align:center">Expiry Date</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;text-align:right">Status</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Valve ID</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Protected Asset</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;text-align:center">Expiry Date</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase;text-align:right">Status</div>
       </div>`;
     const sortedValves=[...expiredValves,...expiringValves,...valves.filter(v=>{
       const isExp=v.fields['Is Expired'];
@@ -1542,7 +1542,7 @@ function renderDashboard(siteId) {
     actions.forEach(act=>{
       html+=`<div class="action-row" style="flex-direction:column;align-items:flex-start;gap:8px;padding:14px 20px">
         <div style="display:flex;align-items:center;gap:10px;width:100%">
-          <span class="action-priority" style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:1px;padding:4px 10px;text-transform:uppercase;${act.priority==='CRITICAL'?'color:var(--red);border:1px solid rgba(232,50,10,0.4);background:var(--red-dim)':act.priority==='COMPLIANCE'?'color:var(--yellow);border:1px solid rgba(245,166,35,0.3);background:var(--yellow-dim)':'color:var(--text-mid);border:1px solid var(--border2)'}">${act.priority}</span>
+          <span class="action-priority" style="font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:1px;padding:4px 10px;text-transform:uppercase;${act.priority==='CRITICAL'?'color:var(--red);border:1px solid rgba(232,50,10,0.4);background:var(--red-dim)':act.priority==='COMPLIANCE'?'color:var(--yellow);border:1px solid rgba(245,166,35,0.3);background:var(--yellow-dim)':'color:var(--text-mid);border:1px solid var(--border2)'}">${act.priority}</span>
           ${act.cost?`<span style="font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--green);font-weight:700;margin-left:auto">Estimated Cost: ${act.cost}</span>`:''}
         </div>
         <div style="font-size:14px;color:#dddddd;font-weight:500;line-height:1.5">${act.text}</div>
@@ -1563,7 +1563,7 @@ function renderDashboard(siteId) {
       <div class="status-section">
         <div class="status-header">
           <div class="sh-title">Score Trend — ${name}</div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:${histColor};letter-spacing:1px">${validSnaps.length} Data Point${validSnaps.length!==1?'s':''}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:${histColor};letter-spacing:1px">${validSnaps.length} Data Point${validSnaps.length!==1?'s':''}</div>
         </div>
         <div class="history-chart-wrap" style="height:160px">
           <div id="history-chart-main" style="width:100%;height:140px"></div>
@@ -1589,17 +1589,17 @@ function renderDashboard(siteId) {
         <div class="status-dot ${siteVessels.length>0?'green':'yellow'}"></div>
         Pressure Vessel Compliance Registry
       </div>
-      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#cccccc;letter-spacing:1px">${siteVessels.length} Vessel${siteVessels.length!==1?'s':''} on Record</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:#cccccc;letter-spacing:1px">${siteVessels.length} Vessel${siteVessels.length!==1?'s':''} on Record</div>
     </div>
     ${siteVessels.length===0?`<div class="empty-msg">No vessels registered for this site yet</div>`:`
     <div style="padding:12px 20px 0">
       <div style="display:grid;grid-template-columns:1fr 90px 110px 110px 100px 100px;gap:8px;padding:0 0 8px;border-bottom:1px solid var(--border);margin-bottom:4px">
-        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Vessel</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Tag</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">National Board #</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">ASME Stamp</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Install Date</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Design Press.</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Vessel</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Tag</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">National Board #</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">ASME Stamp</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Install Date</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Design Press.</div>
       </div>
       ${siteVessels.map((v,vIdx)=>{
         const vf=v.fields;
@@ -1616,7 +1616,7 @@ function renderDashboard(siteId) {
           <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#aaaaaa">${vTag}</div>
           <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#aaaaaa">${nbNum}</div>
           <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#aaaaaa">${asme}</div>
-          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#aaaaaa">${instDate?fmtDate(instDate)+'<br><span style="font-size:9px;color:var(--text-dim)">'+(age!==null?age+' yrs':'')+'</span>':'—'}</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#aaaaaa">${instDate?fmtDate(instDate)+'<br><span style="font-size:12px;color:var(--text-dim)">'+(age!==null?age+' yrs':'')+'</span>':'—'}</div>
           <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#aaaaaa">${designPress!=='—'?designPress+' PSIG':designPress}</div>
         </div>`;
       }).join('')}
