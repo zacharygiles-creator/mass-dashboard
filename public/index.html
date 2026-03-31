@@ -248,8 +248,8 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 .vital-card-type { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; margin-top:2px; }
 .vital-card-score-num { font-family:'Orbitron',monospace; font-size:24px; font-weight:700; }
 .vital-card-score-lbl { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; text-align:right; }
-.vital-readings { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--border); }
-.vital-reading { background:var(--bg3); padding:12px 14px; }
+.vital-readings { display:grid; grid-template-columns:repeat(6,minmax(110px,1fr)); gap:1px; background:var(--border); overflow-x:auto; }
+.vital-reading { background:var(--bg3); padding:12px 14px; min-width:110px; }
 .vital-reading-lbl { font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:1px; color:var(--text-dim); text-transform:uppercase; margin-bottom:4px; }
 .vital-reading-val { font-family:'Orbitron',monospace; font-size:18px; font-weight:700; line-height:1; }
 .vital-reading-unit { font-family:'Share Tech Mono',monospace; font-size:7px; color:var(--text-dim); margin-top:2px; }
