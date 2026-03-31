@@ -350,6 +350,86 @@ function toggleHowCalc(id) {
   btn.classList.toggle('open', !open);
 }
 
+// ── COMPRESSOR TREND CHART ──────────────────────────────
+function updateTrendChart() {
+  const compSel = document.getElementById('trend-comp-sel');
+  const paramSel = document.getElementById('trend-param-sel');
+  const chartEl = document.getElementById('comp-trend-chart');
+  const emptyEl = document.getElementById('comp-trend-empty');
+  if(!compSel||!paramSel||!chartEl||!window._compTrendData) return;
+
+  const compId = compSel.value;
+  const param = paramSel.value;
+  const compData = window._compTrendData[compId];
+  const units = window._paramUnits[param]||'';
+
+  if(!compData||!compData[param]) { chartEl.style.display='none'; if(emptyEl) emptyEl.style.display='block'; return; }
+  const data = compData[param].filter(v=>v!==null);
+  const labels = compData.labels.slice(-data.length);
+
+  if(data.length===0) { chartEl.style.display='none'; if(emptyEl) emptyEl.style.display='block'; return; }
+  chartEl.style.display='block'; if(emptyEl) emptyEl.style.display='none';
+
+  // Determine color based on param and last value
+  const lastVal = data[data.length-1];
+  var color = '#2ECC71';
+  if(param==='Oil Temperature') {
+    color = lastVal>155||lastVal<90?'#E8320A':lastVal>140||lastVal<115?'#F5A623':'#2ECC71';
+  } else if(param==='Discharge Temp') {
+    color = lastVal>205?'#E8320A':lastVal>=180?'#F5A623':'#2ECC71';
+  } else if(param==='Oil Filter ΔP') {
+    color = lastVal>=15?'#E8320A':lastVal>=10?'#F5A623':'#2ECC71';
+  }
+
+  const W = chartEl.offsetWidth || 600;
+  const H = 200;
+  const pad = {t:30, r:20, b:40, l:55};
+  const iW = W - pad.l - pad.r;
+  const iH = H - pad.t - pad.b;
+  const minV = Math.min(...data) * 0.95;
+  const maxV = Math.max(...data) * 1.05;
+  const range = maxV - minV || 1;
+
+  const pts = data.map((v,i)=>({
+    x: pad.l + (data.length===1?iW/2:(i/(data.length-1))*iW),
+    y: pad.t + iH - ((v-minV)/range)*iH,
+    v: v, l: labels[i]||''
+  }));
+
+  const polyPts = pts.map(p=>p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ');
+  const areaD = 'M'+pad.l+','+(pad.t+iH)+' '+pts.map(p=>p.x.toFixed(1)+','+p.y.toFixed(1)).join(' ')+' '+(pad.l+iW).toFixed(1)+','+(pad.t+iH)+' Z';
+
+  // Grid lines - 5 horizontal
+  var gridSvg = '';
+  for(var gi=0;gi<=4;gi++) {
+    var gv = minV + (range/4)*gi;
+    var gy = pad.t + iH - ((gv-minV)/range)*iH;
+    gridSvg += '<line x1="'+pad.l+'" y1="'+gy.toFixed(1)+'" x2="'+(pad.l+iW)+'" y2="'+gy.toFixed(1)+'" stroke="#1e1e1e" stroke-width="1"/>';
+    gridSvg += '<text x="'+(pad.l-6)+'" y="'+(gy+4).toFixed(1)+'" font-family="Share Tech Mono,monospace" font-size="10" fill="#888" text-anchor="end">'+gv.toFixed(1)+'</text>';
+  }
+
+  // Y axis label
+  var yLabel = '<text transform="rotate(-90)" x="-'+(H/2)+'" y="14" font-family="Share Tech Mono,monospace" font-size="10" fill="#888" text-anchor="middle">'+param+' ('+units+')</text>';
+
+  // Data points and x labels
+  var dotsSvg = pts.map(p=>{
+    return '<circle cx="'+p.x.toFixed(1)+'" cy="'+p.y.toFixed(1)+'" r="5" fill="'+color+'" stroke="#080808" stroke-width="2"/>'+
+      '<text x="'+p.x.toFixed(1)+'" y="'+(p.y-10).toFixed(1)+'" font-family="Orbitron,monospace" font-size="10" fill="'+color+'" text-anchor="middle" font-weight="700">'+p.v.toFixed(1)+'</text>'+
+      '<text x="'+p.x.toFixed(1)+'" y="'+(H-6)+'" font-family="Share Tech Mono,monospace" font-size="10" fill="#888" text-anchor="middle">'+p.l+'</text>';
+  }).join('');
+
+  // Compressor name label
+  var titleSvg = '<text x="'+pad.l+'" y="18" font-family="Share Tech Mono,monospace" font-size="11" fill="#cccccc" font-weight="600">'+compData.name+' — '+param+'</text>';
+
+  chartEl.innerHTML = '<svg width="100%" height="'+H+'" viewBox="0 0 '+W+' '+H+'" preserveAspectRatio="none">'+
+    '<defs><linearGradient id="tg1" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="'+color+'" stop-opacity="0.15"/><stop offset="100%" stop-color="'+color+'" stop-opacity="0"/></linearGradient></defs>'+
+    yLabel + gridSvg +
+    '<path d="'+areaD+'" fill="url(#tg1)" stroke="none"/>'+
+    '<polyline points="'+polyPts+'" fill="none" stroke="'+color+'" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"/>'+
+    dotsSvg + titleSvg +
+    '</svg>';
+}
+
 // ── SVG CHART RENDERER (no external dependencies) ────────
 function destroyCharts() {
   // SVG charts don't need cleanup
@@ -1047,7 +1127,7 @@ function renderDashboard(siteId) {
   });
 
   if(compressorAssets.length > 0) {
-    const chartInitQueue = [];
+
     html+=`<div class="animate" style="animation-delay:0.25s">
     <div class="section-label">Compressor Vitals</div>
     <div class="vitals-grid">`;
@@ -1137,28 +1217,6 @@ function renderDashboard(siteId) {
             const d = fval(r.fields,'Date','')||'';
             return d ? new Date(d).toLocaleDateString('en-US',{month:'numeric',day:'numeric'}) : '';
           });
-          const oilTempData = readings.map(r=>parseFloat(r.fields['Oil Temperature'])||null).filter(v=>v!==null);
-          const dischTempData = readings.map(r=>parseFloat(r.fields['Discharge Temp (F)'])||null).filter(v=>v!==null);
-          const filterData = readings.map(r=>parseFloat(r.fields['Oil Filter ΔP (PSID)'])||null).filter(v=>v!==null);
-          const suctionData = readings.map(r=>parseFloat(r.fields['Suction Reading'])||null).filter(v=>v!==null);
-          const dischPressData = readings.map(r=>parseFloat(r.fields['Discharge Pressure (PSIG)'])||null).filter(v=>v!==null);
-          const ampsData = readings.map(r=>parseFloat(r.fields['Motor Amps (Running)'])||null).filter(v=>v!==null);
-
-          html+=`<div class="vital-trend-section">
-            <div class="vital-trend-title">${readings.length} readings · Parameter trends</div>
-            <div class="vital-charts-grid">
-              ${oilTempData.length>0?`<div><div class="vital-chart-lbl">Oil Temp °F</div><div id="${chartId}-ot" style="height:50px;width:100%"></div></div>`:''}
-              ${dischTempData.length>0?`<div><div class="vital-chart-lbl">Discharge Temp °F</div><div id="${chartId}-dt" style="height:50px;width:100%"></div></div>`:''}
-              ${filterData.length>0?`<div><div class="vital-chart-lbl">Oil Filter ΔP PSID</div><div id="${chartId}-fp" style="height:50px;width:100%"></div></div>`:''}
-              ${suctionData.length>0?`<div><div class="vital-chart-lbl">Suction PSIG</div><div id="${chartId}-sp" style="height:50px;width:100%"></div></div>`:''}
-              ${dischPressData.length>0?`<div><div class="vital-chart-lbl">Discharge PSIG</div><div id="${chartId}-dp" style="height:50px;width:100%"></div></div>`:''}
-              ${ampsData.length>0?`<div><div class="vital-chart-lbl">Motor Amps</div><div id="${chartId}-am" style="height:50px;width:100%"></div></div>`:''}
-            </div>
-          </div>`;
-
-          chartInitQueue.push({ chartId, tLabels, oilTempData, dischTempData, filterData, suctionData, dischPressData, ampsData, otSt, dtSt, fpSt });
-        } else {
-          html+=`<div class="vital-trend-section"><div class="vital-trend-title">Trend available after 2+ readings · 1 reading logged</div></div>`;
         }
       }
 
@@ -1174,21 +1232,137 @@ function renderDashboard(siteId) {
 
     html+=`</div></div>`;
 
-    // Schedule chart rendering
-    if(chartInitQueue.length > 0) {
-      setTimeout(()=>{
-        chartInitQueue.forEach(q=>{
-          const { chartId, tLabels, oilTempData, dischTempData, filterData, suctionData, dischPressData, ampsData, otSt, dtSt, fpSt } = q;
-          if(oilTempData.length>0) renderSparkline(chartId+'-ot', tLabels.slice(-oilTempData.length), oilTempData, otSt==='critical'?'#E8320A':otSt==='attention'?'#F5A623':'#2ECC71');
-          if(dischTempData.length>0) renderSparkline(chartId+'-dt', tLabels.slice(-dischTempData.length), dischTempData, dtSt==='critical'?'#E8320A':dtSt==='attention'?'#F5A623':'#2ECC71');
-          if(filterData.length>0) renderSparkline(chartId+'-fp', tLabels.slice(-filterData.length), filterData, fpSt==='critical'?'#E8320A':fpSt==='attention'?'#F5A623':'#2ECC71');
-          if(suctionData.length>0) renderSparkline(chartId+'-sp', tLabels.slice(-suctionData.length), suctionData, '#7BC67E');
-          if(dischPressData.length>0) renderSparkline(chartId+'-dp', tLabels.slice(-dischPressData.length), dischPressData, '#7BC67E');
-          if(ampsData.length>0) renderSparkline(chartId+'-am', tLabels.slice(-ampsData.length), ampsData, '#7BC67E');
-        });
-      }, 250);
-    }
+
   }
+
+  // ── COMPRESSOR TREND ANALYSIS ──
+  if(compressorAssets.length > 0) {
+    // Build data store for all compressors
+    const compTrendData = {};
+    compressorAssets.forEach(a => {
+      const af = a.fields;
+      const aName = fval(af,'Asset Name','Name')||'Compressor';
+      const recs = readingsByAsset[a.id] || [];
+      if(recs.length === 0) return;
+      const sorted = [...recs].sort((x,y) => {
+        const dx=fval(x.fields,'Date','')||''; const dy=fval(y.fields,'Date','')||'';
+        return dx<dy?-1:1;
+      });
+      compTrendData[a.id] = {
+        name: aName,
+        labels: sorted.map(r => {
+          const d = fval(r.fields,'Date','')||'';
+          return d ? new Date(d).toLocaleDateString('en-US',{month:'numeric',day:'numeric'}) : '';
+        }),
+        'Oil Temperature': sorted.map(r=>parseFloat(r.fields['Oil Temperature'])||null),
+        'Discharge Temp': sorted.map(r=>parseFloat(r.fields['Discharge Temp (F)'])||null),
+        'Oil Filter ΔP': sorted.map(r=>parseFloat(r.fields['Oil Filter ΔP (PSID)'])||null),
+        'Suction Pressure': sorted.map(r=>parseFloat(r.fields['Suction Reading'])||null),
+        'Discharge Pressure': sorted.map(r=>parseFloat(r.fields['Discharge Pressure (PSIG)'])||null),
+        'Motor Amps': sorted.map(r=>parseFloat(r.fields['Motor Amps (Running)'])||null),
+      };
+    });
+
+    const firstCompId = Object.keys(compTrendData)[0] || '';
+    const compOptions = compressorAssets.map(a => {
+      const n = fval(a.fields,'Asset Name','Name')||'Compressor';
+      return readingsByAsset[a.id]?.length > 0 ? '<option value="'+a.id+'">'+n+'</option>' : '';
+    }).join('');
+
+    const params = ['Oil Temperature','Discharge Temp','Oil Filter ΔP','Suction Pressure','Discharge Pressure','Motor Amps'];
+    const paramOptions = params.map(p=>'<option value="'+p+'">'+p+'</option>').join('');
+    const paramUnits = {'Oil Temperature':'°F','Discharge Temp':'°F','Oil Filter ΔP':'PSID','Suction Pressure':'PSIG','Discharge Pressure':'PSIG','Motor Amps':'A'};
+
+    html+=`<div class="animate" style="animation-delay:0.3s">
+    <div class="section-label">Compressor Trend Analysis</div>
+    <div class="status-section">
+      <div class="status-header" style="flex-wrap:wrap;gap:12px">
+        <div class="sh-title">Parameter Trend</div>
+        <div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#cccccc;letter-spacing:1px">COMPRESSOR</div>
+            <select id="trend-comp-sel" onchange="updateTrendChart()" style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#fff;background:var(--bg4);border:1px solid var(--border2);padding:6px 12px;cursor:pointer;outline:none;min-width:180px">
+              ${compOptions}
+            </select>
+          </div>
+          <div style="display:flex;align-items:center;gap:8px">
+            <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#cccccc;letter-spacing:1px">PARAMETER</div>
+            <select id="trend-param-sel" onchange="updateTrendChart()" style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#fff;background:var(--bg4);border:1px solid var(--border2);padding:6px 12px;cursor:pointer;outline:none;min-width:200px">
+              ${paramOptions}
+            </select>
+          </div>
+        </div>
+      </div>
+      <div style="padding:20px">
+        <div id="comp-trend-chart" style="width:100%;height:200px"></div>
+        <div id="comp-trend-empty" style="display:none;padding:20px 0;font-family:'Share Tech Mono',monospace;font-size:11px;color:var(--text-dim);text-align:center;letter-spacing:2px;text-transform:uppercase">No readings available for this selection</div>
+      </div>
+    </div>
+    </div>`;
+
+    // Store data in window for JS access
+    setTimeout(()=>{
+      window._compTrendData = ${JSON.stringify(compTrendData).replace(/</g,'\u003c')};
+      window._paramUnits = ${JSON.stringify(paramUnits)};
+      updateTrendChart();
+    }, 100);
+  }
+
+  // ── KEY METRICS SUMMARY ──
+  const flaggedReadings = [];
+  compressorAssets.forEach(a => {
+    const af = a.fields;
+    const aName = fval(af,'Asset Name','Name')||'Compressor';
+    const compType = fval(af,'Compressor Type')||'';
+    const latest = latestReadingMap[a.id];
+    if(!latest) return;
+    const lf = latest.fields;
+    const oilTemp = parseFloat(lf['Oil Temperature'])||null;
+    const dischTemp = parseFloat(lf['Discharge Temp (F)'])||null;
+    const filterDP = parseFloat(lf['Oil Filter ΔP (PSID)'])||null;
+    const amps = parseFloat(lf['Motor Amps (Running)'])||null;
+    const fla = parseFloat(fval(af,'Motor FLA (Nameplate)')||'0')||0;
+    const otSt = oilTempStatus(oilTemp, compType);
+    const dtSt = dischTempStatus(dischTemp);
+    const fpSt = filterDPStatus(filterDP);
+    const ampPct = fla > 0 ? (amps/fla)*100 : null;
+    const ampSt = ampPct!==null ? (ampPct>105?'critical':ampPct>95?'attention':'normal') : null;
+    if(otSt&&otSt!=='normal') flaggedReadings.push({comp:aName,param:'Oil Temperature',value:oilTemp.toFixed(1)+'°F',status:otSt});
+    if(dtSt&&dtSt!=='normal') flaggedReadings.push({comp:aName,param:'Discharge Temp',value:dischTemp.toFixed(1)+'°F',status:dtSt});
+    if(fpSt&&fpSt!=='normal') flaggedReadings.push({comp:aName,param:'Oil Filter ΔP',value:filterDP.toFixed(1)+' PSID',status:fpSt});
+    if(ampSt&&ampSt!=='normal') flaggedReadings.push({comp:aName,param:'Motor Amps',value:amps.toFixed(0)+'A / '+fla.toFixed(0)+'A FLA',status:ampSt});
+  });
+
+  html+=`<div class="animate" style="animation-delay:0.32s">
+  <div class="section-label">Key Metrics — Readings Requiring Attention</div>
+  <div class="status-section">
+    <div class="status-header">
+      <div class="sh-title" style="color:${flaggedReadings.length>0?'var(--yellow)':'var(--green)'}">
+        <div class="status-dot ${flaggedReadings.length>0?'yellow':'green'}"></div>
+        ${flaggedReadings.length>0?flaggedReadings.length+' Reading'+(flaggedReadings.length>1?'s':'')+' Outside Normal Range':'All Compressor Readings Within Normal Range'}
+      </div>
+    </div>
+    ${flaggedReadings.length===0?'<div class="empty-msg" style="color:var(--green)">✓ All monitored parameters are within acceptable operating range</div>':
+    '<div style="padding:0 20px">'+
+    '<div style="display:grid;grid-template-columns:1fr 1fr 120px 100px;gap:8px;padding:10px 0;border-bottom:1px solid var(--border)">'+
+    '<div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#cccccc;letter-spacing:1px;text-transform:uppercase">Compressor</div>'+
+    '<div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#cccccc;letter-spacing:1px;text-transform:uppercase">Parameter</div>'+
+    '<div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#cccccc;letter-spacing:1px;text-transform:uppercase">Reading</div>'+
+    '<div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#cccccc;letter-spacing:1px;text-transform:uppercase">Status</div>'+
+    '</div>'+
+    flaggedReadings.map(fr=>{
+      const sc = fr.status==='critical'?'var(--red)':'var(--yellow)';
+      return '<div style="display:grid;grid-template-columns:1fr 1fr 120px 100px;gap:8px;padding:12px 0;border-bottom:1px solid var(--border)">'+
+        '<div style="font-size:14px;font-weight:600;color:#ffffff">'+fr.comp+'</div>'+
+        '<div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:#cccccc">'+fr.param+'</div>'+
+        '<div style="font-family:'Orbitron',monospace;font-size:14px;font-weight:700;color:'+sc+'">'+fr.value+'</div>'+
+        '<div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:'+sc+';text-transform:uppercase;font-weight:700">'+fr.status.toUpperCase()+'</div>'+
+        '</div>';
+    }).join('')+
+    '</div>'
+    }
+  </div>
+  </div>`;
 
   // Plain summary
   html+=`<div class="plain-summary ${scoreClass(plantScore)} animate" style="animation-delay:0.25s">
@@ -1303,16 +1477,16 @@ function renderDashboard(siteId) {
                 ${aType?`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase">${aType}</div>`:''}
               </div>
               <div>
-                <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#cccccc;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">🛡️ Integrity</div>
-                <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:${integColor};line-height:1;margin-bottom:5px">${assetInteg!==null&&!isNaN(assetInteg)?Math.round(assetInteg):'—'}</div>
-                <div style="height:3px;background:var(--border2);position:relative;margin-bottom:5px"><div style="height:100%;position:absolute;top:0;left:0;width:${assetInteg??0}%;background:${integColor}"></div></div>
-                <div style="font-size:11px;color:#888888;line-height:1.3">${integOneLiner}</div>
-              </div>
-              <div>
                 <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#cccccc;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">🔧 Health</div>
                 <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:${healthColor};line-height:1;margin-bottom:5px">${assetHealth!==null&&!isNaN(assetHealth)?Math.round(assetHealth):'—'}</div>
                 <div style="height:3px;background:var(--border2);position:relative;margin-bottom:5px"><div style="height:100%;position:absolute;top:0;left:0;width:${assetHealth??0}%;background:${healthColor}"></div></div>
                 <div style="font-size:11px;color:#888888;line-height:1.3">${healthOneLiner}</div>
+              </div>
+              <div>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#cccccc;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">🛡️ Integrity</div>
+                <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:${integColor};line-height:1;margin-bottom:5px">${assetInteg!==null&&!isNaN(assetInteg)?Math.round(assetInteg):'—'}</div>
+                <div style="height:3px;background:var(--border2);position:relative;margin-bottom:5px"><div style="height:100%;position:absolute;top:0;left:0;width:${assetInteg??0}%;background:${integColor}"></div></div>
+                <div style="font-size:11px;color:#888888;line-height:1.3">${integOneLiner}</div>
               </div>
               <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:18px">
                 <span style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;padding:5px 10px;text-transform:uppercase;color:var(--green);border:1px solid var(--green);background:var(--green-dim);text-align:center">GOOD STANDING</span>
@@ -1327,18 +1501,18 @@ function renderDashboard(siteId) {
                 ${aType?`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase">${aType}</div>`:''}
               </div>
               <div>
-                <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#cccccc;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">🛡️ Integrity</div>
-                <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:${integColor};line-height:1;margin-bottom:5px">${assetInteg!==null&&!isNaN(assetInteg)?Math.round(assetInteg):'—'}</div>
-                <div style="height:3px;background:var(--border2);position:relative;margin-bottom:5px"><div style="height:100%;position:absolute;top:0;left:0;width:${assetInteg??0}%;background:${integColor}"></div></div>
-                ${sls?`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:0.5px;color:${slsColor};text-transform:uppercase;line-height:1.4;margin-bottom:4px">${sls.label} · ${sls.age} YRS</div>`:''}
-                <div style="font-size:11px;color:#888888;line-height:1.3">${integOneLiner}</div>
-              </div>
-              <div>
                 <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#cccccc;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">🔧 Health</div>
                 <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:${healthColor};line-height:1;margin-bottom:5px">${assetHealth!==null&&!isNaN(assetHealth)?Math.round(assetHealth):'—'}</div>
                 <div style="height:3px;background:var(--border2);position:relative;margin-bottom:5px"><div style="height:100%;position:absolute;top:0;left:0;width:${assetHealth??0}%;background:${healthColor}"></div></div>
                 <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:0.5px;text-transform:uppercase;color:${openFindingsCount>0?'var(--yellow)':'var(--text-dim)'};margin-bottom:4px">${openFindingsCount>0?openFindingsCount+' Open Finding'+(openFindingsCount!==1?'s':''):'No Open Findings'}</div>
                 <div style="font-size:11px;color:#888888;line-height:1.3">${healthOneLiner}</div>
+              </div>
+              <div>
+                <div style="font-family:'Share Tech Mono',monospace;font-size:11px;color:#cccccc;letter-spacing:1px;text-transform:uppercase;margin-bottom:4px">🛡️ Integrity</div>
+                <div style="font-family:'Orbitron',monospace;font-size:22px;font-weight:700;color:${integColor};line-height:1;margin-bottom:5px">${assetInteg!==null&&!isNaN(assetInteg)?Math.round(assetInteg):'—'}</div>
+                <div style="height:3px;background:var(--border2);position:relative;margin-bottom:5px"><div style="height:100%;position:absolute;top:0;left:0;width:${assetInteg??0}%;background:${integColor}"></div></div>
+                ${sls?`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:0.5px;color:${slsColor};text-transform:uppercase;line-height:1.4;margin-bottom:4px">${sls.label} · ${sls.age} YRS</div>`:''}
+                <div style="font-size:11px;color:#888888;line-height:1.3">${integOneLiner}</div>
               </div>
               <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:18px">
                 ${prog&&prog.verdict?`<span style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;padding:5px 10px;text-transform:uppercase;color:${prog.color};border:1px solid ${prog.color};background:${prog.color}18;margin-bottom:6px;display:block;text-align:center">${prog.verdict}</span><div style="font-size:11px;color:#777777;line-height:1.4;text-align:center">${prog.text}</div>`:`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);text-transform:uppercase;text-align:center">Insufficient<br>Data</div>`}
