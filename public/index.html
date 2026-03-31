@@ -1301,11 +1301,9 @@ function renderDashboard(siteId) {
     </div>`;
 
     // Store data in window for JS access
-    setTimeout(()=>{
-      window._compTrendData = ${JSON.stringify(compTrendData).replace(/</g,'\u003c')};
-      window._paramUnits = ${JSON.stringify(paramUnits)};
-      updateTrendChart();
-    }, 100);
+    const compDataJson = JSON.stringify(compTrendData);
+    const paramUnitsJson = JSON.stringify(paramUnits);
+    html += '<script>window._compTrendData='+compDataJson+';window._paramUnits='+paramUnitsJson+';setTimeout(updateTrendChart,150);<\/script>';
   }
 
   // ── KEY METRICS SUMMARY ──
