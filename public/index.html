@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>MASSCORE — Plant Condition Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <style>
 :root {
   --red: #E8320A; --red-dim: rgba(232,50,10,0.15);
@@ -778,7 +778,7 @@ function renderDashboard(siteId) {
     if (crit > 0) return crit+' critical finding'+(crit>1?'s require':' requires')+' immediate attention — this is the top priority for this facility right now.';
     if (exp > 0) return exp+' expired relief valve'+(exp>1?'s represent':' represents')+' an active compliance risk that must be resolved before the next inspection.';
     if (rScore !== null && iScore !== null && !isNaN(rScore) && !isNaN(iScore)) {
-      if (rScore < iScore - 10) return 'This plant's structural foundation is solid at '+Math.round(iScore)+' — deferred maintenance is pulling the operational score down to '+Math.round(rScore)+'. These are fixable issues.';
+      if (rScore < iScore - 10) return "This plant's structural foundation is solid at "+Math.round(iScore)+' — deferred maintenance is pulling the operational score down to '+Math.round(rScore)+'. These are fixable issues.';
       if (iScore < rScore - 10) return 'Good maintenance is keeping this plant running at '+Math.round(rScore)+', but the underlying infrastructure at '+Math.round(iScore)+' warrants capital planning attention.';
       if (rScore >= 70 && iScore >= 70) return 'Both scores are in good standing. Continue the current maintenance program and monitor the items in the roadmap below.';
     }
