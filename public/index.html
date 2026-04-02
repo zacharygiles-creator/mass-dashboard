@@ -1300,10 +1300,9 @@ function renderDashboard(siteId) {
     </div>
     </div>`;
 
-    // Store data in window for JS access
-    const compDataJson = JSON.stringify(compTrendData);
-    const paramUnitsJson = JSON.stringify(paramUnits);
-    html += '<script>window._compTrendData='+compDataJson+';window._paramUnits='+paramUnitsJson+';setTimeout(updateTrendChart,150);<\/script>';
+    // Store data in window for JS access (assigned directly — script tags in innerHTML don't execute)
+    window._compTrendData = compTrendData;
+    window._paramUnits = paramUnits;
   }
 
   // ── KEY METRICS SUMMARY ──
@@ -1805,6 +1804,10 @@ function renderDashboard(siteId) {
 
   html+=`</main>`;
   $('dashboard-content').innerHTML=html;
+
+  if(window._compTrendData && Object.keys(window._compTrendData).length > 0) {
+    setTimeout(updateTrendChart, 300);
+  }
 
   setTimeout(()=>{
     const ring=document.getElementById('main-ring');
