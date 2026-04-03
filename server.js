@@ -112,7 +112,7 @@ app.get('/api/data', requireAuth, async (req, res) => {
       'Components',
       'Plant%20Condition%20Snapshots',
       'Customers',
-      'Service%20Records'
+      'Service%20Record'
     ];
 
     const results = await Promise.all(
