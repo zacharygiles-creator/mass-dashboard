@@ -1770,7 +1770,7 @@ function renderDashboard(siteId) {
         <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Asset</div>
         <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Type</div>
         <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Cumulative Spend</div>
-        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Replacement Value</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Estimated Replacement Value</div>
         <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Ratio</div>
         <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Status</div>
       </div>
@@ -1796,7 +1796,7 @@ function renderDashboard(siteId) {
           + '<div style="font-size:14px;font-weight:600;color:#ffffff">' + aName + '</div>'
           + '<div style="font-family:Share Tech Mono,monospace;font-size:11px;color:#aaaaaa;text-transform:uppercase">' + aType + '</div>'
           + '<div style="font-family:Orbitron,monospace;font-size:14px;font-weight:700;color:#cccccc">' + fmtCurrency(spend) + '</div>'
-          + '<div style="font-family:Orbitron,monospace;font-size:14px;font-weight:700;color:#cccccc">' + fmtCurrency(rv) + '</div>'
+          + '<div title="Estimated replacement cost of equipment only. Does not include labour, installation, rigging, startup or commissioning costs." style="font-family:Orbitron,monospace;font-size:14px;font-weight:700;color:#cccccc;cursor:help;border-bottom:1px dashed #555">' + fmtCurrency(rv) + '</div>'
           + '<div style="font-family:Orbitron,monospace;font-size:14px;font-weight:700;color:' + ratioColor + '">' + pct + '</div>'
           + '<div>' + statusHtml + '</div>'
           + '</div>';
