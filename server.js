@@ -112,7 +112,8 @@ app.get('/api/data', requireAuth, async (req, res) => {
       'Components',
       'Plant%20Condition%20Snapshots',
       'Customers',
-      'Service%20Record'
+      'Service%20Record',
+      'Employees'
     ];
 
     const results = await Promise.all(
@@ -131,7 +132,8 @@ app.get('/api/data', requireAuth, async (req, res) => {
       components: results[6],
       snapshots: results[7],
       customers: results[8],
-      serviceRecords: results[9]
+      serviceRecords: results[9],
+      employees: results[10]
     };
 
     // ── CAPITAL PLANNING CALCULATIONS ────────────────────
@@ -200,6 +202,88 @@ app.post('/api/lead', async (req, res) => {
     }
   } catch (err) {
     console.error('Lead submission error:', err);
+    res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
+// Quote request endpoint
+app.post('/api/request-quote', requireAuth, async (req, res) => {
+  try {
+    const fetch = (await import('node-fetch')).default;
+    const baseId = process.env.AIRTABLE_BASE_ID;
+    const apiKey = process.env.AIRTABLE_API_KEY;
+    const resendKey = process.env.RESEND_API_KEY;
+    const { findingId, title, aName, sev, rec, cost, siteName } = req.body;
+
+    // Look up account manager email from Airtable
+    let toEmail = null;
+    let toName = 'Account Manager';
+
+    // Find the site, then customer, then account manager
+    const sitesRes = await fetch(`https://api.airtable.com/v0/${baseId}/Sites`, { headers: { Authorization: `Bearer ${apiKey}` } });
+    const sitesData = await sitesRes.json();
+    const site = (sitesData.records||[]).find(s => (s.fields['Site Name']||s.fields['Name']) === siteName);
+
+    if (site) {
+      const customerIds = site.fields['Customer'] || [];
+      if (customerIds.length) {
+        const custRes = await fetch(`https://api.airtable.com/v0/${baseId}/Customers/${customerIds[0]}`, { headers: { Authorization: `Bearer ${apiKey}` } });
+        const custData = await custRes.json();
+        const managerIds = custData.fields['Account Manager'] || [];
+        if (managerIds.length) {
+          const empRes = await fetch(`https://api.airtable.com/v0/${baseId}/Employees/${managerIds[0]}`, { headers: { Authorization: `Bearer ${apiKey}` } });
+          const empData = await empRes.json();
+          toEmail = empData.fields['Email'] || null;
+          toName = empData.fields['Employee Name'] || 'Account Manager';
+        }
+      }
+    }
+
+    if (!toEmail) {
+      return res.status(400).json({ success: false, error: 'No account manager email found' });
+    }
+
+    // Send email via Resend
+    const emailRes = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${resendKey}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        from: 'MASSCORE Notifications <notifications@mail.masscore.com>',
+        to: toEmail,
+        subject: `Quote Request — ${title} — ${siteName}`,
+        html: `
+          <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0f0f0f;color:#e8e8e8;padding:32px">
+            <div style="border-bottom:3px solid #E8320A;padding-bottom:16px;margin-bottom:24px">
+              <div style="font-size:22px;font-weight:900;letter-spacing:3px;color:#fff">MASS<span style="color:#E8320A">CORE</span></div>
+              <div style="font-size:11px;letter-spacing:2px;color:#999;margin-top:4px">QUOTE REQUEST NOTIFICATION</div>
+            </div>
+            <p style="color:#ccc;margin-bottom:24px">A customer has requested pricing for the following finding at <strong style="color:#fff">${siteName}</strong>.</p>
+            <div style="background:#1a1a1a;border:1px solid #2a2a2a;padding:20px;margin-bottom:24px">
+              <div style="font-size:16px;font-weight:700;color:#fff;margin-bottom:12px">${title}</div>
+              <div style="font-size:11px;color:#999;letter-spacing:1px;margin-bottom:4px">ASSET: <span style="color:#ccc">${aName}</span></div>
+              <div style="font-size:11px;color:#999;letter-spacing:1px;margin-bottom:4px">SEVERITY: <span style="color:#ccc">${sev}</span></div>
+              ${rec ? `<div style="font-size:11px;color:#999;letter-spacing:1px;margin-bottom:4px">RECOMMENDED ACTION: <span style="color:#ccc">${rec}</span></div>` : ''}
+              ${cost ? `<div style="font-size:11px;color:#999;letter-spacing:1px">ESTIMATED COST: <span style="color:#ccc">${cost}</span></div>` : ''}
+            </div>
+            <p style="color:#999;font-size:12px">Requested by: ${req.session.user.name}<br>Login: ${req.session.user.username}</p>
+            <div style="border-top:1px solid #2a2a2a;margin-top:24px;padding-top:16px;font-size:11px;color:#555;letter-spacing:1px">MASSCORE — MECHANICAL ASSESSMENT SCORING SYSTEM</div>
+          </div>
+        `
+      })
+    });
+
+    const emailResult = await emailRes.json();
+    if (emailResult.id) {
+      res.json({ success: true });
+    } else {
+      console.error('Resend error:', emailResult);
+      res.status(500).json({ success: false, error: 'Email failed to send' });
+    }
+  } catch (err) {
+    console.error('Quote request error:', err);
     res.status(500).json({ success: false, error: 'Server error' });
   }
 });

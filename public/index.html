@@ -275,6 +275,26 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 .vital-offline { padding:20px; text-align:center; font-family:'Share Tech Mono',monospace; font-size:13px; color:var(--text-dim); letter-spacing:2px; text-transform:uppercase; }
 .history-chart-wrap { padding:20px; }
 
+/* QUOTE REQUEST MODAL */
+.modal-overlay { position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:1000; display:flex; align-items:center; justify-content:center; }
+.modal-overlay.hidden { display:none; }
+.modal-box { background:var(--bg2); border:1px solid var(--border2); width:100%; max-width:520px; position:relative; }
+.modal-header { padding:16px 24px; border-bottom:1px solid var(--border); display:flex; align-items:center; justify-content:space-between; }
+.modal-title { font-family:"Share Tech Mono",monospace; font-size:12px; letter-spacing:3px; color:#cccccc; text-transform:uppercase; }
+.modal-close { background:none; border:none; color:var(--text-dim); font-size:18px; cursor:pointer; line-height:1; padding:0; }
+.modal-close:hover { color:#fff; }
+.modal-body { padding:24px; }
+.modal-finding-title { font-family:"Rajdhani",sans-serif; font-size:18px; font-weight:700; color:#ffffff; margin-bottom:12px; }
+.modal-detail { font-family:"Share Tech Mono",monospace; font-size:11px; color:var(--text-mid); letter-spacing:1px; margin-bottom:6px; }
+.modal-detail span { color:#cccccc; }
+.modal-note { font-size:13px; color:var(--text-dim); margin-top:16px; padding-top:16px; border-top:1px solid var(--border); line-height:1.6; }
+.modal-actions { display:flex; gap:12px; margin-top:20px; }
+.modal-btn-confirm { font-family:"Share Tech Mono",monospace; font-size:11px; letter-spacing:2px; text-transform:uppercase; padding:10px 24px; background:var(--red); color:#fff; border:none; cursor:pointer; flex:1; transition:opacity 0.2s; }
+.modal-btn-confirm:hover { opacity:0.85; }
+.modal-btn-confirm:disabled { opacity:0.5; cursor:not-allowed; }
+.modal-btn-cancel { font-family:"Share Tech Mono",monospace; font-size:11px; letter-spacing:2px; text-transform:uppercase; padding:10px 24px; background:transparent; color:var(--text-dim); border:1px solid var(--border2); cursor:pointer; transition:color 0.2s; }
+.modal-btn-cancel:hover { color:#fff; }
+
 /* LOADING */
 .loading-state { display:flex; flex-direction:column; align-items:center; justify-content:center; height:400px; gap:16px; position:relative; z-index:5; }
 .spinner { width:36px; height:36px; border:2px solid var(--border2); border-top-color:var(--red); border-radius:50%; animation:spin 0.8s linear infinite; }
@@ -1574,7 +1594,10 @@ function renderDashboard(siteId) {
             <div class="finding-cat"><span>Asset:</span>${aName}&nbsp;&nbsp;<span>Status:</span>${status}</div>
             ${rec?`<div class="finding-cat" style="margin-top:4px;color:var(--text-mid)">${rec}</div>`:''}
           </div>
-          <span class="finding-pill pill-red">${sev.charAt(0)+sev.slice(1).toLowerCase()}</span>
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0">
+            <span class="finding-pill pill-red">${sev.charAt(0)+sev.slice(1).toLowerCase()}</span>
+            <button onclick="showQuoteModal('${fd.id}')" style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;background:transparent;color:var(--text-dim);border:1px solid var(--border2);cursor:pointer;white-space:nowrap;transition:color 0.2s,border-color 0.2s" onmouseover="this.style.color='#fff';this.style.borderColor='#555'" onmouseout="this.style.color='var(--text-dim)';this.style.borderColor='var(--border2)'">Request Quote</button>
+          </div>
         </div>`;
       });
     }
@@ -1607,7 +1630,10 @@ function renderDashboard(siteId) {
             <div class="finding-title">${title}</div>
             <div class="finding-cat"><span>Type:</span>${catLabel}&nbsp;&nbsp;<span>Asset:</span>${aName}&nbsp;&nbsp;<span>Status:</span>${status}</div>
           </div>
-          ${pClass?`<span class="finding-pill ${pClass}">${sev.charAt(0)+sev.slice(1).toLowerCase()}</span>`:''}
+          <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0">
+            ${pClass?`<span class="finding-pill ${pClass}">${sev.charAt(0)+sev.slice(1).toLowerCase()}</span>`:'<span></span>'}
+            <button onclick="showQuoteModal('${fd.id}')" style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;background:transparent;color:var(--text-dim);border:1px solid var(--border2);cursor:pointer;white-space:nowrap;transition:color 0.2s,border-color 0.2s" onmouseover="this.style.color='#fff';this.style.borderColor='#555'" onmouseout="this.style.color='var(--text-dim)';this.style.borderColor='var(--border2)'">Request Quote</button>
+          </div>
         </div>`;
       });
     }
@@ -1871,3 +1897,84 @@ function renderDashboard(siteId) {
 </script>
 </body>
 </html>
+<!-- QUOTE REQUEST MODAL -->
+<div id="quote-modal" class="modal-overlay hidden">
+  <div class="modal-box">
+    <div class="modal-header">
+      <div class="modal-title">Request Quote</div>
+      <button class="modal-close" onclick="closeQuoteModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div class="modal-finding-title" id="modal-finding-title"></div>
+      <div class="modal-detail">ASSET: <span id="modal-asset"></span></div>
+      <div class="modal-detail">SEVERITY: <span id="modal-severity"></span></div>
+      <div class="modal-detail" id="modal-rec-wrap">RECOMMENDED ACTION: <span id="modal-rec"></span></div>
+      <div class="modal-detail" id="modal-cost-wrap">ESTIMATED COST: <span id="modal-cost"></span></div>
+      <div class="modal-note">This will notify your account manager and request pricing for the above finding. They will follow up with a formal quote.</div>
+      <div class="modal-actions">
+        <button class="modal-btn-cancel" onclick="closeQuoteModal()">Cancel</button>
+        <button class="modal-btn-confirm" id="modal-confirm-btn" onclick="submitQuoteRequest()">Send Quote Request</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+let _pendingQuote = null;
+
+function showQuoteModal(findingId) {
+  const finding = (D.findings?.records||[]).find(f => f.id === findingId);
+  if (!finding) return;
+  const ff = finding.fields;
+  const title = fval(ff,'Finding Title','Title','Name') || 'Untitled Finding';
+  const aids = ff['Asset'] || ff['Assets'] || [];
+  const aName = aids.length ? (M.assets[aids[0]]?.fields['Asset Name'] || M.assets[aids[0]]?.fields['Name'] || '—') : '—';
+  const sev = fval(ff,'Severity') || '—';
+  const rec = fval(ff,'Recommended Action') || '';
+  const cost = ff['Estimated Cost'] ? '$' + parseFloat(ff['Estimated Cost']).toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0}) : null;
+
+  document.getElementById('modal-finding-title').textContent = title;
+  document.getElementById('modal-asset').textContent = aName;
+  document.getElementById('modal-severity').textContent = sev;
+  document.getElementById('modal-rec').textContent = rec;
+  document.getElementById('modal-rec-wrap').style.display = rec ? 'block' : 'none';
+  document.getElementById('modal-cost').textContent = cost || '';
+  document.getElementById('modal-cost-wrap').style.display = cost ? 'block' : 'none';
+
+  _pendingQuote = { findingId, title, aName, sev, rec, cost, siteName: document.getElementById('banner-name')?.textContent || '' };
+  document.getElementById('quote-modal').classList.remove('hidden');
+}
+
+function closeQuoteModal() {
+  document.getElementById('quote-modal').classList.add('hidden');
+  const btn = document.getElementById('modal-confirm-btn');
+  btn.textContent = 'Send Quote Request';
+  btn.disabled = false;
+  _pendingQuote = null;
+}
+
+async function submitQuoteRequest() {
+  if (!_pendingQuote) return;
+  const btn = document.getElementById('modal-confirm-btn');
+  btn.textContent = 'Sending...';
+  btn.disabled = true;
+  try {
+    const res = await fetch('/api/request-quote', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(_pendingQuote)
+    });
+    const data = await res.json();
+    if (data.success) {
+      btn.textContent = '✓ Request Sent';
+      setTimeout(closeQuoteModal, 1500);
+    } else {
+      btn.textContent = 'Failed — Try Again';
+      btn.disabled = false;
+    }
+  } catch(e) {
+    btn.textContent = 'Failed — Try Again';
+    btn.disabled = false;
+  }
+}
+</script>
