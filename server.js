@@ -19,11 +19,6 @@ const USERS = {
     name: 'John Lewis',
     sites: null // all sites
   },
-  'claude': {
-    password: 'claude99',
-    name: 'Claude',
-    sites: ['99 Cents - Houston'] // only sees his facility
-  },
   'demo': {
     password: 'massdemo',
     name: 'Demo User',
