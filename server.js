@@ -216,10 +216,9 @@ app.post('/api/request-quote', requireAuth, async (req, res) => {
     const { findingId, title, aName, sev, rec, cost, siteName } = req.body;
 
     // Look up account manager email from Airtable
-    let toEmail = null;
-    let toName = 'Account Manager';
+    let recipients = [];
 
-    // Find the site, then customer, then account manager
+    // Find the site, then customer, then all account managers
     const sitesRes = await fetch(`https://api.airtable.com/v0/${baseId}/Sites`, { headers: { Authorization: `Bearer ${apiKey}` } });
     const sitesData = await sitesRes.json();
     const site = (sitesData.records||[]).find(s => (s.fields['Site Name']||s.fields['Name']) === siteName);
@@ -230,30 +229,32 @@ app.post('/api/request-quote', requireAuth, async (req, res) => {
         const custRes = await fetch(`https://api.airtable.com/v0/${baseId}/Customers/${customerIds[0]}`, { headers: { Authorization: `Bearer ${apiKey}` } });
         const custData = await custRes.json();
         const managerIds = custData.fields['Account Manager'] || [];
-        if (managerIds.length) {
-          const empRes = await fetch(`https://api.airtable.com/v0/${baseId}/Employees/${managerIds[0]}`, { headers: { Authorization: `Bearer ${apiKey}` } });
+        await Promise.all(managerIds.map(async (mid) => {
+          const empRes = await fetch(`https://api.airtable.com/v0/${baseId}/Employees/${mid}`, { headers: { Authorization: `Bearer ${apiKey}` } });
           const empData = await empRes.json();
-          toEmail = empData.fields['Email'] || null;
-          toName = empData.fields['Employee Name'] || 'Account Manager';
-        }
+          const email = empData.fields['Email'] || null;
+          const name = empData.fields['Employee Name'] || 'Account Manager';
+          if (email) recipients.push({ email, name });
+        }));
       }
     }
 
-    if (!toEmail) {
-      return res.status(400).json({ success: false, error: 'No account manager email found' });
+    if (!recipients.length) {
+      return res.status(400).json({ success: false, error: 'No account manager emails found' });
     }
 
-    // Send email via Resend
-    const emailRes = await fetch('https://api.resend.com/emails', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${resendKey}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        from: 'MASSCORE Notifications <notifications@mail.masscore.com>',
-        to: toEmail,
-        subject: `Quote Request — ${title} — ${siteName}`,
+    // Send email to all account managers
+    const emailResults = await Promise.all(recipients.map(r =>
+      fetch('https://api.resend.com/emails', {
+        method: 'POST',
+        headers: {
+          'Authorization': `Bearer ${resendKey}`,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          from: 'MASSCORE Notifications <notifications@mail.masscore.com>',
+          to: r.email,
+          subject: `Quote Request — ${title} — ${siteName}`,
         html: `
           <div style="font-family:Arial,sans-serif;max-width:600px;margin:0 auto;background:#0f0f0f;color:#e8e8e8;padding:32px">
             <div style="border-bottom:3px solid #E8320A;padding-bottom:16px;margin-bottom:24px">
@@ -272,15 +273,16 @@ app.post('/api/request-quote', requireAuth, async (req, res) => {
             <div style="border-top:1px solid #2a2a2a;margin-top:24px;padding-top:16px;font-size:11px;color:#555;letter-spacing:1px">MASSCORE — MECHANICAL ASSESSMENT SCORING SYSTEM</div>
           </div>
         `
-      })
-    });
+        })
+      }).then(r => r.json())
+    ));
 
-    const emailResult = await emailRes.json();
-    if (emailResult.id) {
+    const allSent = emailResults.every(r => r.id);
+    if (allSent) {
       res.json({ success: true });
     } else {
-      console.error('Resend error:', emailResult);
-      res.status(500).json({ success: false, error: 'Email failed to send' });
+      console.error('Resend errors:', emailResults);
+      res.status(500).json({ success: false, error: 'One or more emails failed to send' });
     }
   } catch (err) {
     console.error('Quote request error:', err);
