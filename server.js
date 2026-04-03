@@ -111,7 +111,8 @@ app.get('/api/data', requireAuth, async (req, res) => {
       'Compressor%20Readings',
       'Components',
       'Plant%20Condition%20Snapshots',
-      'Customers'
+      'Customers',
+      'Service%20Records'
     ];
 
     const results = await Promise.all(
@@ -129,8 +130,23 @@ app.get('/api/data', requireAuth, async (req, res) => {
       readings: results[5],
       components: results[6],
       snapshots: results[7],
-      customers: results[8]
+      customers: results[8],
+      serviceRecords: results[9]
     };
+
+    // ── CAPITAL PLANNING CALCULATIONS ────────────────────
+    if (data.assets && data.assets.records && data.serviceRecords && data.serviceRecords.records) {
+      data.assets.records.forEach(asset => {
+        const replacementValue = parseFloat(asset.fields['Estimated Replacement Value']) || 0;
+        const cumulativeSpend = parseFloat(asset.fields['Cumulative Repair Spend']) || 0;
+        const ratio = replacementValue > 0 ? cumulativeSpend / replacementValue : null;
+        asset.fields['Repair to Value Ratio'] = ratio;
+        asset.fields['Capital Flag'] = ratio === null ? null
+          : ratio >= 0.7 ? 'REPLACE RECOMMENDED'
+          : ratio >= 0.4 ? 'EVALUATE'
+          : 'MONITOR';
+      });
+    }
 
     // Filter sites by user access
     const allowedSites = req.session.user.sites;
