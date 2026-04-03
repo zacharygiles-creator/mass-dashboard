@@ -42,6 +42,21 @@ nav {
   border:1px solid var(--red); padding:8px 18px; transition:background 0.2s;
 }
 .nav-login:hover { background:var(--red); }
+/* MOBILE NAV */
+.nav-hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:4px; background:none; border:none; }
+.nav-hamburger span { display:block; width:22px; height:2px; background:#fff; transition:all 0.3s; }
+.mobile-nav-menu { display:none; position:fixed; top:64px; left:0; right:0; background:rgba(8,8,8,0.98); border-bottom:1px solid var(--border); z-index:99; padding:16px 0; }
+.mobile-nav-menu.open { display:block; }
+.mobile-nav-menu a { display:block; font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--mid); text-decoration:none; text-transform:uppercase; padding:14px 32px; border-bottom:1px solid var(--border); transition:color 0.2s; }
+.mobile-nav-menu a:last-child { border-bottom:none; }
+.mobile-nav-menu a:hover { color:#fff; }
+@media(max-width:768px) {
+  nav { padding:0 20px; }
+  .nav-links { display:none; }
+  .nav-hamburger { display:flex; }
+  .nav-login { font-size:8px; padding:6px 12px; letter-spacing:1px; }
+}
+
 
 /* HERO */
 .hero {
@@ -258,8 +273,20 @@ footer {
     <a href="#investors">Investors</a>
     <a href="#contact">Get Access</a>
   </div>
-  <a href="/login.html" class="nav-login">Dashboard Login</a>
+  <div style="display:flex;align-items:center;gap:12px">
+    <a href="/login.html" class="nav-login">Dashboard Login</a>
+    <button class="nav-hamburger" onclick="toggleMobileMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
 </nav>
+<div class="mobile-nav-menu" id="mobile-menu">
+  <a href="#problem" onclick="closeMobileMenu()">The Problem</a>
+  <a href="#solution" onclick="closeMobileMenu()">The Solution</a>
+  <a href="#product" onclick="closeMobileMenu()">The Product</a>
+  <a href="#investors" onclick="closeMobileMenu()">Investors</a>
+  <a href="#contact" onclick="closeMobileMenu()">Get Access</a>
+</div>
 
 <!-- HERO -->
 <div class="hero">
@@ -539,12 +566,12 @@ footer {
         <div style="font-size:15px;color:#aaa;margin-bottom:32px;line-height:1.6">If you are an investor, strategic partner, or industry contact interested in learning more about MASSCORE — we want to hear from you.</div>
         <div style="margin-bottom:20px">
           <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin-bottom:8px">Investment Inquiries</div>
-          <a href="mailto:info@masscore.com" style="font-family:'Orbitron',monospace;font-size:16px;font-weight:700;color:#fff;text-decoration:none;letter-spacing:1px">info@masscore.com</a>
+          <a href="/cdn-cgi/l/email-protection#e78e898188a78a86949484889582c984888a" style="font-family:'Orbitron',monospace;font-size:16px;font-weight:700;color:#fff;text-decoration:none;letter-spacing:1px"><span class="__cf_email__" data-cfemail="c9a0a7afa689a4a8babaaaa6bbace7aaa6a4">[email&#160;protected]</span></a>
         </div>
         <div style="height:1px;background:var(--border);margin:24px 0"></div>
         <div style="font-size:13px;color:#555;line-height:1.7">MASSCORE Technologies LLC is currently in beta. Financial details and pitch materials are available to qualified investors upon request under NDA.</div>
         <div style="margin-top:24px">
-          <a href="mailto:info@masscore.com" class="btn-primary" style="display:inline-block">Contact Us →</a>
+          <a href="/cdn-cgi/l/email-protection#9bf2f5fdf4dbf6fae8e8f8f4e9feb5f8f4f6" class="btn-primary" style="display:inline-block">Contact Us →</a>
         </div>
       </div>
     </div>
@@ -571,7 +598,7 @@ footer {
       </div>
       <div style="margin-top:24px;padding:16px 20px;background:var(--bg2);border:1px solid var(--border);display:flex;align-items:center;gap:12px">
         <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--red);text-transform:uppercase;white-space:nowrap">General Inquiries</div>
-        <a href="mailto:info@masscore.com" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#fff;text-decoration:none;letter-spacing:1px">info@masscore.com</a>
+        <a href="/cdn-cgi/l/email-protection#82ebece4edc2efe3f1f1e1edf0e7ace1edef" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#fff;text-decoration:none;letter-spacing:1px"><span class="__cf_email__" data-cfemail="2c45424a436c414d5f5f4f435e49024f4341">[email&#160;protected]</span></a>
       </div>
       <div style="margin-top:16px;padding:20px;background:var(--bg2);border:1px solid var(--border);border-left:3px solid var(--red);">
         <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin-bottom:8px">Beta Status</div>
@@ -638,7 +665,7 @@ footer {
   <div class="footer-login"><a href="/login.html">Dashboard Login →</a></div>
 </footer>
 
-<script>
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
 async function submitForm(e) {
   e.preventDefault();
   const form = e.target;
@@ -672,19 +699,4 @@ async function submitForm(e) {
   } catch(err) {
     const leads = JSON.parse(localStorage.getItem('masscore_leads') || '[]');
     leads.push(data);
-    localStorage.setItem('masscore_leads', JSON.stringify(leads));
-    form.style.display = 'none';
-    document.getElementById('success-msg').style.display = 'block';
-  }
-}
-
-document.querySelectorAll('a[href^="#"]').forEach(a => {
-  a.addEventListener('click', e => {
-    e.preventDefault();
-    const target = document.querySelector(a.getAttribute('href'));
-    if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
-  });
-});
-</script>
-</body>
-</html>
+    localStorage.setItem('masscore_leads', JSON.stringify(leads))
