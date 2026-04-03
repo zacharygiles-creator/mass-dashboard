@@ -1751,6 +1751,58 @@ function renderDashboard(siteId) {
   }
 
 
+  // ── CAPITAL PLANNING ──
+  const capitalAssets = siteAssets.filter(a => {
+    const rv = parseFloat(a.fields['Estimated Replacement Value']) || 0;
+    return rv > 0;
+  });
+
+  html += `<div class="animate" style="animation-delay:0.85s">
+  <div class="section-label">Capital Planning</div>
+  <div class="status-section">
+    <div class="status-header">
+      <div class="sh-title">Asset Repair-to-Value Tracker</div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:12px;color:#cccccc;letter-spacing:1px">${capitalAssets.length} Asset${capitalAssets.length!==1?'s':''} Tracked</div>
+    </div>
+    ${capitalAssets.length === 0 ? `<div class="empty-msg">No replacement values have been entered for assets at this site yet</div>` : `
+    <div style="padding:12px 20px 0">
+      <div style="display:grid;grid-template-columns:1fr 120px 160px 160px 100px 180px;gap:8px;padding:0 0 8px;border-bottom:1px solid var(--border);margin-bottom:4px">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Asset</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Type</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Cumulative Spend</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Replacement Value</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Ratio</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Status</div>
+      </div>
+      ${capitalAssets.map(a => {
+        const af = a.fields;
+        const aName = fval(af,'Asset Name','Name') || '—';
+        const aType = fval(af,'Asset Type','Type') || '—';
+        const spend = parseFloat(af['Cumulative Repair Spend']) || 0;
+        const rv = parseFloat(af['Estimated Replacement Value']) || 0;
+        const ratio = rv > 0 ? spend / rv : null;
+        const pct = ratio !== null ? (ratio * 100).toFixed(1) + '%' : '—';
+        let statusHtml = '';
+        if (ratio !== null && ratio >= 1.5) {
+          statusHtml = '<span style="font-family:Share Tech Mono,monospace;font-size:11px;color:var(--red);border:1px solid rgba(232,50,10,0.4);background:var(--red-dim);padding:3px 10px;text-transform:uppercase;letter-spacing:1px">Replace Recommended</span>';
+        } else if (ratio !== null && ratio >= 1.0) {
+          statusHtml = '<span style="font-family:Share Tech Mono,monospace;font-size:11px;color:var(--yellow);border:1px solid rgba(245,166,35,0.3);background:var(--yellow-dim);padding:3px 10px;text-transform:uppercase;letter-spacing:1px">Review Capital Plan</span>';
+        }
+        const fmtCurrency = v => v > 0 ? '$' + v.toLocaleString('en-US',{minimumFractionDigits:0,maximumFractionDigits:0}) : '$0';
+        const ratioColor = ratio !== null && ratio >= 1.5 ? 'var(--red)' : ratio !== null && ratio >= 1.0 ? 'var(--yellow)' : '#cccccc';
+        return '<div style="display:grid;grid-template-columns:1fr 120px 160px 160px 100px 180px;gap:8px;padding:12px 0;border-bottom:1px solid var(--border);align-items:center">'
+          + '<div style="font-size:14px;font-weight:600;color:#ffffff">' + aName + '</div>'
+          + '<div style="font-family:Share Tech Mono,monospace;font-size:11px;color:#aaaaaa;text-transform:uppercase">' + aType + '</div>'
+          + '<div style="font-family:Orbitron,monospace;font-size:14px;font-weight:700;color:#cccccc">' + fmtCurrency(spend) + '</div>'
+          + '<div style="font-family:Orbitron,monospace;font-size:14px;font-weight:700;color:#cccccc">' + fmtCurrency(rv) + '</div>'
+          + '<div style="font-family:Orbitron,monospace;font-size:14px;font-weight:700;color:' + ratioColor + '">' + pct + '</div>'
+          + '<div>' + statusHtml + '</div>'
+          + '</div>';
+      }).join('')}
+    </div>`}
+  </div>
+  </div>`;
+
   // ── VESSEL REGISTRY ──
   const siteVessels = siteAssets.filter(a => (fval(a.fields,'Asset Type','Type')||'').toUpperCase() === 'VESSEL');
   const maxVessels = 4;
