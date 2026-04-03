@@ -296,7 +296,7 @@ main { position:relative; z-index:5; padding:24px 32px; display:flex; flex-direc
 .modal-btn-cancel:hover { color:#fff; }
 
 /* LOADING */
-.loading-state { display:flex; flex-direction:column; align-items:center; justify-content:center; height:400px; gap:16px; position:relative; z-index:5; }
+.loading-state { display:flex; flex-direction:column; align-items:center; justify-content:center; position:fixed; inset:0; background:var(--bg); z-index:200; gap:16px; }
 .spinner { width:36px; height:36px; border:2px solid var(--border2); border-top-color:var(--red); border-radius:50%; animation:spin 0.8s linear infinite; }
 @keyframes spin { to { transform:rotate(360deg); } }
 .loading-txt { font-family:'Share Tech Mono',monospace; font-size:12px; letter-spacing:3px; color:var(--text-dim); text-transform:uppercase; }
@@ -347,8 +347,14 @@ footer { position:relative; z-index:5; border-top:1px solid var(--border); paddi
 
 <div id="dashboard-content">
   <div class="loading-state">
+    <div style="display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:8px">
+      <div style="font-family:'Orbitron',monospace;font-size:42px;font-weight:900;letter-spacing:6px;line-height:1"><span style="color:#fff">MASS</span><span style="color:var(--red)">CORE</span></div>
+      <div style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--text-dim);text-transform:uppercase">Mechanical Assessment Scoring System</div>
+    </div>
+    <div id="loading-tagline" style="font-family:'Rajdhani',sans-serif;font-size:16px;color:#aaaaaa;letter-spacing:1px;text-align:center;max-width:480px;min-height:24px;transition:opacity 0.5s ease;margin:8px 0 16px"></div>
     <div class="spinner"></div>
-    <div class="loading-txt">Connecting to MASSCORE Database</div>
+    <div class="loading-txt" style="margin-top:8px">Connecting to MASSCORE Database</div>
+    <div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;color:#444;text-transform:uppercase;margin-top:4px">Select a site to view your plant dashboard</div>
   </div>
 </div>
 
@@ -358,6 +364,28 @@ footer { position:relative; z-index:5; border-top:1px solid var(--border); paddi
 </footer>
 
 <script>
+
+// ── TAGLINE ROTATOR ──────────────────────────────────────
+(function() {
+  const taglines = [
+    'Mechanical intelligence for the people who keep facilities running',
+    'From the machine room to the boardroom — plant condition made clear',
+    'Know the condition of your plant before problems find you'
+  ];
+  let idx = 0;
+  const el = document.getElementById('loading-tagline');
+  if (!el) return;
+  el.textContent = taglines[0];
+  setInterval(() => {
+    el.style.opacity = '0';
+    setTimeout(() => {
+      idx = (idx + 1) % taglines.length;
+      el.textContent = taglines[idx];
+      el.style.opacity = '1';
+    }, 500);
+  }, 3500);
+})();
+
 const $ = id => document.getElementById(id);
 
 // ── HOW CALCULATED TOGGLE ────────────────────────────────
@@ -675,6 +703,8 @@ let D=null, M={}, activeSite=null;
 
 // ── INIT ─────────────────────────────────────────────────
 document.addEventListener('DOMContentLoaded', async()=>{
+  const _loadStart = Date.now();
+  const _minLoadMs = 1800;
   // Check authentication
   try {
     const authRes = await fetch('/api/me');
@@ -700,7 +730,13 @@ document.addEventListener('DOMContentLoaded', async()=>{
     M.readings  = buildMap(D.readings?.records);
     M.snapshots = buildMap(D.snapshots?.records);
     M.customers = buildMap(D.customers?.records);
-    buildDropdown();
+    const _elapsed = Date.now() - _loadStart;
+    const _remaining = Math.max(0, _minLoadMs - _elapsed);
+    setTimeout(() => {
+      const ls = document.querySelector('.loading-state');
+      if (ls) { ls.style.transition = 'opacity 0.4s ease'; ls.style.opacity = '0'; setTimeout(() => { ls.style.display = 'none'; }, 400); }
+      buildDropdown();
+    }, _remaining);
   } catch(e) {
     $('dashboard-content').innerHTML = `<div class="loading-state"><div style="font-family:'Share Tech Mono',monospace;font-size:12px;letter-spacing:3px;color:var(--red);text-transform:uppercase">Failed to load — check server connection</div></div>`;
   }
