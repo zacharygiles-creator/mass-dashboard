@@ -1596,7 +1596,7 @@ function renderDashboard(siteId) {
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0">
             <span class="finding-pill pill-red">${sev.charAt(0)+sev.slice(1).toLowerCase()}</span>
-            <button onclick="showQuoteModal('${fd.id}')" style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;background:transparent;color:var(--text-dim);border:1px solid var(--border2);cursor:pointer;white-space:nowrap;transition:color 0.2s,border-color 0.2s" onmouseover="this.style.color='#fff';this.style.borderColor='#555'" onmouseout="this.style.color='var(--text-dim)';this.style.borderColor='var(--border2)'">Request Quote</button>
+            <button onclick="showQuoteModal('${fd.id}')" style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:8px 16px;background:#1a6bb5;color:#fff;border:1px solid #2280d2;cursor:pointer;white-space:nowrap;transition:background 0.2s" onmouseover="this.style.background='#2280d2'" onmouseout="this.style.background='#1a6bb5'">Request Quote</button>
           </div>
         </div>`;
       });
@@ -1632,7 +1632,7 @@ function renderDashboard(siteId) {
           </div>
           <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;flex-shrink:0">
             ${pClass?`<span class="finding-pill ${pClass}">${sev.charAt(0)+sev.slice(1).toLowerCase()}</span>`:'<span></span>'}
-            <button onclick="showQuoteModal('${fd.id}')" style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;text-transform:uppercase;padding:4px 10px;background:transparent;color:var(--text-dim);border:1px solid var(--border2);cursor:pointer;white-space:nowrap;transition:color 0.2s,border-color 0.2s" onmouseover="this.style.color='#fff';this.style.borderColor='#555'" onmouseout="this.style.color='var(--text-dim)';this.style.borderColor='var(--border2)'">Request Quote</button>
+            <button onclick="showQuoteModal('${fd.id}')" style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:1px;text-transform:uppercase;padding:8px 16px;background:#1a6bb5;color:#fff;border:1px solid #2280d2;cursor:pointer;white-space:nowrap;transition:background 0.2s" onmouseover="this.style.background='#2280d2'" onmouseout="this.style.background='#1a6bb5'">Request Quote</button>
           </div>
         </div>`;
       });
