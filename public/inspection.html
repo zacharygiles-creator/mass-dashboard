@@ -1,0 +1,943 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>MASSCORE — Inspection</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+:root {
+  --red:#E8320A; --red-dim:rgba(232,50,10,0.12);
+  --green:#4CAF7D; --green-dim:rgba(76,175,125,0.12);
+  --yellow:#F5A623; --yellow-dim:rgba(245,166,35,0.12);
+  --orange:#E8720A; --orange-dim:rgba(232,114,10,0.12);
+  --bg:#080808; --bg2:#0f0f0f; --bg3:#141414; --bg4:#1a1a1a;
+  --border:#1e1e1e; --border2:#2a2a2a; --border3:#333;
+  --text:#e8e8e8; --mid:#aaa; --dim:#666;
+  --score-color:#4CAF7D;
+}
+
+body {
+  background:var(--bg);
+  color:var(--text);
+  font-family:'Rajdhani',sans-serif;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+
+body::before {
+  content:'';
+  position:fixed; inset:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.008) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,0.008) 1px,transparent 1px);
+  background-size:28px 28px;
+  pointer-events:none; z-index:0;
+}
+
+/* ── HEADER ── */
+.insp-header {
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  background:rgba(8,8,8,0.97);
+  border-bottom:1px solid var(--border2);
+  backdrop-filter:blur(12px);
+  padding:12px 16px;
+}
+.header-top {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:10px;
+}
+.header-logo {
+  font-family:'Orbitron',monospace;
+  font-size:13px; font-weight:900; letter-spacing:2px;
+}
+.header-logo .mass { color:#fff; }
+.header-logo .core { color:var(--red); }
+.header-save-exit {
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px; letter-spacing:2px; text-transform:uppercase;
+  color:var(--dim); background:none; border:1px solid var(--border2);
+  padding:6px 12px; cursor:pointer; transition:color 0.2s,border-color 0.2s;
+}
+.header-save-exit:hover { color:#fff; border-color:var(--border3); }
+
+.header-meta {
+  display:flex; align-items:center; justify-content:space-between;
+}
+.asset-tag {
+  display:flex; align-items:center; gap:8px;
+}
+.asset-dot { width:6px; height:6px; border-radius:50%; background:var(--red); flex-shrink:0; }
+.asset-name {
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px; letter-spacing:2px; color:#fff; text-transform:uppercase;
+}
+.insp-type {
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px; letter-spacing:2px; color:var(--red); text-transform:uppercase;
+  border:1px solid rgba(232,50,10,0.3); padding:3px 8px;
+}
+
+/* ── PROGRESS ── */
+.progress-wrap {
+  padding:10px 16px 0;
+  background:rgba(8,8,8,0.97);
+  position:fixed; top:78px; left:0; right:0; z-index:99;
+  border-bottom:1px solid var(--border);
+  padding-bottom:10px;
+}
+.progress-row {
+  display:flex; align-items:center; justify-content:space-between;
+  margin-bottom:8px;
+}
+.progress-label {
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px; letter-spacing:2px; color:var(--dim); text-transform:uppercase;
+}
+.progress-count {
+  font-family:'Orbitron',monospace;
+  font-size:11px; font-weight:700; color:var(--mid);
+}
+.progress-bar-track {
+  height:2px; background:var(--border2); border-radius:1px; overflow:hidden;
+}
+.progress-bar-fill {
+  height:100%; background:var(--red);
+  border-radius:1px;
+  transition:width 0.4s ease;
+}
+
+/* ── SCORE CARD ── */
+.score-card {
+  position:fixed; top:138px; right:16px; z-index:98;
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  padding:10px 14px;
+  min-width:90px;
+  text-align:center;
+}
+.score-label {
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px; letter-spacing:2px; color:var(--dim);
+  text-transform:uppercase; margin-bottom:4px;
+}
+.score-value-wrap { position:relative; display:inline-block; }
+.score-value {
+  font-family:'Orbitron',monospace;
+  font-size:26px; font-weight:900;
+  color:var(--score-color);
+  transition:color 0.3s;
+  line-height:1;
+}
+.score-delta {
+  position:absolute;
+  top:-10px; right:-22px;
+  font-family:'Orbitron',monospace;
+  font-size:11px; font-weight:700;
+  opacity:0;
+  transition:opacity 0.1s;
+  pointer-events:none;
+}
+.score-delta.show {
+  animation:deltaFloat 1.2s ease forwards;
+}
+.score-delta.positive { color:var(--green); }
+.score-delta.negative { color:var(--red); }
+@keyframes deltaFloat {
+  0%   { opacity:1; transform:translateY(0); }
+  60%  { opacity:1; transform:translateY(-16px); }
+  100% { opacity:0; transform:translateY(-24px); }
+}
+.score-tick {
+  animation:scoreTick 0.3s ease;
+}
+@keyframes scoreTick {
+  0%   { transform:scale(1); }
+  50%  { transform:scale(1.15); }
+  100% { transform:scale(1); }
+}
+
+/* ── MAIN CONTENT ── */
+.insp-main {
+  padding-top:200px;
+  padding-bottom:120px;
+  padding-left:16px;
+  padding-right:16px;
+  position:relative; z-index:1;
+  min-height:100vh;
+}
+
+/* ── QUESTION CARD ── */
+.question-card {
+  animation:slideIn 0.3s ease;
+}
+@keyframes slideIn {
+  from { opacity:0; transform:translateX(20px); }
+  to   { opacity:1; transform:translateX(0); }
+}
+.question-group {
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px; letter-spacing:3px; color:var(--red);
+  text-transform:uppercase; margin-bottom:8px;
+}
+.question-text {
+  font-family:'Rajdhani',sans-serif;
+  font-size:20px; font-weight:600; color:#fff;
+  line-height:1.4; margin-bottom:24px;
+  padding-right:100px; /* space for score card */
+}
+
+/* ── ANSWER BUTTONS ── */
+.answers { display:flex; flex-direction:column; gap:10px; margin-bottom:20px; }
+
+.answer-btn {
+  display:flex; align-items:center; gap:14px;
+  padding:16px 18px;
+  background:var(--bg3);
+  border:1px solid var(--border2);
+  cursor:pointer;
+  transition:all 0.15s ease;
+  text-align:left;
+  width:100%;
+  position:relative;
+  overflow:hidden;
+}
+.answer-btn::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+  background:transparent; transition:background 0.15s;
+}
+.answer-btn:active { transform:scale(0.98); }
+
+.answer-btn.excellent { --btn-color:var(--green); }
+.answer-btn.good      { --btn-color:#7BC67E; }
+.answer-btn.fair      { --btn-color:var(--yellow); }
+.answer-btn.poor      { --btn-color:var(--orange); }
+.answer-btn.critical  { --btn-color:var(--red); }
+
+.answer-btn.selected {
+  background:rgba(255,255,255,0.04);
+  border-color:var(--btn-color);
+}
+.answer-btn.selected::before { background:var(--btn-color); }
+
+.answer-indicator {
+  width:10px; height:10px; border-radius:50%;
+  border:2px solid var(--border3); flex-shrink:0;
+  transition:all 0.15s;
+}
+.answer-btn.selected .answer-indicator {
+  background:var(--btn-color);
+  border-color:var(--btn-color);
+  box-shadow:0 0 8px var(--btn-color);
+}
+
+.answer-content { flex:1; }
+.answer-label {
+  font-family:'Share Tech Mono',monospace;
+  font-size:12px; letter-spacing:2px; text-transform:uppercase;
+  color:var(--mid); margin-bottom:3px;
+  transition:color 0.15s;
+}
+.answer-btn.selected .answer-label { color:var(--btn-color); }
+.answer-desc {
+  font-size:13px; color:var(--dim); line-height:1.4;
+  transition:color 0.15s;
+}
+.answer-btn.selected .answer-desc { color:#aaa; }
+
+.answer-score {
+  font-family:'Orbitron',monospace;
+  font-size:13px; font-weight:700;
+  color:var(--border3); flex-shrink:0;
+  transition:color 0.15s;
+}
+.answer-btn.selected .answer-score { color:var(--btn-color); }
+
+/* ── OPEN TEXT (final question) ── */
+.open-text-wrap { margin-bottom:20px; }
+.open-text-label {
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px; letter-spacing:2px; color:var(--dim);
+  text-transform:uppercase; margin-bottom:10px; display:block;
+}
+.open-textarea {
+  width:100%; background:var(--bg3); border:1px solid var(--border2);
+  color:#fff; font-family:'Rajdhani',sans-serif; font-size:16px;
+  padding:14px 16px; resize:none; outline:none; line-height:1.5;
+  transition:border-color 0.2s;
+  min-height:120px;
+}
+.open-textarea:focus { border-color:var(--border3); }
+.open-textarea::placeholder { color:var(--dim); }
+
+.urgency-label {
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px; letter-spacing:2px; color:var(--dim);
+  text-transform:uppercase; margin-bottom:10px; display:block; margin-top:16px;
+}
+.urgency-btns { display:flex; flex-direction:column; gap:8px; }
+.urgency-btn {
+  padding:14px 16px; background:var(--bg3);
+  border:1px solid var(--border2);
+  cursor:pointer; text-align:left; width:100%;
+  transition:all 0.15s;
+  display:flex; align-items:center; gap:12px;
+}
+.urgency-btn:active { transform:scale(0.98); }
+.urgency-btn.selected-urgency {
+  border-color:var(--yellow);
+  background:rgba(245,166,35,0.06);
+}
+.urgency-icon { font-size:18px; flex-shrink:0; }
+.urgency-text { flex:1; }
+.urgency-title {
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px; letter-spacing:1px; color:var(--mid);
+  text-transform:uppercase; margin-bottom:2px;
+  transition:color 0.15s;
+}
+.urgency-btn.selected-urgency .urgency-title { color:var(--yellow); }
+.urgency-sub { font-size:12px; color:var(--dim); }
+
+/* ── NAVIGATION ── */
+.nav-bar {
+  position:fixed; bottom:0; left:0; right:0; z-index:100;
+  background:rgba(8,8,8,0.97);
+  border-top:1px solid var(--border2);
+  backdrop-filter:blur(12px);
+  padding:12px 16px;
+  display:flex; gap:10px;
+}
+.nav-back {
+  flex:1; padding:14px;
+  background:transparent; border:1px solid var(--border2);
+  color:var(--mid); font-family:'Share Tech Mono',monospace;
+  font-size:11px; letter-spacing:2px; text-transform:uppercase;
+  cursor:pointer; transition:all 0.2s;
+}
+.nav-back:hover { border-color:var(--border3); color:#fff; }
+.nav-back:disabled { opacity:0.3; cursor:not-allowed; }
+
+.nav-next {
+  flex:2; padding:14px;
+  background:var(--red); border:1px solid var(--red);
+  color:#fff; font-family:'Share Tech Mono',monospace;
+  font-size:11px; letter-spacing:2px; text-transform:uppercase;
+  cursor:pointer; transition:background 0.2s;
+}
+.nav-next:hover { background:#c42a08; }
+.nav-next:disabled { background:var(--border2); border-color:var(--border2); color:var(--dim); cursor:not-allowed; }
+
+/* ── COMPLETE SCREEN ── */
+.complete-screen {
+  display:none;
+  text-align:center;
+  padding:40px 20px;
+  animation:slideIn 0.4s ease;
+}
+.complete-screen.show { display:block; }
+.complete-icon {
+  font-size:48px; margin-bottom:20px;
+  animation:pulse 2s ease infinite;
+}
+@keyframes pulse {
+  0%,100% { transform:scale(1); }
+  50% { transform:scale(1.05); }
+}
+.complete-title {
+  font-family:'Orbitron',monospace;
+  font-size:20px; font-weight:900; color:#fff;
+  letter-spacing:2px; margin-bottom:8px;
+}
+.complete-sub {
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px; letter-spacing:2px; color:var(--dim);
+  text-transform:uppercase; margin-bottom:32px;
+}
+.complete-score-wrap {
+  background:var(--bg3); border:1px solid var(--border2);
+  padding:24px; margin-bottom:32px;
+  display:inline-block; min-width:200px;
+}
+.complete-score-label {
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px; letter-spacing:3px; color:var(--dim);
+  text-transform:uppercase; margin-bottom:8px;
+}
+.complete-score-value {
+  font-family:'Orbitron',monospace;
+  font-size:48px; font-weight:900;
+  color:var(--green);
+}
+.complete-score-change {
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px; letter-spacing:1px;
+  margin-top:4px;
+}
+.complete-btn {
+  display:block; width:100%; padding:16px;
+  background:var(--red); border:none; color:#fff;
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px; letter-spacing:2px; text-transform:uppercase;
+  cursor:pointer; transition:background 0.2s; margin-bottom:10px;
+}
+.complete-btn:hover { background:#c42a08; }
+.complete-btn-secondary {
+  display:block; width:100%; padding:16px;
+  background:transparent; border:1px solid var(--border2); color:var(--mid);
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px; letter-spacing:2px; text-transform:uppercase;
+  cursor:pointer; transition:all 0.2s;
+}
+.complete-btn-secondary:hover { border-color:var(--border3); color:#fff; }
+
+/* ── CRITICAL ALERT ── */
+.critical-alert {
+  background:var(--red-dim); border:1px solid rgba(232,50,10,0.3);
+  padding:12px 16px; margin-top:12px;
+  display:none; align-items:center; gap:10px;
+}
+.critical-alert.show { display:flex; }
+.critical-alert-text {
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px; letter-spacing:1px; color:var(--red);
+  text-transform:uppercase; line-height:1.5;
+}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<div class="insp-header">
+  <div class="header-top">
+    <div class="header-logo"><span class="mass">MASS</span><span class="core">CORE</span></div>
+    <button class="header-save-exit" onclick="saveAndExit()">Save & Exit</button>
+  </div>
+  <div class="header-meta">
+    <div class="asset-tag">
+      <div class="asset-dot"></div>
+      <div class="asset-name" id="header-asset">BC-1 — GEA Screw Compressor</div>
+    </div>
+    <div class="insp-type" id="header-insp-type">Weekly</div>
+  </div>
+</div>
+
+<!-- PROGRESS -->
+<div class="progress-wrap">
+  <div class="progress-row">
+    <div class="progress-label">Inspection Progress</div>
+    <div class="progress-count"><span id="q-current">1</span> of <span id="q-total">14</span></div>
+  </div>
+  <div class="progress-bar-track">
+    <div class="progress-bar-fill" id="progress-fill" style="width:7%"></div>
+  </div>
+</div>
+
+<!-- SCORE CARD -->
+<div class="score-card">
+  <div class="score-label">Asset Score</div>
+  <div class="score-value-wrap">
+    <div class="score-value" id="live-score">72</div>
+    <div class="score-delta" id="score-delta"></div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div class="insp-main">
+
+  <!-- QUESTION FLOW -->
+  <div id="question-flow">
+    <div class="question-card" id="question-card">
+      <div class="question-group" id="q-group">Approach & Audible / Visual</div>
+      <div class="question-text" id="q-text">Loading...</div>
+      <div class="answers" id="q-answers"></div>
+      <div class="critical-alert" id="critical-alert">
+        <span style="font-size:18px">⚠</span>
+        <div class="critical-alert-text">Critical condition selected — a finding will be automatically generated and your account manager will be notified.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- OPEN OBSERVATION (shown on last question) -->
+  <div id="open-obs-section" style="display:none">
+    <div class="question-card">
+      <div class="question-group">Final Observation</div>
+      <div class="question-text" style="padding-right:16px">Is there anything else about this equipment that concerns you or looks out of the ordinary?</div>
+      <div class="open-text-wrap">
+        <span class="open-text-label">Your observation (optional)</span>
+        <textarea class="open-textarea" id="open-obs-text" placeholder="Describe anything unusual you noticed — sounds, smells, visual concerns, anything that caught your attention..."></textarea>
+      </div>
+      <div id="urgency-section" style="display:none">
+        <span class="urgency-label">How urgent does this seem?</span>
+        <div class="urgency-btns">
+          <button class="urgency-btn" onclick="selectUrgency(this,'urgent')">
+            <span class="urgency-icon">🔴</span>
+            <div class="urgency-text">
+              <div class="urgency-title">Needs Attention Soon</div>
+              <div class="urgency-sub">Creates an active finding on the customer dashboard immediately</div>
+            </div>
+          </button>
+          <button class="urgency-btn" onclick="selectUrgency(this,'noted')">
+            <span class="urgency-icon">🟡</span>
+            <div class="urgency-text">
+              <div class="urgency-title">Not Urgent But Worth Noting</div>
+              <div class="urgency-sub">Sent to account manager for review before reaching the dashboard</div>
+            </div>
+          </button>
+          <button class="urgency-btn" onclick="selectUrgency(this,'investigate')">
+            <span class="urgency-icon">🔵</span>
+            <div class="urgency-text">
+              <div class="urgency-title">Requires Further Investigation</div>
+              <div class="urgency-sub">Sent to account manager — they'll follow up with you directly</div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- COMPLETE SCREEN -->
+  <div class="complete-screen" id="complete-screen">
+    <div class="complete-icon">✓</div>
+    <div class="complete-title">Inspection Complete</div>
+    <div class="complete-sub">BC-1 — Weekly — <span id="complete-date"></span></div>
+    <div class="complete-score-wrap">
+      <div class="complete-score-label">Final Asset Score</div>
+      <div class="complete-score-value" id="complete-score">72</div>
+      <div class="complete-score-change" id="complete-change"></div>
+    </div>
+    <button class="complete-btn" onclick="window.location.href='/dashboard'">Return to Dashboard</button>
+    <button class="complete-btn-secondary" onclick="startNewInspection()">Start Another Inspection</button>
+  </div>
+
+</div>
+
+<!-- NAV BAR -->
+<div class="nav-bar" id="nav-bar">
+  <button class="nav-back" id="nav-back" onclick="goBack()" disabled>Back</button>
+  <button class="nav-next" id="nav-next" onclick="goNext()" disabled>Next</button>
+</div>
+
+<script>
+// ── DEMO QUESTIONS (Weekly GEA Screw Compressor) ──
+const QUESTIONS = [
+  {
+    group: 'Approach & Audible / Visual',
+    text: 'How would you describe the sound of the compressor during operation?',
+    weight: 'medium',
+    answers: [
+      { label:'Excellent', desc:'Running smooth and quiet, no unusual noise', score:90 },
+      { label:'Good',      desc:'Minor noise present but consistent with normal operation', score:75 },
+      { label:'Fair',      desc:'Intermittent knocking or ticking, warrants monitoring', score:55 },
+      { label:'Poor',      desc:'Audible knocking, snapping, or scraping that is new or worsening', score:35 },
+      { label:'Critical',  desc:'Loud banging, metal-on-metal contact, or scraping of coupling cover', score:10 }
+    ]
+  },
+  {
+    group: 'Approach & Audible / Visual',
+    text: 'How would you describe the vibration level of the compressor?',
+    weight: 'medium',
+    answers: [
+      { label:'Excellent', desc:'No perceptible vibration beyond normal operating baseline', score:90 },
+      { label:'Good',      desc:'Slight vibration, consistent with previous visits', score:75 },
+      { label:'Fair',      desc:'Noticeable vibration increase from baseline', score:55 },
+      { label:'Poor',      desc:'Significant shaking, loose components vibrating', score:35 },
+      { label:'Critical',  desc:'Severe vibration, machine movement on base, immediate concern', score:10 }
+    ]
+  },
+  {
+    group: 'Oil Leaks & Shaft Seal',
+    text: 'Are there any visible signs of oil staining or leakage on the exterior of the compressor?',
+    weight: 'medium',
+    answers: [
+      { label:'Excellent', desc:'No oil staining anywhere on the machine', score:90 },
+      { label:'Good',      desc:'Minor residual staining consistent with previous visits, no active leak', score:75 },
+      { label:'Fair',      desc:'New staining present, source identified, rate is minor', score:55 },
+      { label:'Poor',      desc:'Active leak visible, accumulation in drip tray since last visit', score:35 },
+      { label:'Critical',  desc:'Heavy active leak, oil on floor, or staining on multiple components', score:10 }
+    ]
+  },
+  {
+    group: 'Oil Leaks & Shaft Seal',
+    text: 'What is the shaft seal leak rate compared to the manufacturer\'s recommended maximum?',
+    weight: 'high',
+    answers: [
+      { label:'Excellent', desc:'No visible leakage at shaft seal', score:90 },
+      { label:'Good',      desc:'Minimal seepage, well within manufacturer tolerance', score:75 },
+      { label:'Fair',      desc:'Noticeable drip rate, approaching manufacturer\'s condemn threshold', score:55 },
+      { label:'Poor',      desc:'At or exceeding manufacturer\'s condemn threshold', score:35 },
+      { label:'Critical',  desc:'Heavy leak at shaft seal, immediate replacement required', score:10 }
+    ]
+  },
+  {
+    group: 'Oil Leaks & Shaft Seal',
+    text: 'Leak check with sulphur stick — what were the results around the shaft seal, valves, transducers, and sensors?',
+    weight: 'high',
+    answers: [
+      { label:'Excellent', desc:'No reaction at any test point', score:90 },
+      { label:'Good',      desc:'Faint reaction at one point, confirmed minor, documented', score:75 },
+      { label:'Fair',      desc:'Positive reaction at one or more points, source identified', score:55 },
+      { label:'Poor',      desc:'Multiple positive reactions, active leaks confirmed at several points', score:35 },
+      { label:'Critical',  desc:'Strong reaction at shaft seal or multiple critical points, ammonia loss confirmed', score:10 }
+    ]
+  },
+  {
+    group: 'Oil Level & Coalescer',
+    text: 'What is the oil level in the GEA sight glasses (SG1, SG2, SG3)?',
+    weight: 'medium',
+    answers: [
+      { label:'Excellent', desc:'Level at top of SG1 at shutdown, SG2 primary side showing normal level while running', score:90 },
+      { label:'Good',      desc:'Level slightly below top of SG1, within acceptable range', score:75 },
+      { label:'Fair',      desc:'Level at middle of SG3 at shutdown or SG2 while running — oil addition required', score:55 },
+      { label:'Poor',      desc:'Level below SG3 at shutdown or below SG2 while running — immediate addition required', score:35 },
+      { label:'Critical',  desc:'No visible oil level in any sight glass — compressor at risk of oil starvation', score:10 }
+    ]
+  },
+  {
+    group: 'Oil Level & Coalescer',
+    text: 'What is the condition of the secondary side / dry side sight glass?',
+    weight: 'medium',
+    answers: [
+      { label:'Excellent', desc:'Secondary side clear, no oil present during operation', score:90 },
+      { label:'Good',      desc:'Trace oil present, consistent with previous visit, being monitored', score:75 },
+      { label:'Fair',      desc:'Moderate oil accumulation, oil return system suspect', score:55 },
+      { label:'Poor',      desc:'Significant and increasing oil in secondary side, service required', score:35 },
+      { label:'Critical',  desc:'Heavy oil in secondary side confirmed, coalescer failed or liquid ammonia present', score:10 }
+    ]
+  },
+  {
+    group: 'Oil Heater & Control Panel',
+    text: 'What is the condition of the oil heater?',
+    weight: 'medium',
+    answers: [
+      { label:'Excellent', desc:'Heater confirmed operational, amperage within spec', score:90 },
+      { label:'Good',      desc:'Heater operational, minor variance in amp draw, within acceptable range', score:75 },
+      { label:'Fair',      desc:'Heater operational but amp draw outside normal range, monitor', score:55 },
+      { label:'Poor',      desc:'Heater circuit tripped or fuse blown, not confirmed operational', score:35 },
+      { label:'Critical',  desc:'Heater confirmed failed, oil temperature below safe starting threshold', score:10 }
+    ]
+  },
+  {
+    group: 'Oil Heater & Control Panel',
+    text: 'How do the control panel setpoints compare to expected values — pressures, temperatures, oil temp, filter differential?',
+    weight: 'medium',
+    answers: [
+      { label:'Excellent', desc:'All setpoints confirmed within spec, no deviations', score:90 },
+      { label:'Good',      desc:'Minor deviations noted, within acceptable tolerance', score:75 },
+      { label:'Fair',      desc:'One or more setpoints outside tolerance, adjustment required', score:55 },
+      { label:'Poor',      desc:'Multiple setpoints out of spec, operating outside design parameters', score:35 },
+      { label:'Critical',  desc:'Critical setpoint deviation present, safety shutdown risk or already tripped', score:10 }
+    ]
+  },
+  {
+    group: 'Oil Heater & Control Panel',
+    text: 'What is the condition of the slide valve / capacity control?',
+    weight: 'medium',
+    answers: [
+      { label:'Excellent', desc:'Manual load and unload confirmed smooth and responsive', score:90 },
+      { label:'Good',      desc:'Slight lag in response but functional', score:75 },
+      { label:'Fair',      desc:'Sluggish response, completing travel but slowly', score:55 },
+      { label:'Poor',      desc:'Slide valve not responding correctly to manual command', score:35 },
+      { label:'Critical',  desc:'No slide valve movement, capacity control failed', score:10 }
+    ]
+  },
+  {
+    group: 'Oil Heater & Control Panel',
+    text: 'What does the alarm history show?',
+    weight: 'low',
+    answers: [
+      { label:'Excellent', desc:'No alarms or shutdowns since last visit', score:90 },
+      { label:'Good',      desc:'Minor alarm present, investigated and resolved', score:75 },
+      { label:'Fair',      desc:'One unresolved alarm present, root cause not yet confirmed', score:55 },
+      { label:'Poor',      desc:'Multiple alarms, pattern suggesting a developing issue', score:35 },
+      { label:'Critical',  desc:'Shutdown event recorded, root cause not resolved', score:10 }
+    ]
+  },
+  {
+    group: 'Motor & Drivetrain',
+    text: 'What is the condition of the motor — smell, temperature, general appearance?',
+    weight: 'medium',
+    answers: [
+      { label:'Excellent', desc:'No unusual odour, normal operating temperature, clean', score:90 },
+      { label:'Good',      desc:'Slightly warm but within normal range, no odour', score:75 },
+      { label:'Fair',      desc:'Warm to the touch above baseline, faint smell, warrants monitoring', score:55 },
+      { label:'Poor',      desc:'Hot to the touch, noticeable burnt smell', score:35 },
+      { label:'Critical',  desc:'Strong burnt odour, motor overheating, risk of failure', score:10 }
+    ]
+  },
+  {
+    group: 'Motor & Drivetrain',
+    text: 'What is the condition of the oil pump shaft seal (if equipped)?',
+    weight: 'medium',
+    answers: [
+      { label:'Excellent', desc:'No leakage visible at oil pump shaft seal', score:90 },
+      { label:'Good',      desc:'Trace seepage, within acceptable range', score:75 },
+      { label:'Fair',      desc:'Minor active leak, monitoring required', score:55 },
+      { label:'Poor',      desc:'Noticeable leak, deteriorating', score:35 },
+      { label:'Critical',  desc:'Heavy leak at oil pump shaft seal, seal failure imminent or confirmed', score:10 }
+    ]
+  },
+  {
+    group: 'Electrical',
+    text: 'What is the motor amp draw compared to expected at current load?',
+    weight: 'medium',
+    answers: [
+      { label:'Excellent', desc:'Amp draw within 5% of expected at current load', score:90 },
+      { label:'Good',      desc:'Amp draw within 10% of expected', score:75 },
+      { label:'Fair',      desc:'Amp draw 10–20% above or below expected', score:55 },
+      { label:'Poor',      desc:'Amp draw more than 20% outside expected, cause unknown', score:35 },
+      { label:'Critical',  desc:'Amp draw at or exceeding FLA, motor overloaded', score:10 }
+    ]
+  }
+];
+
+const SCORE_CLASSES = ['excellent','good','fair','poor','critical'];
+const SCORE_COLORS  = ['var(--green)','#7BC67E','var(--yellow)','var(--orange)','var(--red)'];
+// ── CAPPED SCORING MODEL ──
+// Each question contributes a max number of points to the total score.
+// Critical = full penalty, Poor = 75%, Fair = 50%, Good = 25%, Excellent = 0%
+// This prevents any single answer from collapsing the score erratically.
+const MAX_POINTS = { high:4, medium:3, low:1.5 };
+
+// Penalty per condition label (index 0=Excellent...4=Critical)
+const LABEL_PENALTY = [0, 0.25, 0.5, 0.75, 1.0];
+
+let currentQ       = 0;
+let answers        = new Array(QUESTIONS.length).fill(null);
+let liveScore      = 72;
+let startScore     = 72;
+let selectedUrgency = null;
+
+function init() {
+  document.getElementById('q-total').textContent = QUESTIONS.length;
+  document.getElementById('complete-date').textContent =
+    new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  renderQuestion(0);
+}
+
+function renderQuestion(idx) {
+  const q = QUESTIONS[idx];
+  document.getElementById('q-current').textContent = idx + 1;
+  document.getElementById('progress-fill').style.width =
+    ((idx) / QUESTIONS.length * 100) + '%';
+  document.getElementById('q-group').textContent = q.group;
+  document.getElementById('q-text').textContent  = q.text;
+
+  // Build answer buttons
+  const container = document.getElementById('q-answers');
+  container.innerHTML = '';
+  q.answers.forEach((ans, i) => {
+    const btn = document.createElement('button');
+    btn.className = `answer-btn ${SCORE_CLASSES[i]}`;
+    btn.innerHTML = `
+      <div class="answer-indicator"></div>
+      <div class="answer-content">
+        <div class="answer-label">${ans.label}</div>
+        <div class="answer-desc">${ans.desc}</div>
+      </div>
+      <div class="answer-score">${ans.score}</div>
+    `;
+    if (answers[idx] === i) btn.classList.add('selected');
+    btn.addEventListener('click', () => selectAnswer(idx, i, btn));
+    container.appendChild(btn);
+  });
+
+  // Show critical alert if previously selected critical
+  const critAlert = document.getElementById('critical-alert');
+  if (answers[idx] === 4) {
+    critAlert.classList.add('show');
+  } else {
+    critAlert.classList.remove('show');
+  }
+
+  // Nav state
+  document.getElementById('nav-back').disabled = idx === 0;
+  document.getElementById('nav-next').disabled = answers[idx] === null;
+  document.getElementById('nav-next').textContent =
+    idx === QUESTIONS.length - 1 ? 'Final Step' : 'Next';
+
+  // Animate card
+  const card = document.getElementById('question-card');
+  card.style.animation = 'none';
+  card.offsetHeight; // reflow
+  card.style.animation = 'slideIn 0.25s ease';
+}
+
+function selectAnswer(qIdx, ansIdx, clickedBtn) {
+  const prevAnswer = answers[qIdx];
+  answers[qIdx] = ansIdx;
+
+  // Update button states
+  document.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
+  clickedBtn.classList.add('selected');
+
+  // Critical alert
+  const critAlert = document.getElementById('critical-alert');
+  if (ansIdx === 4) {
+    critAlert.classList.add('show');
+  } else {
+    critAlert.classList.remove('show');
+  }
+
+  // Calculate score delta
+  const q = QUESTIONS[qIdx];
+  const newAnswerScore = q.answers[ansIdx].score;
+  const prevAnswerScore = prevAnswer !== null ? q.answers[prevAnswer].score : null;
+  const mult = WEIGHT_MULT[q.weight];
+
+  // Recalculate full live score from all answers
+  recalcScore();
+
+  // Enable next
+  document.getElementById('nav-next').disabled = false;
+}
+
+function recalcScore() {
+  // Calculate total penalty from all answered questions
+  let totalPenalty = 0;
+  answers.forEach((ans, i) => {
+    if (ans !== null) {
+      const q = QUESTIONS[i];
+      const maxPts = MAX_POINTS[q.weight];
+      const penalty = maxPts * LABEL_PENALTY[ans];
+      totalPenalty += penalty;
+    }
+  });
+
+  // Score starts at startScore and deducts penalty points
+  // Max possible total penalty across all 14 weekly questions:
+  // 2 high (4pts each) + 10 medium (3pts each) + 1 low (1.5pts) + 1 medium = ~43.5 pts max
+  // This keeps score from ever collapsing below ~28 even if everything is Critical
+  let newScore = Math.round(startScore - totalPenalty);
+  newScore = Math.max(10, Math.min(100, newScore));
+
+  const delta = newScore - liveScore;
+  liveScore = newScore;
+
+  updateScoreDisplay(newScore, delta);
+}
+
+function updateScoreDisplay(score, delta) {
+  const el = document.getElementById('live-score');
+  const deltaEl = document.getElementById('score-delta');
+
+  // Color based on score
+  let color = 'var(--green)';
+  if (score < 40) color = 'var(--red)';
+  else if (score < 60) color = 'var(--orange)';
+  else if (score < 75) color = 'var(--yellow)';
+  document.documentElement.style.setProperty('--score-color', color);
+
+  el.textContent = score;
+  el.classList.remove('score-tick');
+  el.offsetHeight;
+  el.classList.add('score-tick');
+
+  // Show delta
+  if (delta !== 0) {
+    deltaEl.className = 'score-delta';
+    deltaEl.textContent = (delta > 0 ? '+' : '') + delta;
+    deltaEl.classList.add(delta > 0 ? 'positive' : 'negative');
+    void deltaEl.offsetWidth;
+    deltaEl.classList.add('show');
+    setTimeout(() => {
+      deltaEl.className = 'score-delta';
+    }, 1200);
+  }
+}
+
+function goNext() {
+  if (currentQ < QUESTIONS.length - 1) {
+    currentQ++;
+    renderQuestion(currentQ);
+  } else {
+    showOpenObservation();
+  }
+}
+
+function goBack() {
+  if (currentQ > 0) {
+    currentQ--;
+    renderQuestion(currentQ);
+  }
+}
+
+function showOpenObservation() {
+  document.getElementById('question-flow').style.display = 'none';
+  document.getElementById('open-obs-section').style.display = 'block';
+  document.getElementById('progress-fill').style.width = '95%';
+  document.getElementById('q-current').textContent = '—';
+  document.getElementById('nav-back').disabled = false;
+  document.getElementById('nav-next').disabled = false;
+  document.getElementById('nav-next').textContent = 'Submit Inspection';
+
+  // Watch textarea for content
+  const ta = document.getElementById('open-obs-text');
+  ta.addEventListener('input', () => {
+    const urgency = document.getElementById('urgency-section');
+    if (ta.value.trim().length > 0) {
+      urgency.style.display = 'block';
+    } else {
+      urgency.style.display = 'none';
+      selectedUrgency = null;
+      document.querySelectorAll('.urgency-btn').forEach(b => b.classList.remove('selected-urgency'));
+    }
+  });
+
+  // Override nav
+  document.getElementById('nav-back').onclick = () => {
+    document.getElementById('open-obs-section').style.display = 'none';
+    document.getElementById('question-flow').style.display = 'block';
+    currentQ = QUESTIONS.length - 1;
+    renderQuestion(currentQ);
+  };
+  document.getElementById('nav-next').onclick = submitInspection;
+}
+
+function selectUrgency(btn, value) {
+  selectedUrgency = value;
+  document.querySelectorAll('.urgency-btn').forEach(b => b.classList.remove('selected-urgency'));
+  btn.classList.add('selected-urgency');
+}
+
+function submitInspection() {
+  // Show complete screen
+  document.getElementById('open-obs-section').style.display = 'none';
+  document.getElementById('complete-screen').classList.add('show');
+  document.getElementById('nav-bar').style.display = 'none';
+  document.getElementById('progress-fill').style.width = '100%';
+
+  document.getElementById('complete-score').textContent = liveScore;
+  document.getElementById('complete-score').style.color =
+    liveScore >= 75 ? 'var(--green)' : liveScore >= 55 ? 'var(--yellow)' : 'var(--red)';
+
+  const change = liveScore - startScore;
+  const changeEl = document.getElementById('complete-change');
+  changeEl.textContent = (change >= 0 ? '+' : '') + change + ' from previous score';
+  changeEl.style.color = change >= 0 ? 'var(--green)' : 'var(--red)';
+}
+
+function saveAndExit() {
+  if (confirm('Save your progress and return to the dashboard?')) {
+    window.location.href = '/dashboard';
+  }
+}
+
+function startNewInspection() {
+  currentQ = 0;
+  answers = new Array(QUESTIONS.length).fill(null);
+  liveScore = 72;
+  selectedUrgency = null;
+  document.getElementById('complete-screen').classList.remove('show');
+  document.getElementById('question-flow').style.display = 'block';
+  document.getElementById('nav-bar').style.display = 'flex';
+  document.getElementById('nav-next').onclick = goNext;
+  document.getElementById('nav-back').onclick = goBack;
+  init();
+}
+
+init();
+</script>
+</body>
+</html>
