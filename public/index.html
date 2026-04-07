@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>MASSCORE — Plant Condition Dashboard</title>
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Share+Tech+Mono&family=Rajdhani:wght@300;400;500;600;700&family=Orbitron:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -325,76 +325,97 @@ footer { position:relative; z-index:5; border-top:1px solid var(--border); paddi
 /* ── MOBILE RESPONSIVE ── */
 @media(max-width:768px) {
   /* Header */
-  header { padding:0 16px; height:56px; }
+  header { padding:0 12px; height:52px; }
   .header-right { gap:8px; }
   .header-date { display:none; }
+  .header-logo { font-size:15px !important; letter-spacing:1px; }
 
-  /* Site selector bar — stack vertically if inspection button present */
-  .site-selector-bar { padding:0 12px; gap:8px; flex-wrap:wrap; height:auto; min-height:48px; padding-top:8px; padding-bottom:8px; }
+  /* Site selector bar */
+  .site-selector-bar { padding:6px 12px; gap:8px; flex-wrap:wrap; height:auto; }
   .site-label { display:none; }
   .site-select-wrap { flex:1; min-width:0; }
-  select.site-dropdown { width:100%; font-size:12px; padding:6px 28px 6px 10px; }
-  .insp-trigger-btn { font-size:8px; padding:6px 10px; letter-spacing:1px; }
+  select.site-dropdown { width:100%; font-size:12px; padding:6px 24px 6px 10px; }
+  .insp-trigger-btn { font-size:8px !important; padding:5px 8px !important; letter-spacing:1px !important; }
 
   /* Site banner */
-  .site-banner { padding:12px 16px; flex-wrap:wrap; gap:8px; }
-  .site-name { font-size:18px; }
+  .site-banner { padding:10px 12px; flex-wrap:wrap; gap:6px; }
+  .site-name { font-size:16px; }
 
-  /* Dashboard content padding */
-  #dashboard-content { padding:0; }
-  .dash-wrap, [style*="padding:24px"], [style*="padding: 24px"] { padding:12px !important; }
-
-  /* Score panels — stack to single column */
-  .two-col { grid-template-columns:1fr !important; gap:12px; }
-  .score-row { grid-template-columns:1fr !important; gap:10px; }
-  .hmi-scores-block { grid-template-columns:1fr !important; }
-
-  /* HMI cells — reduce font sizes */
+  /* ── HMI PANEL — full mobile rework ── */
+  .hmi-top-bar { flex-direction:column; }
+  .hmi-pcs-block {
+    padding:16px; border-right:none !important;
+    border-bottom:1px solid var(--border);
+    min-width:0; flex-direction:row;
+    align-items:center; gap:16px;
+  }
+  .hmi-pcs-tag { font-size:9px; letter-spacing:2px; margin-bottom:0; }
+  .hmi-pcs-value { font-size:52px; margin-bottom:0; line-height:1; }
+  .hmi-pcs-denom { font-size:11px; }
+  .hmi-pcs-status { font-size:9px; margin-top:4px; }
+  .hmi-scores-block { grid-template-columns:1fr 1fr !important; }
+  .hmi-score-cell { padding:12px 14px; }
+  .hmi-score-cell:nth-child(2) { border-right:1px solid var(--border) !important; }
+  .hmi-score-cell:nth-child(3) { border-bottom:1px solid var(--border) !important; }
   .hmi-cell-value { font-size:28px !important; }
-  .hmi-cell-tag { font-size:10px !important; }
+  .hmi-cell-tag { font-size:9px !important; letter-spacing:1px !important; }
+  .hmi-cell-status { font-size:9px !important; letter-spacing:1px !important; }
+  .hmi-cell-narrative { font-size:12px !important; }
+  .hmi-cell-sublabel { font-size:9px !important; }
+  .hmi-narrative-bar { padding:10px 12px; flex-wrap:wrap; gap:8px; }
+  .hmi-narrative-text { font-size:13px; }
+  .hmi-status-lights { display:none; }
+
+  /* Two column layouts — stack */
+  .two-col { grid-template-columns:1fr !important; gap:10px; }
+  .score-row { grid-template-columns:1fr !important; gap:10px; }
 
   /* Score ring */
-  .score-ring { width:110px !important; height:110px !important; }
-  .score-ring svg { width:110px !important; height:110px !important; }
-  .score-ring-wrap { gap:12px; }
+  .score-ring { width:100px !important; height:100px !important; }
+  .score-ring svg { width:100px !important; height:100px !important; }
+  .score-ring-wrap { gap:10px; }
 
-  /* Section padding */
-  .status-section { border-radius:0; }
-  .section-label { padding:10px 16px !important; font-size:11px !important; }
-  .status-header { padding:10px 16px; }
-  .finding-row { padding:12px 16px; }
-  .action-row { padding:10px 16px; }
+  /* Section labels and headers */
+  .section-label { padding:8px 12px !important; font-size:10px !important; letter-spacing:2px !important; }
+  .status-header { padding:10px 12px !important; flex-wrap:wrap; gap:6px; }
+  .sh-title { font-size:13px !important; }
 
-  /* Asset status pill — prevent overflow */
-  .asset-status-pill { font-size:9px !important; padding:2px 6px !important; letter-spacing:0.5px !important; white-space:nowrap; }
+  /* Findings */
+  .finding-row { padding:10px 12px; gap:10px; }
+  .finding-title { font-size:14px; }
+  .finding-cat { font-size:10px !important; }
 
-  /* Capital planning table — make it scrollable */
-  .capital-table-wrap { overflow-x:auto; }
-  [style*="grid-template-columns:1fr 120px 160px 160px 100px 1fr"] {
-    grid-template-columns:1fr 80px 110px 110px 70px 1fr !important;
-    font-size:11px !important;
-  }
+  /* Asset status pill */
+  .asset-status-pill { font-size:8px !important; padding:2px 5px !important; letter-spacing:0.5px !important; }
 
-  /* Compressor readings */
-  .comp-header { padding:10px 16px; flex-wrap:wrap; gap:6px; }
-  .vital-card-header { padding:10px 16px; }
+  /* Compressor vitals */
+  .comp-header { padding:10px 12px; flex-wrap:wrap; gap:6px; }
+  .vital-card-header { padding:10px 12px; }
+
+  /* Capital planning — scrollable */
+  .status-section { overflow-x:auto; }
+
+  /* Action rows */
+  .action-row { padding:8px 12px; }
+
+  /* Vessel registry table — scrollable */
+  .status-section table, [style*="display:grid"] { min-width:0; }
 
   /* Footer */
-  footer { padding:12px 16px; flex-direction:column; gap:4px; text-align:center; }
+  footer { padding:10px 12px; flex-direction:column; gap:4px; text-align:center; }
+  .footer-txt { font-size:9px !important; }
 
-  /* Vessel registry / findings — full width */
-  .plain-explain { margin:0 16px 12px; }
+  /* Plain explain */
+  .plain-explain { margin:0 12px 10px; }
 
-  /* Score improvement roadmap */
-  [style*="padding:20px 24px"] { padding:14px 16px !important; }
+  /* Alert banner */
+  .alert-banner { padding:8px 12px; font-size:10px !important; }
 }
 
-@media(max-width:480px) {
-  .hmi-cell-value { font-size:24px !important; }
-  .score-ring { width:90px !important; height:90px !important; }
-  .score-ring svg { width:90px !important; height:90px !important; }
-  header { height:52px; }
-  .header-logo { font-size:14px !important; letter-spacing:1px; }
+@media(max-width:400px) {
+  .hmi-pcs-value { font-size:42px; }
+  .hmi-cell-value { font-size:22px !important; }
+  .site-name { font-size:14px; }
 }
 </style>
 </head>
@@ -480,6 +501,15 @@ footer { position:relative; z-index:5; border-top:1px solid var(--border); paddi
 })();
 
 const $ = id => document.getElementById(id);
+
+// Force layout recalc on orientation change to prevent stale mobile layout
+window.addEventListener('orientationchange', () => {
+  setTimeout(() => {
+    document.body.style.display = 'none';
+    document.body.offsetHeight;
+    document.body.style.display = '';
+  }, 100);
+});
 
 // ── HOW CALCULATED TOGGLE ────────────────────────────────
 function toggleHowCalc(id) {
