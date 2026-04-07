@@ -46,6 +46,20 @@ select.site-dropdown:focus { border-color:var(--red); }
 .select-arrow { position:absolute; right:12px; top:50%; transform:translateY(-50%); pointer-events:none; color:var(--red); font-size:10px; }
 
 /* ALERT BANNER */
+.insp-trigger-btn {
+  margin-left:auto;
+  font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px;
+  text-transform:uppercase; padding:8px 16px;
+  background:transparent; border:1px solid var(--border2);
+  color:var(--text-dim); cursor:pointer; white-space:nowrap;
+  transition:all 0.2s; text-decoration:none; display:inline-flex;
+  align-items:center; gap:8px;
+}
+.insp-trigger-btn:hover { border-color:#1a6bb5; color:#fff; background:rgba(26,107,181,0.1); }
+.insp-trigger-btn .insp-dot { width:7px; height:7px; border-radius:50%; background:#1a6bb5; flex-shrink:0; }
+.insp-due { border-color:#1a6bb5 !important; color:#fff !important; background:rgba(26,107,181,0.12) !important; }
+.insp-due .insp-dot { background:#1a6bb5; box-shadow:0 0 6px #1a6bb5; animation:dotPulse 1.5s ease infinite; }
+@keyframes dotPulse { 0%,100%{opacity:1;} 50%{opacity:0.4;} }
 .alert-banner { position:relative; z-index:8; padding:10px 32px; display:flex; align-items:center; gap:12px; font-family:'Share Tech Mono',monospace; font-size:12px; letter-spacing:2px; text-transform:uppercase; }
 .alert-banner.critical { background:rgba(232,50,10,0.12); border-bottom:1px solid rgba(232,50,10,0.3); color:var(--red); }
 .alert-banner.clear { background:rgba(46,204,113,0.08); border-bottom:1px solid rgba(46,204,113,0.2); color:var(--green); }
@@ -333,6 +347,10 @@ footer { position:relative; z-index:5; border-top:1px solid var(--border); paddi
     </select>
     <div class="select-arrow">▼</div>
   </div>
+  <a href="/inspection" id="insp-trigger-btn" class="insp-trigger-btn" style="display:none">
+    <span class="insp-dot"></span>
+    <span id="insp-trigger-label">Weekly Inspection Due</span>
+  </a>
 </div>
 
 <div id="alert-banner"></div>
@@ -755,7 +773,13 @@ function buildDropdown() {
 }
 
 function selectSite(id) {
-  if(!id) { $('site-banner').style.display='none'; $('alert-banner').innerHTML=''; $('dashboard-content').innerHTML=''; return; }
+  if(!id) {
+    $('site-banner').style.display='none';
+    $('alert-banner').innerHTML='';
+    $('dashboard-content').innerHTML='';
+    $('insp-trigger-btn').style.display='none';
+    return;
+  }
   activeSite=id;
   const site=M.sites[id];
   if(!site) return;
@@ -767,6 +791,13 @@ function selectSite(id) {
   $('banner-meta').innerHTML=city?`<span>Location:</span> ${city}${state?', '+state:''}`:'';
   $('site-banner').style.display='flex';
   $('footer-right').textContent=`Generated ${new Date().toLocaleDateString('en-US')} — ${name} — MASSCORE v2.0`;
+
+  // Show inspection trigger button
+  const inspBtn = $('insp-trigger-btn');
+  inspBtn.style.display='inline-flex';
+  inspBtn.classList.add('insp-due');
+  $('insp-trigger-label').textContent='Weekly Inspection Due';
+  inspBtn.href=`/inspection?site=${encodeURIComponent(name)}`;
 
   destroyCharts();
   renderDashboard(id);
