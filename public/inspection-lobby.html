@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>MASSCORE — Inspection Brief</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+:root {
+  --red:#E8320A; --red-dim:rgba(232,50,10,0.1);
+  --green:#4CAF7D; --green-dim:rgba(76,175,125,0.1);
+  --yellow:#F5A623; --yellow-dim:rgba(245,166,35,0.1);
+  --blue:#1a6bb5; --blue-dim:rgba(26,107,181,0.12);
+  --bg:#080808; --bg2:#0d0d0d; --bg3:#121212; --bg4:#181818;
+  --border:#1a1a1a; --border2:#252525; --border3:#333;
+  --text:#e8e8e8; --mid:#999; --dim:#555;
+}
+
+html, body { min-height:100vh; background:var(--bg); color:var(--text); font-family:'Rajdhani',sans-serif; overflow-x:hidden; }
+
+/* Scanline overlay */
+body::after {
+  content:'';
+  position:fixed; inset:0; pointer-events:none; z-index:999;
+  background:repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
+}
+
+/* Grid texture */
+body::before {
+  content:'';
+  position:fixed; inset:0; pointer-events:none; z-index:0;
+  background-image:
+    linear-gradient(rgba(255,255,255,0.006) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,0.006) 1px,transparent 1px);
+  background-size:32px 32px;
+}
+
+/* ── TOP COMMAND BAR ── */
+.cmd-bar {
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  height:56px;
+  background:rgba(8,8,8,0.98);
+  border-bottom:1px solid var(--border2);
+  display:flex; align-items:center; justify-content:space-between;
+  padding:0 24px;
+  backdrop-filter:blur(16px);
+}
+.cmd-logo {
+  font-family:'Orbitron',monospace;
+  font-size:16px; font-weight:900; letter-spacing:2px;
+}
+.cmd-logo .mass { color:#fff; }
+.cmd-logo .core { color:var(--red); }
+.cmd-center {
+  position:absolute; left:50%; transform:translateX(-50%);
+  display:flex; align-items:center; gap:12px;
+}
+.cmd-badge {
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px; letter-spacing:3px; text-transform:uppercase;
+  color:var(--red); border:1px solid rgba(232,50,10,0.4);
+  padding:4px 10px; animation:badgePulse 2s ease infinite;
+}
+@keyframes badgePulse {
+  0%,100% { border-color:rgba(232,50,10,0.4); }
+  50% { border-color:rgba(232,50,10,0.9); }
+}
+.cmd-right { display:flex; align-items:center; gap:12px; }
+.cmd-back {
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px; letter-spacing:2px; text-transform:uppercase;
+  color:var(--dim); background:none; border:1px solid var(--border2);
+  padding:6px 12px; cursor:pointer; transition:all 0.2s;
+  text-decoration:none; display:inline-block;
+}
+.cmd-back:hover { color:#fff; border-color:var(--border3); }
+
+/* ── MISSION HEADER ── */
+.mission-header {
+  position:relative; z-index:1;
+  padding:90px 24px 0;
+  margin-bottom:0;
+}
+.mission-header-inner {
+  display:flex; align-items:flex-end; justify-content:space-between;
+  gap:24px; flex-wrap:wrap;
+  padding-bottom:20px;
+  border-bottom:1px solid var(--border2);
+}
+.mission-identity { flex:1; min-width:0; }
+.mission-op-label {
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px; letter-spacing:4px; color:var(--red);
+  text-transform:uppercase; margin-bottom:8px;
+  display:flex; align-items:center; gap:8px;
+}
+.mission-op-label::before {
+  content:''; width:20px; height:1px; background:var(--red);
+}
+.mission-site {
+  font-family:'Orbitron',monospace;
+  font-size:clamp(22px, 4vw, 36px);
+  font-weight:900; color:#fff; letter-spacing:1px;
+  line-height:1.1; margin-bottom:6px;
+}
+.mission-meta {
+  display:flex; align-items:center; gap:16px; flex-wrap:wrap;
+}
+.mission-meta-item {
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px; letter-spacing:2px; color:var(--mid);
+  text-transform:uppercase;
+  display:flex; align-items:center; gap:6px;
+}
+.mission-meta-item .dot { width:4px; height:4px; border-radius:50%; background:var(--green); }
+.mission-meta-item .dot.yellow { background:var(--yellow); }
+
+/* ── MASTER PROGRESS ── */
+.master-progress {
+  flex-shrink:0;
+  text-align:right;
+  min-width:160px;
+}
+.master-pct {
+  font-family:'Orbitron',monospace;
+  font-size:48px; font-weight:900; line-height:1;
+  color:#fff; margin-bottom:4px;
+}
+.master-pct span { font-size:20px; color:var(--dim); }
+.master-label {
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px; letter-spacing:3px; color:var(--dim);
+  text-transform:uppercase; margin-bottom:10px;
+}
+.master-bar-track {
+  height:3px; background:var(--border2);
+  position:relative; overflow:hidden;
+}
+.master-bar-fill {
+  height:100%; background:var(--green);
+  transition:width 0.8s ease;
+  position:relative;
+}
+.master-bar-fill::after {
+  content:''; position:absolute; right:0; top:0; bottom:0;
+  width:20px;
+  background:linear-gradient(90deg, transparent, rgba(76,175,125,0.6));
+}
+
+/* ── INTEL STRIP ── */
+.intel-strip {
+  position:relative; z-index:1;
+  display:flex; align-items:stretch;
+  border-bottom:1px solid var(--border2);
+  background:var(--bg2);
+  overflow-x:auto;
+}
+.intel-strip::-webkit-scrollbar { display:none; }
+.intel-cell {
+  flex:1; min-width:120px;
+  padding:14px 20px;
+  border-right:1px solid var(--border);
+  display:flex; flex-direction:column; gap:4px;
+}
+.intel-cell:last-child { border-right:none; }
+.intel-label {
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px; letter-spacing:3px; color:var(--dim);
+  text-transform:uppercase;
+}
+.intel-value {
+  font-family:'Orbitron',monospace;
+  font-size:18px; font-weight:700; color:#fff;
+  line-height:1;
+}
+.intel-sub {
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px; color:var(--mid); letter-spacing:1px;
+  text-transform:uppercase;
+}
+
+/* ── LAST OPERATORS ── */
+.operators-strip {
+  position:relative; z-index:1;
+  padding:14px 24px;
+  background:var(--bg3);
+  border-bottom:1px solid var(--border2);
+  display:flex; align-items:center; gap:20px; flex-wrap:wrap;
+}
+.operators-label {
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px; letter-spacing:3px; color:var(--dim);
+  text-transform:uppercase; white-space:nowrap;
+}
+.operators-list { display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+.operator-tag {
+  display:flex; align-items:center; gap:8px;
+  background:var(--bg4); border:1px solid var(--border2);
+  padding:6px 12px;
+}
+.operator-avatar {
+  width:22px; height:22px; border-radius:50%;
+  background:var(--border2);
+  display:flex; align-items:center; justify-content:center;
+  font-family:'Orbitron',monospace; font-size:9px; font-weight:700; color:var(--mid);
+  flex-shrink:0;
+}
+.operator-info { display:flex; flex-direction:column; gap:1px; }
+.operator-name {
+  font-family:'Rajdhani',sans-serif;
+  font-size:13px; font-weight:600; color:#ccc; line-height:1;
+}
+.operator-date {
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px; color:var(--dim); letter-spacing:1px;
+}
+.operator-type {
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px; letter-spacing:1px; text-transform:uppercase;
+  padding:2px 6px;
+}
+.operator-type.weekly { color:var(--blue); border:1px solid rgba(26,107,181,0.3); }
+.operator-type.quarterly { color:var(--yellow); border:1px solid rgba(245,166,35,0.3); }
+.operator-type.annual { color:var(--red); border:1px solid rgba(232,50,10,0.3); }
+
+/* ── MAIN CONTENT ── */
+.lobby-main {
+  position:relative; z-index:1;
+  padding:24px 24px 120px;
+  max-width:1200px;
+  margin:0 auto;
+}
+
+/* ── ZONE SECTION ── */
+.zone { margin-bottom:32px; }
+.zone-header {
+  display:flex; align-items:center; gap:12px;
+  margin-bottom:14px;
+  padding-bottom:10px;
+  border-bottom:1px solid var(--border);
+}
+.zone-number {
+  font-family:'Orbitron',monospace;
+  font-size:10px; font-weight:700;
+  color:var(--red); border:1px solid rgba(232,50,10,0.3);
+  width:28px; height:28px;
+  display:flex; align-items:center; justify-content:center;
+  flex-shrink:0;
+}
+.zone-name {
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px; letter-spacing:3px; color:#ccc;
+  text-transform:uppercase; flex:1;
+}
+.zone-count {
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px; letter-spacing:2px; color:var(--dim);
+  text-transform:uppercase;
+}
+.zone-progress-mini {
+  width:80px; height:2px; background:var(--border2);
+  position:relative; overflow:hidden;
+}
+.zone-progress-fill {
+  height:100%; background:var(--green);
+  transition:width 0.6s ease;
+}
+
+/* ── ASSET CARDS ── */
+.asset-grid {
+  display:grid;
+  grid-template-columns:repeat(auto-fill, minmax(280px, 1fr));
+  gap:10px;
+}
+.asset-card {
+  background:var(--bg2);
+  border:1px solid var(--border2);
+  position:relative;
+  overflow:hidden;
+  cursor:pointer;
+  transition:border-color 0.2s, background 0.2s;
+}
+.asset-card::before {
+  content:''; position:absolute; left:0; top:0; bottom:0; width:3px;
+  background:var(--border2); transition:background 0.2s;
+}
+.asset-card:hover { border-color:var(--border3); background:var(--bg3); }
+.asset-card:hover::before { background:var(--blue); }
+.asset-card.complete { opacity:0.6; }
+.asset-card.complete::before { background:var(--green); }
+.asset-card.in-progress::before { background:var(--yellow); animation:sidebarPulse 1.5s ease infinite; }
+@keyframes sidebarPulse {
+  0%,100% { opacity:1; } 50% { opacity:0.4; }
+}
+
+.asset-card-inner { padding:16px 16px 16px 20px; }
+.asset-card-top {
+  display:flex; align-items:flex-start; justify-content:space-between;
+  gap:12px; margin-bottom:10px;
+}
+.asset-card-identity { flex:1; min-width:0; }
+.asset-card-name {
+  font-family:'Rajdhani',sans-serif;
+  font-size:17px; font-weight:700; color:#fff;
+  line-height:1.2; margin-bottom:2px;
+}
+.asset-card-type {
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px; letter-spacing:2px; color:var(--mid);
+  text-transform:uppercase;
+}
+.asset-score-block { text-align:right; flex-shrink:0; }
+.asset-score-num {
+  font-family:'Orbitron',monospace;
+  font-size:28px; font-weight:900; line-height:1;
+}
+.asset-score-lbl {
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px; letter-spacing:1px; color:var(--dim);
+  text-transform:uppercase;
+}
+
+.asset-card-mid {
+  display:flex; align-items:center; justify-content:space-between;
+  gap:8px; margin-bottom:12px;
+}
+.asset-last-insp {
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px; letter-spacing:1px; color:var(--dim);
+  text-transform:uppercase;
+}
+.asset-q-count {
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px; letter-spacing:1px; color:var(--dim);
+  text-transform:uppercase;
+}
+
+.asset-card-action {
+  display:flex; align-items:center; justify-content:space-between; gap:8px;
+}
+.asset-start-btn {
+  flex:1; padding:10px 16px;
+  font-family:'Share Tech Mono',monospace;
+  font-size:10px; letter-spacing:2px; text-transform:uppercase;
+  border:none; cursor:pointer; transition:all 0.2s;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.asset-start-btn.not-started {
+  background:rgba(26,107,181,0.15);
+  color:#7ab4e8;
+  border:1px solid rgba(26,107,181,0.3);
+}
+.asset-start-btn.not-started:hover {
+  background:var(--blue);
+  color:#fff;
+  border-color:var(--blue);
+}
+.asset-start-btn.in-progress {
+  background:var(--yellow-dim);
+  color:var(--yellow);
+  border:1px solid rgba(245,166,35,0.3);
+}
+.asset-start-btn.in-progress:hover {
+  background:var(--yellow);
+  color:#000;
+}
+.asset-start-btn.complete {
+  background:var(--green-dim);
+  color:var(--green);
+  border:1px solid rgba(76,175,125,0.3);
+  cursor:default;
+}
+.asset-status-chip {
+  font-family:'Share Tech Mono',monospace;
+  font-size:8px; letter-spacing:2px; text-transform:uppercase;
+  padding:4px 8px; flex-shrink:0;
+}
+.chip-ns { color:var(--dim); border:1px solid var(--border2); }
+.chip-ip { color:var(--yellow); border:1px solid rgba(245,166,35,0.3); background:var(--yellow-dim); }
+.chip-done { color:var(--green); border:1px solid rgba(76,175,125,0.3); background:var(--green-dim); }
+
+/* ── NEXT UP BANNER ── */
+.next-up-banner {
+  position:fixed; bottom:0; left:0; right:0; z-index:100;
+  background:rgba(8,8,8,0.97);
+  border-top:1px solid var(--border2);
+  backdrop-filter:blur(16px);
+  padding:14px 24px;
+  display:flex; align-items:center; gap:16px;
+}
+.next-up-label {
+  font-family:'Share Tech Mono',monospace;
+  font-size:9px; letter-spacing:3px; color:var(--dim);
+  text-transform:uppercase; white-space:nowrap;
+}
+.next-up-asset {
+  flex:1;
+  font-family:'Rajdhani',sans-serif;
+  font-size:16px; font-weight:600; color:#fff;
+}
+.next-up-btn {
+  padding:12px 28px;
+  background:var(--red); border:none; color:#fff;
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px; letter-spacing:2px; text-transform:uppercase;
+  cursor:pointer; transition:background 0.2s;
+  white-space:nowrap; flex-shrink:0;
+}
+.next-up-btn:hover { background:#c42a08; }
+.next-up-btn.all-done {
+  background:var(--green);
+}
+.next-up-btn.all-done:hover { background:#3a9b6a; }
+
+/* ── COMPLETE OVERLAY ── */
+.complete-overlay {
+  display:none; position:fixed; inset:0; z-index:200;
+  background:rgba(8,8,8,0.95);
+  align-items:center; justify-content:center;
+  flex-direction:column; gap:20px;
+  animation:fadeIn 0.4s ease;
+}
+.complete-overlay.show { display:flex; }
+@keyframes fadeIn { from{opacity:0} to{opacity:1} }
+.complete-check {
+  font-size:56px;
+  animation:checkPop 0.5s ease;
+}
+@keyframes checkPop {
+  0%{transform:scale(0)} 70%{transform:scale(1.2)} 100%{transform:scale(1)}
+}
+.complete-title {
+  font-family:'Orbitron',monospace;
+  font-size:24px; font-weight:900; color:#fff; letter-spacing:2px;
+}
+.complete-sub {
+  font-family:'Share Tech Mono',monospace;
+  font-size:11px; letter-spacing:3px; color:var(--dim);
+  text-transform:uppercase;
+}
+.complete-actions { display:flex; gap:12px; margin-top:8px; }
+.complete-primary {
+  padding:14px 32px; background:var(--red); border:none; color:#fff;
+  font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:2px;
+  text-transform:uppercase; cursor:pointer; transition:background 0.2s;
+}
+.complete-primary:hover { background:#c42a08; }
+.complete-secondary {
+  padding:14px 32px; background:transparent;
+  border:1px solid var(--border2); color:var(--mid);
+  font-family:'Share Tech Mono',monospace; font-size:11px; letter-spacing:2px;
+  text-transform:uppercase; cursor:pointer; transition:all 0.2s;
+}
+.complete-secondary:hover { border-color:var(--border3); color:#fff; }
+
+/* ── ANIMATIONS ── */
+.zone { animation:zoneIn 0.4s ease both; }
+.zone:nth-child(1) { animation-delay:0.05s; }
+.zone:nth-child(2) { animation-delay:0.1s; }
+.zone:nth-child(3) { animation-delay:0.15s; }
+.zone:nth-child(4) { animation-delay:0.2s; }
+.zone:nth-child(5) { animation-delay:0.25s; }
+@keyframes zoneIn {
+  from { opacity:0; transform:translateY(16px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+
+/* ── MOBILE ── */
+@media(max-width:600px) {
+  .cmd-bar { padding:0 14px; }
+  .cmd-center { display:none; }
+  .mission-header { padding:70px 14px 0; }
+  .mission-site { font-size:22px; }
+  .master-pct { font-size:36px; }
+  .intel-cell { min-width:90px; padding:10px 14px; }
+  .intel-value { font-size:15px; }
+  .operators-strip { padding:10px 14px; gap:10px; }
+  .lobby-main { padding:16px 14px 110px; }
+  .asset-grid { grid-template-columns:1fr; }
+  .next-up-banner { padding:10px 14px; gap:10px; }
+}
+</style>
+</head>
+<body>
+
+<!-- COMMAND BAR -->
+<div class="cmd-bar">
+  <div class="cmd-logo"><span class="mass">MASS</span><span class="core">CORE</span></div>
+  <div class="cmd-center">
+    <div class="cmd-badge">● INSPECTION BRIEF</div>
+  </div>
+  <div class="cmd-right">
+    <a href="/dashboard" class="cmd-back">← Dashboard</a>
+  </div>
+</div>
+
+<!-- MISSION HEADER -->
+<div class="mission-header">
+  <div class="mission-header-inner">
+    <div class="mission-identity">
+      <div class="mission-op-label">ACTIVE INSPECTION</div>
+      <div class="mission-site" id="lobby-site-name">99 Cents — Houston</div>
+      <div class="mission-meta">
+        <div class="mission-meta-item">
+          <span class="dot"></span>
+          <span id="lobby-insp-type">Weekly Inspection</span>
+        </div>
+        <div class="mission-meta-item">
+          <span class="dot yellow"></span>
+          <span id="lobby-date"></span>
+        </div>
+        <div class="mission-meta-item" id="lobby-est-time">
+          <span>Est. 45 min</span>
+        </div>
+      </div>
+    </div>
+    <div class="master-progress">
+      <div class="master-label">Completion</div>
+      <div class="master-pct"><span id="completed-count">0</span><span> / <span id="total-count">0</span></span></div>
+      <div class="master-bar-track">
+        <div class="master-bar-fill" id="master-fill" style="width:0%"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- INTEL STRIP -->
+<div class="intel-strip">
+  <div class="intel-cell">
+    <div class="intel-label">Assets in Scope</div>
+    <div class="intel-value" id="intel-assets">—</div>
+    <div class="intel-sub">this visit</div>
+  </div>
+  <div class="intel-cell">
+    <div class="intel-label">Total Questions</div>
+    <div class="intel-value" id="intel-questions">—</div>
+    <div class="intel-sub">across all assets</div>
+  </div>
+  <div class="intel-cell">
+    <div class="intel-label">Plant Score</div>
+    <div class="intel-value" id="intel-score" style="color:var(--green)">—</div>
+    <div class="intel-sub">current</div>
+  </div>
+  <div class="intel-cell">
+    <div class="intel-label">Open Findings</div>
+    <div class="intel-value" id="intel-findings" style="color:var(--yellow)">—</div>
+    <div class="intel-sub">requiring attention</div>
+  </div>
+  <div class="intel-cell">
+    <div class="intel-label">Last Inspection</div>
+    <div class="intel-value" id="intel-last" style="font-size:13px">—</div>
+    <div class="intel-sub" id="intel-last-who"></div>
+  </div>
+</div>
+
+<!-- LAST OPERATORS -->
+<div class="operators-strip">
+  <div class="operators-label">Previous Inspectors</div>
+  <div class="operators-list" id="operators-list">
+    <!-- populated by JS -->
+  </div>
+</div>
+
+<!-- MAIN LOBBY CONTENT -->
+<div class="lobby-main" id="lobby-main">
+  <!-- zones populated by JS -->
+</div>
+
+<!-- NEXT UP BANNER -->
+<div class="next-up-banner" id="next-up-banner">
+  <div class="next-up-label">Next Up</div>
+  <div class="next-up-asset" id="next-up-asset">—</div>
+  <button class="next-up-btn" id="next-up-btn" onclick="goToNextAsset()">Begin Inspection →</button>
+</div>
+
+<!-- COMPLETE OVERLAY -->
+<div class="complete-overlay" id="complete-overlay">
+  <div class="complete-check">✓</div>
+  <div class="complete-title">Inspection Complete</div>
+  <div class="complete-sub" id="complete-sub-text">All assets inspected</div>
+  <div class="complete-actions">
+    <button class="complete-primary" onclick="window.location.href='/dashboard'">Return to Dashboard</button>
+    <button class="complete-secondary" onclick="document.getElementById('complete-overlay').classList.remove('show')">Review Summary</button>
+  </div>
+</div>
+
+<script>
+// ── DEMO DATA ──
+// In production this would be pulled from the Airtable API
+// via the same /api/data endpoint, filtered by the site param
+
+const SITE_NAME = new URLSearchParams(window.location.search).get('site') || '99 Cents — Houston';
+const INSP_TYPE = new URLSearchParams(window.location.search).get('type') || 'Weekly';
+
+// Demo: last 3 inspectors
+const LAST_INSPECTORS = [
+  { name:'Zach Giles',   date:'Apr 1, 2026',  type:'weekly',    initials:'ZG' },
+  { name:'John Lewis',   date:'Mar 25, 2026', type:'weekly',    initials:'JL' },
+  { name:'Zach Giles',   date:'Jan 15, 2026', type:'quarterly', initials:'ZG' },
+];
+
+// Demo: assets by zone
+const ZONES = [
+  {
+    id:'compression',
+    name:'Compression',
+    icon:'⚙',
+    assets:[
+      { id:'bc1', name:'BC-1 Compressor', type:'GEA Screw — Thermosyphon', score:72, color:'var(--green)',    questions:14, lastInsp:'Apr 1', status:'not-started' },
+      { id:'bc3', name:'BC-3 Compressor', type:'GEA Screw — Thermosyphon', score:68, color:'var(--yellow)',   questions:14, lastInsp:'Apr 1', status:'not-started' },
+      { id:'c1',  name:'C-1 Compressor',  type:'GEA Screw',                score:71, color:'var(--green)',    questions:14, lastInsp:'Apr 1', status:'not-started' },
+      { id:'c2',  name:'C-2 Compressor',  type:'GEA Screw',                score:65, color:'var(--yellow)',   questions:14, lastInsp:'Apr 1', status:'not-started' },
+      { id:'c3',  name:'C-3 Compressor',  type:'GEA Screw',                score:65, color:'var(--yellow)',   questions:14, lastInsp:'Apr 1', status:'not-started' },
+      { id:'c4',  name:'C-4 Compressor',  type:'GEA Screw',                score:65, color:'var(--yellow)',   questions:14, lastInsp:'Apr 1', status:'not-started' },
+      { id:'c5',  name:'C-5 Compressor',  type:'GEA Screw',                score:70, color:'var(--green)',    questions:14, lastInsp:'Apr 1', status:'not-started' },
+    ]
+  },
+  {
+    id:'condensing',
+    name:'Condensing',
+    icon:'💧',
+    assets:[
+      { id:'ec1', name:'Condenser EC1-A/B', type:'Evaporative Condenser', score:55, color:'var(--yellow)', questions:6, lastInsp:'Apr 1', status:'not-started' },
+      { id:'ec2', name:'Condenser EC2-A/B', type:'Evaporative Condenser', score:87, color:'var(--green)',  questions:6, lastInsp:'Apr 1', status:'not-started' },
+      { id:'ec3', name:'Condenser EC3-A/B', type:'Evaporative Condenser', score:95, color:'var(--green)',  questions:6, lastInsp:'Apr 1', status:'not-started' },
+    ]
+  },
+  {
+    id:'vessels',
+    name:'Pressure Vessels & Vessels',
+    icon:'🛡',
+    assets:[
+      { id:'lsa1', name:'LSA-1 Vessel',    type:'Low Side Accumulator', score:78, color:'var(--green)',  questions:5, lastInsp:'Mar 25', status:'not-started' },
+      { id:'hsa1', name:'HSA-1 Vessel',    type:'High Side Accumulator', score:74, color:'var(--green)', questions:5, lastInsp:'Mar 25', status:'not-started' },
+      { id:'dump', name:'Dump Tank-2',     type:'Dump Tank',             score:65, color:'var(--yellow)', questions:5, lastInsp:'Mar 25', status:'not-started' },
+    ]
+  },
+  {
+    id:'safety',
+    name:'Safety Systems',
+    icon:'⚠',
+    assets:[
+      { id:'ammdet', name:'Ammonia Detection', type:'Sensidyne System', score:null, color:'var(--mid)',    questions:4, lastInsp:'Mar 25', status:'not-started' },
+      { id:'emvent', name:'Emergency Ventilation', type:'Machine Room', score:null, color:'var(--mid)',   questions:4, lastInsp:'Mar 25', status:'not-started' },
+      { id:'eyewash', name:'Emergency Eyewash / Shower', type:'Safety Station', score:null, color:'var(--mid)', questions:3, lastInsp:'Mar 25', status:'not-started' },
+    ]
+  }
+];
+
+// ── STATE ──
+let assetStatus = {}; // id -> 'not-started' | 'in-progress' | 'complete'
+ZONES.forEach(z => z.assets.forEach(a => { assetStatus[a.id] = 'not-started'; }));
+
+// ── INIT ──
+function init() {
+  // Header
+  document.getElementById('lobby-site-name').textContent = SITE_NAME;
+  document.getElementById('lobby-insp-type').textContent = INSP_TYPE + ' Inspection';
+  document.getElementById('lobby-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
+
+  // Intel strip
+  const totalAssets = ZONES.reduce((s,z) => s + z.assets.length, 0);
+  const totalQuestions = ZONES.reduce((s,z) => z.assets.reduce((ss,a) => ss + a.questions, 0) + s, 0);
+  document.getElementById('intel-assets').textContent = totalAssets;
+  document.getElementById('intel-questions').textContent = totalQuestions;
+  document.getElementById('intel-score').textContent = '72';
+  document.getElementById('intel-findings').textContent = '3';
+  document.getElementById('intel-last').textContent = 'Apr 1, 2026';
+  document.getElementById('intel-last-who').textContent = 'Zach Giles';
+  document.getElementById('lobby-est-time').querySelector('span').textContent =
+    'Est. ' + Math.round(totalAssets * 4) + ' min';
+  document.getElementById('total-count').textContent = totalAssets;
+
+  // Inspectors
+  renderInspectors();
+
+  // Zones
+  renderZones();
+
+  // Progress
+  updateProgress();
+}
+
+function renderInspectors() {
+  const list = document.getElementById('operators-list');
+  list.innerHTML = LAST_INSPECTORS.map(op => `
+    <div class="operator-tag">
+      <div class="operator-avatar">${op.initials}</div>
+      <div class="operator-info">
+        <div class="operator-name">${op.name}</div>
+        <div class="operator-date">${op.date}</div>
+      </div>
+      <div class="operator-type ${op.type}">${op.type}</div>
+    </div>
+  `).join('');
+}
+
+function renderZones() {
+  const main = document.getElementById('lobby-main');
+  main.innerHTML = ZONES.map((zone, zi) => {
+    const total = zone.assets.length;
+    const done = zone.assets.filter(a => assetStatus[a.id] === 'complete').length;
+    const pct = total > 0 ? (done/total*100) : 0;
+
+    return `
+    <div class="zone" id="zone-${zone.id}">
+      <div class="zone-header">
+        <div class="zone-number">${String(zi+1).padStart(2,'0')}</div>
+        <div class="zone-name">${zone.name}</div>
+        <div class="zone-count">${done}/${total} Complete</div>
+        <div class="zone-progress-mini">
+          <div class="zone-progress-fill" style="width:${pct}%"></div>
+        </div>
+      </div>
+      <div class="asset-grid">
+        ${zone.assets.map(asset => renderAssetCard(asset)).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderAssetCard(asset) {
+  const status = assetStatus[asset.id];
+  const scoreDisplay = asset.score !== null ? asset.score : '—';
+  const scoreColor = asset.score !== null ? asset.color : 'var(--dim)';
+
+  let btnClass = status === 'complete' ? 'complete' : status === 'in-progress' ? 'in-progress' : 'not-started';
+  let btnText = status === 'complete' ? '✓ Complete' : status === 'in-progress' ? '▶ Resume' : '▶ Start';
+  let chipClass = status === 'complete' ? 'chip-done' : status === 'in-progress' ? 'chip-ip' : 'chip-ns';
+  let chipText = status === 'complete' ? 'Done' : status === 'in-progress' ? 'In Progress' : 'Not Started';
+
+  return `
+  <div class="asset-card ${status}" id="card-${asset.id}" onclick="startAsset('${asset.id}')">
+    <div class="asset-card-inner">
+      <div class="asset-card-top">
+        <div class="asset-card-identity">
+          <div class="asset-card-name">${asset.name}</div>
+          <div class="asset-card-type">${asset.type}</div>
+        </div>
+        <div class="asset-score-block">
+          <div class="asset-score-num" style="color:${scoreColor}">${scoreDisplay}</div>
+          <div class="asset-score-lbl">${asset.score !== null ? 'Score' : 'N/A'}</div>
+        </div>
+      </div>
+      <div class="asset-card-mid">
+        <div class="asset-last-insp">Last: ${asset.lastInsp}</div>
+        <div class="asset-q-count">${asset.questions} Questions</div>
+      </div>
+      <div class="asset-card-action">
+        <button class="asset-start-btn ${btnClass}" onclick="event.stopPropagation(); startAsset('${asset.id}')">${btnText}</button>
+        <div class="asset-status-chip ${chipClass}">${chipText}</div>
+      </div>
+    </div>
+  </div>`;
+}
+
+function startAsset(assetId) {
+  // Mark as in-progress if not started
+  if (assetStatus[assetId] === 'not-started') {
+    assetStatus[assetId] = 'in-progress';
+  }
+  // Navigate to inspection page with asset context
+  window.location.href = `/inspection?site=${encodeURIComponent(SITE_NAME)}&asset=${assetId}&type=${INSP_TYPE}&from=lobby`;
+}
+
+function updateProgress() {
+  const allAssets = ZONES.flatMap(z => z.assets);
+  const total = allAssets.length;
+  const done = allAssets.filter(a => assetStatus[a.id] === 'complete').length;
+  const pct = total > 0 ? Math.round(done/total*100) : 0;
+
+  document.getElementById('completed-count').textContent = done;
+  document.getElementById('master-fill').style.width = pct + '%';
+
+  // Update next up
+  const next = allAssets.find(a => assetStatus[a.id] !== 'complete');
+  const inProg = allAssets.find(a => assetStatus[a.id] === 'in-progress');
+  const nextAsset = inProg || next;
+
+  if (nextAsset) {
+    document.getElementById('next-up-asset').textContent = nextAsset.name + ' — ' + nextAsset.type;
+    document.getElementById('next-up-btn').textContent = inProg ? 'Resume Inspection →' : 'Begin Inspection →';
+    document.getElementById('next-up-btn').classList.remove('all-done');
+  } else {
+    document.getElementById('next-up-asset').textContent = 'All assets inspected for this visit';
+    const btn = document.getElementById('next-up-btn');
+    btn.textContent = 'Submit Inspection';
+    btn.classList.add('all-done');
+    btn.onclick = () => document.getElementById('complete-overlay').classList.add('show');
+  }
+}
+
+function goToNextAsset() {
+  const allAssets = ZONES.flatMap(z => z.assets);
+  const inProg = allAssets.find(a => assetStatus[a.id] === 'in-progress');
+  const next = allAssets.find(a => assetStatus[a.id] === 'not-started');
+  const target = inProg || next;
+  if (target) startAsset(target.id);
+}
+
+// Set date
+document.getElementById('complete-sub-text').textContent =
+  SITE_NAME + ' — ' + new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+
+init();
+</script>
+</body>
+</html>

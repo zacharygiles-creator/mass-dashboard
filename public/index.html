@@ -443,7 +443,7 @@ footer { position:relative; z-index:5; border-top:1px solid var(--border); paddi
     </select>
     <div class="select-arrow">▼</div>
   </div>
-  <a href="/inspection" id="insp-trigger-btn" class="insp-trigger-btn" style="display:none">
+  <a href="/inspection-lobby" id="insp-trigger-btn" class="insp-trigger-btn" style="display:none">
     <span class="insp-dot"></span>
     <span id="insp-trigger-label">Weekly Inspection Due</span>
   </a>
@@ -902,7 +902,7 @@ function selectSite(id) {
   inspBtn.style.display='inline-flex';
   inspBtn.classList.add('insp-due');
   $('insp-trigger-label').textContent='Weekly Inspection Due';
-  inspBtn.href=`/inspection?site=${encodeURIComponent(name)}`;
+  inspBtn.href=`/inspection-lobby?site=${encodeURIComponent(name)}&type=Weekly`;
 
   destroyCharts();
   renderDashboard(id);

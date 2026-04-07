@@ -59,6 +59,11 @@ app.get('/dashboard', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Inspection lobby - requires auth
+app.get('/inspection-lobby', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'inspection-lobby.html'));
+});
+
 // Inspection - requires auth
 app.get('/inspection', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'inspection.html'));
