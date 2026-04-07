@@ -59,6 +59,11 @@ app.get('/dashboard', requireAuth, (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
+// Inspection - requires auth
+app.get('/inspection', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'inspection.html'));
+});
+
 // Login endpoint
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
