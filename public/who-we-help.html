@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Who We Help — MASSCORE Technologies</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --red:#E8320A; --dark:#080808; --bg2:#0f0f0f; --bg3:#141414;
+  --border:#1e1e1e; --border2:#2a2a2a;
+  --text:#e8e8e8; --mid:#aaa; --dim:#888;
+}
+body { background:var(--dark); color:var(--text); font-family:'Rajdhani',sans-serif; overflow-x:hidden; }
+body::before {
+  content:''; position:fixed; inset:0;
+  background-image:linear-gradient(rgba(255,255,255,0.012) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.012) 1px,transparent 1px);
+  background-size:32px 32px; pointer-events:none; z-index:0;
+}
+
+/* NAV */
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  background:rgba(8,8,8,0.95); border-bottom:1px solid var(--border);
+  padding:0 48px; height:64px;
+  display:flex; align-items:center; justify-content:space-between;
+  backdrop-filter:blur(10px);
+}
+.nav-logo { font-family:'Orbitron',monospace; font-size:22px; font-weight:900; letter-spacing:3px; text-decoration:none; }
+.nav-logo .mass { color:#fff; }
+.nav-logo .core { color:var(--red); }
+.nav-links { display:flex; align-items:center; gap:32px; }
+.nav-links a {
+  font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px;
+  color:var(--mid); text-decoration:none; text-transform:uppercase; transition:color 0.2s;
+}
+.nav-links a:hover, .nav-links a.active { color:#fff; }
+.nav-login {
+  font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px;
+  color:#fff; text-decoration:none; text-transform:uppercase;
+  border:1px solid var(--red); padding:8px 18px; transition:background 0.2s;
+}
+.nav-login:hover { background:var(--red); }
+.nav-hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:4px; background:none; border:none; }
+.nav-hamburger span { display:block; width:22px; height:2px; background:#fff; transition:all 0.3s; }
+.mobile-nav-menu { display:none; position:fixed; top:64px; left:0; right:0; background:rgba(8,8,8,0.98); border-bottom:1px solid var(--border); z-index:99; padding:16px 0; }
+.mobile-nav-menu.open { display:block; }
+.mobile-nav-menu a { display:block; font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--mid); text-decoration:none; text-transform:uppercase; padding:14px 32px; border-bottom:1px solid var(--border); transition:color 0.2s; }
+.mobile-nav-menu a:last-child { border-bottom:none; }
+.mobile-nav-menu a:hover { color:#fff; }
+@media(max-width:768px) {
+  nav { padding:0 20px; }
+  .nav-links { display:none; }
+  .nav-hamburger { display:flex; }
+  .nav-login { font-size:8px; padding:6px 12px; letter-spacing:1px; }
+}
+
+/* PAGE HEADER */
+.page-header {
+  position:relative; z-index:1;
+  padding:60px 48px 80px; text-align:center;
+  border-bottom:1px solid var(--border);
+}
+.page-eyebrow {
+  font-family:'Share Tech Mono',monospace; font-size:13px; letter-spacing:4px;
+  color:var(--red); text-transform:uppercase; margin-bottom:20px;
+}
+.page-title {
+  font-family:'Orbitron',monospace; font-size:clamp(28px,4vw,52px);
+  font-weight:900; color:#fff; line-height:1.15; margin-bottom:20px;
+}
+.page-subtitle {
+  font-size:clamp(16px,2vw,20px); color:#aaa; line-height:1.7;
+  max-width:720px; margin:0 auto;
+}
+@media(max-width:768px) { .page-header { padding:120px 24px 60px; } }
+
+/* SECTIONS */
+section { position:relative; z-index:1; padding:80px 48px; max-width:1200px; margin:0 auto; }
+.section-label {
+  font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:4px;
+  color:var(--red); text-transform:uppercase; margin-bottom:16px;
+}
+.section-title {
+  font-family:'Orbitron',monospace; font-size:clamp(22px,2.8vw,34px);
+  font-weight:700; color:#fff; margin-bottom:20px; line-height:1.2;
+}
+.section-body { font-size:17px; color:#aaa; line-height:1.8; max-width:680px; }
+.section-rule { height:1px; background:var(--border); margin-bottom:60px; }
+@media(max-width:768px) { section { padding:60px 24px; } }
+
+/* AUDIENCE TABS */
+.audience-nav {
+  position:relative; z-index:1;
+  margin-top:64px;
+  background:var(--bg2); border-bottom:1px solid var(--border);
+  padding:0 48px;
+  display:flex; align-items:stretch; gap:0; overflow-x:auto;
+}
+.audience-tab {
+  font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px;
+  color:var(--mid); text-transform:uppercase; text-decoration:none;
+  padding:18px 24px; border-bottom:2px solid transparent;
+  white-space:nowrap; transition:all 0.2s; cursor:pointer;
+}
+.audience-tab:hover { color:#fff; }
+.audience-tab.active { color:#fff; border-bottom-color:var(--red); }
+@media(max-width:768px) { .audience-nav { padding:0 16px; } .audience-tab { padding:16px 14px; font-size:7px; } }
+
+/* AUDIENCE BLOCKS */
+.audience-block { display:none; }
+.audience-block.active { display:block; }
+
+/* AUDIENCE HERO ROW */
+.audience-hero {
+  display:grid; grid-template-columns:1fr 1fr; gap:80px; align-items:start;
+  margin-bottom:60px;
+}
+@media(max-width:768px) { .audience-hero { grid-template-columns:1fr; gap:40px; } }
+.audience-role-tag {
+  font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:3px;
+  color:var(--red); text-transform:uppercase; margin-bottom:16px;
+}
+.audience-headline {
+  font-family:'Orbitron',monospace; font-size:clamp(20px,2.5vw,30px);
+  font-weight:700; color:#fff; line-height:1.25; margin-bottom:20px;
+}
+.audience-body { font-size:16px; color:#aaa; line-height:1.8; }
+.audience-body p { margin-bottom:16px; }
+.audience-body p:last-child { margin-bottom:0; }
+
+/* PAIN / GAIN CARDS */
+.pain-gain { display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+@media(max-width:600px) { .pain-gain { grid-template-columns:1fr; } }
+.pain-card {
+  background:var(--bg2); border:1px solid var(--border);
+  border-top:3px solid #333; padding:24px;
+}
+.gain-card {
+  background:var(--bg2); border:1px solid var(--border);
+  border-top:3px solid var(--red); padding:24px;
+}
+.pg-label {
+  font-family:'Share Tech Mono',monospace; font-size:7px; letter-spacing:3px;
+  text-transform:uppercase; margin-bottom:16px;
+}
+.pain-card .pg-label { color:#555; }
+.gain-card .pg-label { color:var(--red); }
+.pg-item { display:flex; align-items:flex-start; gap:10px; margin-bottom:12px; font-size:14px; color:#aaa; line-height:1.6; }
+.pg-item:last-child { margin-bottom:0; }
+.pg-dot { width:6px; height:6px; border-radius:50%; flex-shrink:0; margin-top:6px; }
+.pain-card .pg-dot { background:#444; }
+.gain-card .pg-dot { background:var(--red); }
+
+/* MASSCORE VALUE LIST */
+.value-list { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:48px; }
+@media(max-width:700px) { .value-list { grid-template-columns:1fr; } }
+.value-item {
+  background:var(--bg3); border:1px solid var(--border2);
+  border-left:3px solid var(--red); padding:20px 24px;
+}
+.value-item-title { font-size:16px; font-weight:700; color:#fff; margin-bottom:6px; }
+.value-item-body { font-size:13px; color:#aaa; line-height:1.6; }
+
+/* QUOTE BLOCK */
+.field-quote {
+  padding:36px 40px; background:var(--bg2);
+  border:1px solid var(--border2); border-left:4px solid var(--red);
+  margin-top:48px;
+}
+.field-quote-text {
+  font-family:'Rajdhani',sans-serif; font-size:clamp(17px,2vw,22px);
+  font-weight:500; color:#fff; line-height:1.6; margin-bottom:16px;
+  font-style:italic;
+}
+.field-quote-attr {
+  font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px;
+  color:var(--red); text-transform:uppercase;
+}
+
+/* CTA STRIP */
+.cta-strip {
+  position:relative; z-index:1;
+  background:var(--bg2); border-top:1px solid var(--border); border-bottom:1px solid var(--border);
+  padding:60px 48px;
+  display:flex; align-items:center; justify-content:space-between; gap:40px; flex-wrap:wrap;
+}
+.cta-strip-text { max-width:600px; }
+.cta-strip-label { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:3px; color:var(--red); text-transform:uppercase; margin-bottom:12px; }
+.cta-strip-headline { font-family:'Orbitron',monospace; font-size:clamp(18px,2.2vw,26px); font-weight:700; color:#fff; line-height:1.25; margin-bottom:12px; }
+.cta-strip-sub { font-size:15px; color:#aaa; line-height:1.6; }
+.btn-primary {
+  background:var(--red); color:#fff; border:none;
+  font-family:'Orbitron',monospace; font-size:10px; font-weight:700;
+  letter-spacing:2px; padding:16px 32px; cursor:pointer;
+  text-transform:uppercase; text-decoration:none; transition:background 0.2s;
+  display:inline-block; white-space:nowrap;
+}
+.btn-primary:hover { background:#c42a08; }
+.btn-secondary {
+  background:transparent; color:#fff;
+  font-family:'Share Tech Mono',monospace; font-size:9px;
+  letter-spacing:2px; padding:16px 32px; cursor:pointer;
+  text-transform:uppercase; text-decoration:none;
+  border:1px solid var(--border2); transition:border-color 0.2s;
+  display:inline-block; white-space:nowrap;
+}
+.btn-secondary:hover { border-color:#fff; }
+@media(max-width:768px) { .cta-strip { padding:48px 24px; flex-direction:column; } }
+
+/* PSM COMPLIANCE CALLOUT */
+.psm-callout {
+  background:var(--bg3); border:1px solid var(--border);
+  border-top:3px solid var(--red); padding:40px;
+  margin-top:48px;
+}
+.psm-callout-label {
+  font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:3px;
+  color:var(--red); text-transform:uppercase; margin-bottom:16px;
+}
+.psm-callout-title {
+  font-family:'Orbitron',monospace; font-size:clamp(18px,2vw,24px);
+  font-weight:700; color:#fff; margin-bottom:16px; line-height:1.25;
+}
+.psm-checklist { margin-top:24px; display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+@media(max-width:600px) { .psm-checklist { grid-template-columns:1fr; } }
+.psm-check-item {
+  display:flex; align-items:flex-start; gap:12px;
+  font-size:14px; color:#aaa; line-height:1.6;
+}
+.psm-check-mark {
+  font-family:'Share Tech Mono',monospace; font-size:11px;
+  color:var(--red); flex-shrink:0; margin-top:2px;
+}
+
+/* FOOTER */
+footer {
+  position:relative; z-index:1;
+  border-top:1px solid var(--border); background:var(--bg2);
+  padding:40px 48px;
+  display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px;
+}
+.footer-logo { font-family:'Orbitron',monospace; font-size:16px; font-weight:900; }
+.footer-logo .mass { color:#fff; }
+.footer-logo .core { color:var(--red); }
+.footer-copy { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px; color:var(--dim); text-transform:uppercase; }
+.footer-login a { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px; color:var(--mid); text-decoration:none; text-transform:uppercase; }
+.footer-login a:hover { color:#fff; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/index.html" class="nav-logo"><span class="mass">MASS</span><span class="core">CORE</span></a>
+  <div class="nav-links">
+    <a href="/the-problem.html">The Problem</a>
+    <a href="/who-we-help.html" class="active">Who We Help</a>
+    <a href="/the-platform.html">The Platform</a>
+    <a href="/about.html">About</a>
+    <a href="/get-access.html">Get Access</a>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <a href="/login.html" class="nav-login">Dashboard Login</a>
+    <button class="nav-hamburger" onclick="toggleMobileMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div class="mobile-nav-menu" id="mobile-menu">
+  <a href="/index.html" onclick="closeMobileMenu()">Home</a>
+  <a href="/the-problem.html" onclick="closeMobileMenu()">The Problem</a>
+  <a href="/who-we-help.html" onclick="closeMobileMenu()">Who We Help</a>
+  <a href="/the-platform.html" onclick="closeMobileMenu()">The Platform</a>
+  <a href="/about.html" onclick="closeMobileMenu()">About</a>
+  <a href="/get-access.html" onclick="closeMobileMenu()">Get Access</a>
+</div>
+
+<!-- AUDIENCE TABS -->
+<div class="audience-nav">
+  <div class="audience-tab active" onclick="showAudience('psm')">PSM &amp; Compliance</div>
+  <div class="audience-tab" onclick="showAudience('facility')">Facility Owners</div>
+  <div class="audience-tab" onclick="showAudience('contractor')">Contractors</div>
+  <div class="audience-tab" onclick="showAudience('technician')">Technicians</div>
+  <div class="audience-tab" onclick="showAudience('account')">Account Managers</div>
+</div>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="page-eyebrow">Who We Help</div>
+  <div class="page-title">The inspection gets done.<br>The findings get written up.<br>But what the technician saw in that machine room<br>never survives the trip to the boardroom.</div>
+  <p class="page-subtitle">MASSCORE was built for every person in that chain. Select your role.</p>
+
+  <div style="margin-top:32px;">
+    <button onclick="toggleDashboard()" id="dashboard-toggle-btn" style="background:transparent;border:1px solid var(--border2);color:#aaa;font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:2px;text-transform:uppercase;padding:12px 28px;cursor:pointer;transition:all 0.2s;display:inline-flex;align-items:center;gap:10px;">
+      <span id="dashboard-toggle-icon">▶</span> Preview the Dashboard
+    </button>
+  </div>
+
+  <!-- DASHBOARD PREVIEW -->
+  <div id="dashboard-preview" style="display:none;margin-top:24px;max-width:900px;margin-left:auto;margin-right:auto;text-align:left;">
+    <div style="background:var(--bg3);border:1px solid var(--border);overflow:hidden;">
+
+      <!-- Dashboard Top Bar -->
+      <div style="background:#0a0a0a;border-bottom:1px solid var(--border);padding:12px 24px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:2px;color:#fff;"><span style="color:#fff">MASS</span><span style="color:var(--red)">CORE</span> <span style="color:#444;font-size:9px;margin-left:8px">// FACILITY DASHBOARD</span></div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:#444;text-transform:uppercase;">MASS Cold Storage — Houston, TX</div>
+      </div>
+
+      <!-- Score Row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;border-bottom:1px solid var(--border);">
+        <div style="padding:28px;text-align:center;border-right:1px solid var(--border);">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:10px;">Plant Condition Score</div>
+          <div style="font-family:'Orbitron',monospace;font-size:52px;font-weight:900;color:#E8320A;line-height:1;">66</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:#E8320A;text-transform:uppercase;margin-top:6px;">Attention Required</div>
+        </div>
+        <div style="padding:28px;text-align:center;border-right:1px solid var(--border);">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:10px;">Plant Integrity Score</div>
+          <div style="font-family:'Orbitron',monospace;font-size:52px;font-weight:900;color:#7BC67E;line-height:1;">74</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:#7BC67E;text-transform:uppercase;margin-top:6px;">Good Standing</div>
+        </div>
+        <div style="padding:28px;text-align:center;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:10px;">Plant Health Score</div>
+          <div style="font-family:'Orbitron',monospace;font-size:52px;font-weight:900;color:#E8320A;line-height:1;">54</div>
+          <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:#E8320A;text-transform:uppercase;margin-top:6px;">Action Required</div>
+        </div>
+      </div>
+
+      <!-- Compliance + Roadmap Row -->
+      <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--border);">
+        <div style="padding:20px 24px;border-right:1px solid var(--border);">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:12px;">PSM / Compliance Status</div>
+          <div style="display:flex;align-items:center;gap:10px;">
+            <div style="width:10px;height:10px;border-radius:50%;background:#E8C84A;flex-shrink:0;"></div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:#E8C84A;letter-spacing:1px;">2 Items Requiring Attention</div>
+          </div>
+        </div>
+        <div style="padding:20px 24px;">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:12px;">Score Improvement Roadmap</div>
+          <div style="font-size:13px;color:#fff;">Address priority items → estimated score <span style="color:#7BC67E;font-weight:700;">78</span></div>
+        </div>
+      </div>
+
+      <!-- Open Findings -->
+      <div style="padding:20px 24px;border-bottom:1px solid var(--border);">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:2px;color:#aaa;text-transform:uppercase;margin-bottom:14px;">Open Findings — 4 Active</div>
+        <div style="display:flex;flex-direction:column;gap:8px;">
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--dark);border:1px solid var(--border2);">
+            <div style="font-family:'Share Tech Mono',monospace;font-size:8px;padding:3px 8px;background:rgba(232,50,10,0.15);color:#E8320A;border:1px solid rgba(232,50,10,0.3);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;">Critical</div>
+            <div style="font-size:13px;color:#fff;flex:1;">BC-1 Compressor — Shaft seal leak. Motor alignment suspect. Bearing wear evident.</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:#555;white-space:nowrap;">High Side System</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--dark);border:1px solid var(--border2);">
+            <div style="font-family:'Share Tech Mono',monospace;font-size:8px;padding:3px 8px;background:rgba(232,200,74,0.15);color:#E8C84A;border:1px solid rgba(232,200,74,0.3);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;">Moderate</div>
+            <div style="font-size:13px;color:#fff;flex:1;">Evaporator Coil E-3 — Oil accumulation noted. Defrost cycle incomplete on last 3 visits.</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:#555;white-space:nowrap;">Low Side System</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--dark);border:1px solid var(--border2);">
+            <div style="font-family:'Share Tech Mono',monospace;font-size:8px;padding:3px 8px;background:rgba(232,200,74,0.15);color:#E8C84A;border:1px solid rgba(232,200,74,0.3);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;">Moderate</div>
+            <div style="font-size:13px;color:#fff;flex:1;">LPR Vessel — Liquid level control valve showing erratic operation. Seat wear likely.</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:#555;white-space:nowrap;">Low Side System</div>
+          </div>
+          <div style="display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--dark);border:1px solid var(--border2);">
+            <div style="font-family:'Share Tech Mono',monospace;font-size:8px;padding:3px 8px;background:rgba(123,198,126,0.15);color:#7BC67E;border:1px solid rgba(123,198,126,0.3);text-transform:uppercase;letter-spacing:1px;white-space:nowrap;">Minor</div>
+            <div style="font-size:13px;color:#fff;flex:1;">Condenser Fan Motor CF-2 — Capacitor showing signs of bulging. Monitor or replace.</div>
+            <div style="font-family:'Share Tech Mono',monospace;font-size:7px;color:#555;white-space:nowrap;">Condenser System</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer bar -->
+      <div style="padding:12px 24px;display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:2px;color:#333;text-transform:uppercase;">Last Inspection: 04.02.2026 — John Doe</div>
+        <div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:2px;color:#333;text-transform:uppercase;">Demo Environment — MASS Cold Storage</div>
+      </div>
+
+    </div>
+    <div style="margin-top:10px;text-align:center;font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:2px;color:#444;text-transform:uppercase;">Demo data — MASS Cold Storage facility</div>
+  </div>
+</div>
+
+<!-- PSM & COMPLIANCE -->
+<div id="audience-psm" class="audience-block active">
+  <section>
+    <div class="audience-role-tag">PSM &amp; Compliance Teams · Facility Safety Officers · Corporate Operations</div>
+    <div class="audience-hero">
+      <div>
+        <div class="audience-headline">A finding without context is just a record. MASSCORE connects the dots. Because a shaft seal leak isn't always a shaft seal problem.</div>
+        <div class="audience-body">
+          <p>You manage ammonia refrigeration programs under OSHA PSM and EPA RMP. You know the inspection happened. You know the technician walked the machine room. But what you've always lacked is a consistent, objective, documented record of what they found — scored against a standard that holds up across every site, every visit, every contractor.</p>
+          <p>MASSCORE was built inside the ammonia refrigeration world, by technicians who understand what PSM actually requires at the equipment level. The result is a platform that doesn't just track compliance checkboxes — it produces a scored condition record for every asset in every covered process.</p>
+        </div>
+      </div>
+      <div>
+        <div class="pain-gain">
+          <div class="pain-card">
+            <div class="pg-label">Before MASSCORE</div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Inspection reports are narrative and subjective — no two contractors write them the same way</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Multi-site condition visibility requires chasing down individual reports from each location</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Equipment condition trend over time is largely undocumented</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>When something fails, the records exist but the connections between findings were never made</span></div>
+          </div>
+          <div class="gain-card">
+            <div class="pg-label">With MASSCORE</div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Every inspection follows the same rubric — consistent scoring regardless of which technician performs it</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>All sites visible on a single dashboard — Plant Condition Score per location, updated every visit</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Scored condition history on every asset, timestamped, audit-ready</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Open findings tracked with severity and priority — connected to context, not recorded in isolation</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="psm-callout">
+      <div class="psm-callout-label">PSM Process Safety Management — How MASSCORE Fits</div>
+      <div class="psm-callout-title">PSM documents the inspection. MASSCORE interprets it.</div>
+      <p style="font-size:16px;color:#aaa;line-height:1.8;margin-top:8px">PSM requires that covered facilities maintain mechanical integrity programs that document inspections, findings, and corrective actions at the equipment level. MASSCORE puts that documentation inside a live scoring platform — meaning every inspection automatically generates scored condition records that are structured, consistent, and traceable across your entire portfolio.</p>
+      <div class="psm-checklist">
+        <div class="psm-check-item"><div class="psm-check-mark">✓</div><span>Equipment-level inspection records tied to specific assets</span></div>
+        <div class="psm-check-item"><div class="psm-check-mark">✓</div><span>Standardized condition scoring across all sites and contractors</span></div>
+        <div class="psm-check-item"><div class="psm-check-mark">✓</div><span>Open findings tracked by severity with documented follow-up</span></div>
+        <div class="psm-check-item"><div class="psm-check-mark">✓</div><span>Condition trend over time — not just a snapshot from the last visit</span></div>
+        <div class="psm-check-item"><div class="psm-check-mark">✓</div><span>Multi-site dashboard — same view across every facility you manage</span></div>
+        <div class="psm-check-item"><div class="psm-check-mark">✓</div><span>Compliance status displayed separately from condition scores</span></div>
+      </div>
+    </div>
+
+    <div style="margin-top:32px;padding:32px;background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--red);">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--red);text-transform:uppercase;margin-bottom:16px">Built-In Technician Development</div>
+      <div style="font-family:'Orbitron',monospace;font-size:clamp(17px,2vw,22px);font-weight:700;color:#fff;margin-bottom:16px;line-height:1.3">Every inspection is a training event. Without a training budget.</div>
+      <p style="font-size:16px;color:#aaa;line-height:1.8">MASSCORE's inspection workflow is structured at the asset level — every question, every reading, every checkpoint is mapped to what actually matters on that piece of equipment. When an undertrained technician follows the workflow, they are not just collecting data. They are being shown where to look and what to look for by a methodology built on 15 years of field experience. Every inspection is a training event. Without a training budget.</p>
+    </div>
+
+    <div style="margin-top:48px;padding:28px 32px;background:var(--dark);border:1px solid var(--border2);border-left:4px solid var(--red);">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--red);text-transform:uppercase;margin-bottom:12px">PLC &amp; Control System Integration — On The Roadmap</div>
+      <div style="font-size:17px;color:#fff;line-height:1.7;margin-bottom:8px">MASSCORE is architected to accept live data from industrial control systems — PLCs, BAS platforms, and SCADA environments — through Modbus and standard industrial protocols.</div>
+      <div style="font-size:14px;color:#aaa;line-height:1.7">Compressor suction and discharge pressures, amp draw, oil temperatures, differential readings — the same parameters your technicians read manually today — fed directly from your GEA Omni, Allen Bradley, or Siemens control system into the scoring engine. Automatically. Continuously. PLC and Modbus integration is currently in active pilot. Contact us to discuss your control system environment.</div>
+    </div>
+
+    <div style="margin-top:48px;padding:32px;background:var(--bg2);border:1px solid var(--border);border-top:3px solid var(--red);">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--red);text-transform:uppercase;margin-bottom:16px">An Unintended Benefit — Built-In Technician Development</div>
+      <div style="font-family:'Orbitron',monospace;font-size:clamp(16px,2vw,22px);font-weight:700;color:#fff;margin-bottom:16px;line-height:1.3">Every inspection is a training event. Without calling it training.</div>
+      <p style="font-size:16px;color:#aaa;line-height:1.8;margin-bottom:16px">The industrial refrigeration workforce is getting younger and less experienced. Technicians are arriving in machine rooms without the years of field exposure it takes to know what to look for, what connects to what, and what actually matters at each piece of equipment.</p>
+      <p style="font-size:16px;color:#aaa;line-height:1.8;margin-bottom:16px">MASSCORE's inspection workflow changes that. Because it is built asset by asset, system by system, around the exact parameters and condition indicators that experienced technicians know to look for — every technician who completes an inspection is being guided through the right questions at the right equipment. They are not just collecting data. They are learning where to look and why it matters.</p>
+      <p style="font-size:16px;color:#aaa;line-height:1.8;">For a corporate PSM team managing multiple facilities and a workforce of varying experience levels, that is not a side benefit. That is a risk management tool. A less experienced technician following the MASSCORE workflow is less likely to miss the finding that compounds into a failure event.</p>
+    </div>
+
+    <div class="field-quote">
+      <div class="field-quote-text">"We built this inside ammonia machine rooms. If the methodology holds up at 150 PSI discharge pressure with refrigerant everywhere — it holds up in your facility. This isn't academic. We live it every day."</div>
+      <div class="field-quote-attr">MASSCORE Co-Founder — 15+ Years Industrial Ammonia Refrigeration</div>
+    </div>
+  </section>
+</div>
+<div id="audience-facility" class="audience-block">
+  <section>
+    <div class="audience-role-tag">Facility Owners · Operations Managers · Plant Managers · CFOs</div>
+    <div class="audience-hero">
+      <div>
+        <div class="audience-headline">Stop making million-dollar maintenance decisions based on a contractor's word alone.</div>
+        <div class="audience-body">
+          <p>You're responsible for facilities that run 24/7. The refrigeration system is one of the most capital-intensive assets on your balance sheet. And right now, your primary source of information about its condition is a service report written by a technician who may or may not have the experience to recognize what they're looking at — let alone communicate the severity, the connected components, or what it means for the system as a whole. That gap between what's happening in the machine room and what gets documented is where maintenance costs compound.</p>
+          <p>MASSCORE gives you an independent, objective, scored view of your plant's condition — updated every time a qualified technician walks the floor. Not a narrative. Not an opinion. A number with a full breakdown behind it.</p>
+        </div>
+      </div>
+      <div>
+        <div class="pain-gain">
+          <div class="pain-card">
+            <div class="pg-label">Before MASSCORE</div>
+            <div class="pg-item"><div class="pg-dot"></div><span>No way to verify condition claims — you take the contractor's word for it</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Maintenance budgets built on gut feel and last year's spend</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Equipment failures feel random — nothing predicted them on paper</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Capital planning conversations are disconnected from actual asset condition</span></div>
+          </div>
+          <div class="gain-card">
+            <div class="pg-label">With MASSCORE</div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Plant Condition Score updated every visit — objective, scored, not narrative</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Score Improvement Roadmap shows exactly what to fix, in priority order, with estimated costs</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Asset condition history that builds over time — trend the health of every system</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Capital planning anchored to real data — justify the budget with a score, not a feeling</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="value-list">
+      <div class="value-item">
+        <div class="value-item-title">One Number You Can Act On</div>
+        <div class="value-item-body">The Plant Condition Score is designed to be understood by a plant manager and a CFO in the same breath. No translation required. Just a score, a trend line, and a roadmap.</div>
+      </div>
+      <div class="value-item">
+        <div class="value-item-title">Multi-Site Visibility</div>
+        <div class="value-item-body">If you operate more than one facility, MASSCORE shows you every site's condition score in a single dashboard. Prioritize capital allocation across your portfolio — not just your loudest problem.</div>
+      </div>
+      <div class="value-item">
+        <div class="value-item-title">Catch Deferred Maintenance Early</div>
+        <div class="value-item-body">Open findings are tracked, scored by severity, and rolled into the Plant Health Score. Deferred items don't disappear — they stay in the system and pull the score until they are resolved.</div>
+      </div>
+      <div class="value-item">
+        <div class="value-item-title">Verify the Work You're Paying For</div>
+        <div class="value-item-body">When a contractor says the plant is in good shape — now you have a number to verify that against. The score doesn't move unless the work actually happens.</div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- CONTRACTORS -->
+<div id="audience-contractor" class="audience-block">
+  <section>
+    <div class="audience-role-tag">Refrigeration &amp; HVAC Contractors · Service Companies · PM Program Providers</div>
+    <div class="audience-hero">
+      <div>
+        <div class="audience-headline">Stop competing on price. Start competing on evidence.</div>
+        <div class="audience-body">
+          <p>Every contractor in this industry gives the same pitch. Experienced guys, good reputation, competitive pricing. And then every client puts you on the same spreadsheet as every other company and sorts by price.</p>
+          <p>MASSCORE changes the conversation. When you can show a client their Plant Condition Score, walk them through their Score Improvement Roadmap, and back every proposal with objective condition data — you're no longer a vendor. You're a partner with a methodology. That's a different relationship. That's a contract that renews.</p>
+        </div>
+      </div>
+      <div>
+        <div class="pain-gain">
+          <div class="pain-card">
+            <div class="pg-label">Before MASSCORE</div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Competing on price because every contractor looks the same on paper</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Proposals based on the account manager's judgment — not scored data</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Technician findings that don't make it to the client conversation</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Service contract renewals that feel like coin flips</span></div>
+          </div>
+          <div class="gain-card">
+            <div class="pg-label">With MASSCORE</div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Proprietary scoring methodology that no competitor can replicate</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Every proposal backed by a Plant Condition Score and a findings list</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Technician data flows directly to the client dashboard — nothing gets lost</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Score improvement over contract term becomes the renewal justification</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field-quote">
+      <div class="field-quote-text">"The contractor who shows up with a Plant Condition Score and a roadmap wins the meeting. Not because they're cheaper — because they're the only one who came prepared to have a real conversation about the facility."</div>
+      <div class="field-quote-attr">MASSCORE Methodology — Built by Contractors, for Contractors</div>
+    </div>
+
+    <div style="margin-top:48px;padding:32px;background:var(--bg3);border:1px solid var(--border);border-top:3px solid var(--red);">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--red);text-transform:uppercase;margin-bottom:16px">Workforce Development Built Into the Workflow</div>
+      <div style="font-family:'Orbitron',monospace;font-size:clamp(17px,2vw,22px);font-weight:700;color:#fff;margin-bottom:16px;line-height:1.3">The methodology stays in the platform. Even when your best tech leaves.</div>
+      <p style="font-size:16px;color:#aaa;line-height:1.8">Your newest technician and your most experienced one will produce the same quality inspection inside MASSCORE — because the workflow tells them exactly what to look for on every asset. You are not relying on tribal knowledge that walks out the door when a senior tech leaves. The methodology stays in the platform. Every tech you put on a site delivers a consistent, scored, documented inspection regardless of how long they have been in the field.</p>
+    </div>
+
+    <div class="value-list" style="margin-top:32px">
+      <div class="value-item">
+        <div class="value-item-title">Differentiate From Day One</div>
+        <div class="value-item-body">MASSCORE gives your company a proprietary assessment methodology that competitors don't have. You're not doing PM visits anymore — you're managing a scored portfolio of plant condition.</div>
+      </div>
+      <div class="value-item">
+        <div class="value-item-title">Turn Inspections Into Proposals</div>
+        <div class="value-item-body">Every finding that goes into MASSCORE automatically rolls into a Score Improvement Roadmap. Your account manager opens the dashboard and the proposal is already built — prioritized and costed.</div>
+      </div>
+      <div class="value-item">
+        <div class="value-item-title">Multi-Site Client Management</div>
+        <div class="value-item-body">Manage every client site from one dashboard. See which facilities need attention before your client calls you. Stay ahead of the conversation instead of reacting to it.</div>
+      </div>
+      <div class="value-item">
+        <div class="value-item-title">Proven in Ammonia — Works Everywhere</div>
+        <div class="value-item-body">Built in the most demanding mechanical environment in the industry. If the methodology holds up in an ammonia machine room, it performs on any refrigeration or HVAC system you serve.</div>
+      </div>
+    </div>
+
+    <div style="margin-top:48px;padding:32px;background:var(--bg2);border:1px solid var(--border);border-top:3px solid var(--red);">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--red);text-transform:uppercase;margin-bottom:16px">Workforce Development — A Benefit Nobody Saw Coming</div>
+      <div style="font-family:'Orbitron',monospace;font-size:clamp(16px,2vw,22px);font-weight:700;color:#fff;margin-bottom:16px;line-height:1.3">Your newer technicians get better faster. Because the workflow shows them exactly where to look.</div>
+      <p style="font-size:16px;color:#aaa;line-height:1.8;margin-bottom:16px">Every contractor is dealing with the same problem — an aging workforce and newer technicians who don't yet have the field experience to know what matters at each piece of equipment. Training takes years. Callbacks are expensive. Missed findings become your liability.</p>
+      <p style="font-size:16px;color:#aaa;line-height:1.8;">MASSCORE's inspection workflow is built asset by asset around the exact parameters experienced technicians know to look for. A newer tech following the workflow is being guided through the right questions at the right equipment on every single visit. They collect better data. They miss less. And over time — they become better technicians. That's a return on MASSCORE that never shows up in a proposal but shows up every day in the field.</p>
+    </div>
+  </section>
+</div>
+<div id="audience-technician" class="audience-block">
+  <section>
+    <div class="audience-role-tag">Industrial Refrigeration Technicians · HVAC Technicians · Field Service Engineers</div>
+    <div class="audience-hero">
+      <div>
+        <div class="audience-headline">You already know what's wrong with the plant. MASSCORE makes sure everyone else does too.</div>
+        <div class="audience-body">
+          <p>You already know what's wrong with the plant. The hard part has never been finding the problems — it's been explaining them to people who don't understand what they're looking at. You get sent to a beat up site, you know what it needs, and now you have to stand in front of a plant manager or a head boss who has never seen a machine room and explain why it's going to cost what it costs. You didn't defer that maintenance. You just found it. But you're the one in the room answering for it.</p>
+          <p>MASSCORE changes that dynamic completely. The score is on the dashboard before the conversation starts. The system delivers the picture. You did your job — the platform communicates what it means.</p>
+        </div>
+      </div>
+      <div>
+        <div class="pain-gain">
+          <div class="pain-card">
+            <div class="pg-label">Before MASSCORE</div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Findings go into a PDF that nobody reads until something fails</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Deferred maintenance shows up again next visit — nothing changed</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>No way to show the cumulative picture of a facility's condition over time</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Your expertise doesn't translate to anyone outside the machine room</span></div>
+          </div>
+          <div class="gain-card">
+            <div class="pg-label">With MASSCORE</div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Every finding is scored and visible on the client dashboard the same day</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Open findings stay open in the system — tracked until resolved</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Your inspection history builds a documented condition record over time</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>What you see in the machine room drives a score that moves decision-makers</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div style="margin-top:48px;padding:32px;background:var(--bg2);border:1px solid var(--border);border-top:3px solid var(--red);">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:3px;color:var(--red);text-transform:uppercase;margin-bottom:16px">The Inspection Workflow</div>
+      <div style="font-family:'Orbitron',monospace;font-size:clamp(18px,2vw,22px);font-weight:700;color:#fff;margin-bottom:16px;line-height:1.3">No interpretation required. Just observation — the platform handles the rest.</div>
+      <p style="font-size:16px;color:#aaa;line-height:1.8;margin-bottom:24px">MASSCORE's inspection workflow is built around structured rubric questions — condition labels that any qualified technician can apply consistently. You don't assign a score. You describe what you see. The platform converts your observation into a scored condition entry, weighted by asset criticality, and rolled up into the Plant Condition Score automatically.</p>
+      <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:16px;">
+        <div style="padding:16px;background:var(--dark);border:1px solid var(--border2);">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin-bottom:8px">Step 01</div>
+          <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:6px">Select the site</div>
+          <div style="font-size:13px;color:#aaa;line-height:1.6">Log in and pull up the facility. Your assigned systems and assets are already mapped and waiting.</div>
+        </div>
+        <div style="padding:16px;background:var(--dark);border:1px solid var(--border2);">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin-bottom:8px">Step 02</div>
+          <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:6px">Walk the asset</div>
+          <div style="font-size:13px;color:#aaa;line-height:1.6">Answer rubric questions. Log compressor readings, pressures, temps, and amp draw. Flag open findings with severity.</div>
+        </div>
+        <div style="padding:16px;background:var(--dark);border:1px solid var(--border2);">
+          <div style="font-family:'Share Tech Mono',monospace;font-size:7px;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin-bottom:8px">Step 03</div>
+          <div style="font-size:15px;font-weight:700;color:#fff;margin-bottom:6px">Score updates live</div>
+          <div style="font-size:13px;color:#aaa;line-height:1.6">Your inputs hit the engine. The Plant Condition Score updates. The client dashboard reflects the new state of the facility in real time.</div>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>
+
+<!-- ACCOUNT MANAGERS -->
+<div id="audience-account" class="audience-block">
+  <section>
+    <div class="audience-role-tag">Account Managers · Service Sales · Business Development</div>
+    <div class="audience-hero">
+      <div>
+        <div class="audience-headline">Stop quoting blind. The dashboard is your sales tool.</div>
+        <div class="audience-body">
+          <p>Right now your proposal process looks like this: technician visits the site, writes a report, you try to read through it, figure out what needs to be quoted, build something from memory and experience, and hope you didn't miss anything. Then you hand it to the client and explain why they should spend money on a plant you may not have visited in months.</p>
+          <p>MASSCORE flips that. The Plant Condition Score and the Score Improvement Roadmap give you a live, scored, prioritized list of exactly what needs to happen at that facility. Every quote you write is backed by data. Every conversation you have with the client starts from the same number they're looking at.</p>
+        </div>
+      </div>
+      <div>
+        <div class="pain-gain">
+          <div class="pain-card">
+            <div class="pg-label">Before MASSCORE</div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Quoting from memory and technician summaries — easy to miss things</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Proposals feel like guesses — no data to anchor the urgency</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Client doesn't understand why they should approve the work</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Renewal conversations are difficult without proof of value delivered</span></div>
+          </div>
+          <div class="gain-card">
+            <div class="pg-label">With MASSCORE</div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Quote directly from the findings list — every item scored and prioritized</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Client sees their Plant Condition Score — the urgency is already communicated</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Score Improvement Roadmap shows how your proposal moves the number</span></div>
+            <div class="pg-item"><div class="pg-dot"></div><span>Renewal backed by score trend — show them what improved over the contract term</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="field-quote">
+      <div class="field-quote-text">"The Score Improvement Roadmap is the proposal. Walk the client through the dashboard, show them their score, point to the roadmap. The conversation writes itself."</div>
+      <div class="field-quote-attr">MASSCORE Methodology — The Dashboard as the Sales Tool</div>
+    </div>
+  </section>
+</div>
+
+<!-- CTA STRIP -->
+<div class="cta-strip">
+  <div class="cta-strip-text">
+    <div class="cta-strip-label">Ready to See It</div>
+    <div class="cta-strip-headline">Request early access or reach out directly.</div>
+    <div class="cta-strip-sub">MASSCORE is in beta deployment now. We are selectively onboarding contractors and facilities ahead of our Fall 2026 public launch.</div>
+  </div>
+  <div style="display:flex;gap:16px;flex-wrap:wrap;">
+    <a href="/get-access.html" class="btn-primary">Get Access →</a>
+    <a href="/the-platform.html" class="btn-secondary">See The Platform</a>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo"><span class="mass">MASS</span><span class="core">CORE</span></div>
+  <div class="footer-copy">© 2026 MASSCORE LLC — Confidential &amp; Proprietary — All Rights Reserved</div>
+  <div class="footer-login"><a href="/login.html">Dashboard Login →</a></div>
+</footer>
+
+<script>
+function toggleDashboard() {
+  const preview = document.getElementById('dashboard-preview');
+  const icon = document.getElementById('dashboard-toggle-icon');
+  const btn = document.getElementById('dashboard-toggle-btn');
+  const isOpen = preview.style.display !== 'none';
+  preview.style.display = isOpen ? 'none' : 'block';
+  icon.textContent = isOpen ? '▶' : '▼';
+  btn.style.color = isOpen ? '#aaa' : '#fff';
+  btn.style.borderColor = isOpen ? 'var(--border2)' : 'var(--red)';
+}
+function showAudience(id) {
+  document.querySelectorAll('.audience-block').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.audience-tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('audience-' + id).classList.add('active');
+  event.currentTarget.classList.add('active');
+  window.scrollTo({ top: document.querySelector('.audience-nav').offsetTop - 70, behavior: 'smooth' });
+}
+function toggleMobileMenu() {
+  document.getElementById('mobile-menu').classList.toggle('open');
+}
+function closeMobileMenu() {
+  document.getElementById('mobile-menu').classList.remove('open');
+}
+</script>
+</body>
+</html>
