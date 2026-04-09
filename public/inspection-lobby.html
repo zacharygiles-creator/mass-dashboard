@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>MASSCORE — Inspection Brief</title>
-<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
 <style>
 * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
 :root {
@@ -99,9 +99,9 @@ body::before {
   content:''; width:20px; height:1px; background:var(--red);
 }
 .mission-site {
-  font-family:'Orbitron',monospace;
-  font-size:clamp(22px, 4vw, 36px);
-  font-weight:900; color:#fff; letter-spacing:1px;
+  font-family:'Bebas Neue',sans-serif;
+  font-size:clamp(26px, 4vw, 42px);
+  font-weight:400; color:#fff; letter-spacing:3px;
   line-height:1.1; margin-bottom:6px;
 }
 .mission-meta {
@@ -500,7 +500,7 @@ body::before {
   <div class="mission-header-inner">
     <div class="mission-identity">
       <div class="mission-op-label">ACTIVE INSPECTION</div>
-      <div class="mission-site" id="lobby-site-name">99 Cents — Houston</div>
+      <div class="mission-site" id="lobby-site-name">MASS Cold Storage</div>
       <div class="mission-meta">
         <div class="mission-meta-item">
           <span class="dot"></span>
@@ -590,14 +590,14 @@ body::before {
 // In production this would be pulled from the Airtable API
 // via the same /api/data endpoint, filtered by the site param
 
-const SITE_NAME = new URLSearchParams(window.location.search).get('site') || '99 Cents — Houston';
+const SITE_NAME = new URLSearchParams(window.location.search).get('site') || 'MASS Cold Storage';
 const INSP_TYPE = new URLSearchParams(window.location.search).get('type') || 'Weekly';
 
 // Demo: last 3 inspectors
 const LAST_INSPECTORS = [
-  { name:'Zach Giles',   date:'Apr 1, 2026',  type:'weekly',    initials:'ZG' },
-  { name:'John Lewis',   date:'Mar 25, 2026', type:'weekly',    initials:'JL' },
-  { name:'Zach Giles',   date:'Jan 15, 2026', type:'quarterly', initials:'ZG' },
+  { name:'John Doe',   date:'Apr 1, 2026',  type:'weekly',    initials:'JD' },
+  { name:'Jeff Doe',   date:'Mar 25, 2026', type:'weekly',    initials:'FD' },
+  { name:'John Doe',   date:'Jan 15, 2026', type:'quarterly', initials:'JD' },
 ];
 
 // Demo: assets by zone
@@ -667,7 +667,7 @@ function init() {
   document.getElementById('intel-score').textContent = '72';
   document.getElementById('intel-findings').textContent = '3';
   document.getElementById('intel-last').textContent = 'Apr 1, 2026';
-  document.getElementById('intel-last-who').textContent = 'Zach Giles';
+  document.getElementById('intel-last-who').textContent = 'John Doe';
   document.getElementById('lobby-est-time').querySelector('span').textContent =
     'Est. ' + Math.round(totalAssets * 4) + ' min';
   document.getElementById('total-count').textContent = totalAssets;
