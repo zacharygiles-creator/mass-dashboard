@@ -417,26 +417,6 @@ footer { position:relative; z-index:5; border-top:1px solid var(--border); paddi
   .hmi-cell-value { font-size:22px !important; }
   .site-name { font-size:14px; }
 }
-
-/* ── VALVE TABLE MOBILE FIX ── */
-@media(max-width:768px) {
-  .valve-row {
-    grid-template-columns: 58px 1fr 76px !important;
-    gap: 4px 6px !important;
-  }
-  .valve-row > div:last-child {
-    grid-column: 1 / -1 !important;
-    text-align: left !important;
-    font-size: 9px !important;
-    padding-top: 2px;
-    border-top: 1px solid var(--border);
-    margin-top: 2px;
-    padding-bottom: 2px;
-  }
-  .valve-id { font-size: 9px !important; }
-  .valve-asset { font-size: 12px !important; }
-  .valve-expiry { font-size: 9px !important; text-align: left !important; }
-}
 </style>
 </head>
 <body>
@@ -1855,6 +1835,8 @@ function renderDashboard(siteId) {
     html+=`<div class="empty-msg">No relief valves tracked for this site yet</div>`;
   } else {
     html+=`<div style="padding:16px 20px">
+      <div style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+      <div style="min-width:360px;">
       <div style="display:grid;grid-template-columns:80px 1fr 100px 90px;gap:8px;padding:0 0 8px;border-bottom:1px solid var(--border);margin-bottom:8px">
         <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Valve ID</div>
         <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);letter-spacing:1px;text-transform:uppercase">Protected Asset</div>
@@ -1898,7 +1880,7 @@ function renderDashboard(siteId) {
         <span class="expand-label">Show all ${sortedValves.length} valves (${hiddenValveCount} more)</span>
       </button>`;
     }
-    html+=`</div>`;
+    html+=`</div></div></div>`;
   }
   html+=`</div></div>`;
 
