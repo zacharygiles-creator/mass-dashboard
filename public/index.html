@@ -417,6 +417,26 @@ footer { position:relative; z-index:5; border-top:1px solid var(--border); paddi
   .hmi-cell-value { font-size:22px !important; }
   .site-name { font-size:14px; }
 }
+
+/* ── VALVE TABLE MOBILE FIX ── */
+@media(max-width:768px) {
+  .valve-row {
+    grid-template-columns: 58px 1fr 76px !important;
+    gap: 4px 6px !important;
+  }
+  .valve-row > div:last-child {
+    grid-column: 1 / -1 !important;
+    text-align: left !important;
+    font-size: 9px !important;
+    padding-top: 2px;
+    border-top: 1px solid var(--border);
+    margin-top: 2px;
+    padding-bottom: 2px;
+  }
+  .valve-id { font-size: 9px !important; }
+  .valve-asset { font-size: 12px !important; }
+  .valve-expiry { font-size: 9px !important; text-align: left !important; }
+}
 </style>
 </head>
 <body>
@@ -1637,6 +1657,10 @@ function renderDashboard(siteId) {
     const sysBtnId = `sys-btn-${si}`;
 
     if(allSortedAssets.length>0) {
+      const isMobile = window.innerWidth < 768;
+      const assetGridCols = isMobile ? '1fr 1fr' : '35% 22% 22% 21%';
+      const assetGridGap = isMobile ? '10px' : '8px';
+      const verdictPadTop = isMobile ? '0' : '18px';
       allSortedAssets.forEach((a, aIdx)=>{
         const isHidden = aIdx >= maxVisible;
         const af=a.fields;
@@ -1664,7 +1688,7 @@ function renderDashboard(siteId) {
         const hiddenWrapEnd = isHidden ? `</div>` : '';
         if(isGoodAsset){
           html+=hiddenWrapStart+`<div style="border-bottom:1px solid var(--border);padding:14px 20px;">
-            <div style="display:grid;grid-template-columns:35% 22% 22% 21%;align-items:start;gap:8px">
+            <div style="display:grid;grid-template-columns:${assetGridCols};align-items:start;gap:${assetGridGap}">
               <div>
                 <div style="font-size:14px;font-weight:600;color:#ffffff;margin-bottom:4px">${aName}</div>
                 ${aType?`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase">${aType}</div>`:''}
@@ -1681,14 +1705,14 @@ function renderDashboard(siteId) {
                 <div style="height:3px;background:var(--border2);position:relative;margin-bottom:5px"><div style="height:100%;position:absolute;top:0;left:0;width:${assetInteg??0}%;background:${integColor}"></div></div>
                 <div style="font-size:11px;color:#888888;line-height:1.3">${integOneLiner}</div>
               </div>
-              <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:18px">
+              <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:${verdictPadTop}">
                 <span style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;padding:5px 10px;text-transform:uppercase;color:var(--green);border:1px solid var(--green);background:var(--green-dim);text-align:center">GOOD STANDING</span>
               </div>
             </div>
           </div>`+hiddenWrapEnd;
         } else {
           html+=hiddenWrapStart+`<div style="border-bottom:1px solid var(--border);padding:14px 20px;">
-            <div style="display:grid;grid-template-columns:35% 22% 22% 21%;align-items:start;gap:8px">
+            <div style="display:grid;grid-template-columns:${assetGridCols};align-items:start;gap:${assetGridGap}">
               <div>
                 <div style="font-size:14px;font-weight:600;color:#ffffff;margin-bottom:4px">${aName}</div>
                 ${aType?`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:1px;color:var(--text-dim);text-transform:uppercase">${aType}</div>`:''}
@@ -1707,7 +1731,7 @@ function renderDashboard(siteId) {
                 ${sls?`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:0.5px;color:${slsColor};text-transform:uppercase;line-height:1.4;margin-bottom:4px">${sls.label} · ${sls.age} YRS</div>`:''}
                 <div style="font-size:11px;color:#888888;line-height:1.3">${integOneLiner}</div>
               </div>
-              <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:18px">
+              <div style="display:flex;flex-direction:column;align-items:center;justify-content:flex-start;padding-top:${verdictPadTop}">
                 ${prog&&prog.verdict?`<span style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;padding:5px 10px;text-transform:uppercase;color:${prog.color};border:1px solid ${prog.color};background:${prog.color}18;margin-bottom:6px;display:block;text-align:center">${prog.verdict}</span><div style="font-size:11px;color:#777777;line-height:1.4;text-align:center">${prog.text}</div>`:`<div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--text-dim);text-transform:uppercase;text-align:center">Insufficient<br>Data</div>`}
               </div>
             </div>
