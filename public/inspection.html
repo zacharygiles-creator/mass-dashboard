@@ -132,14 +132,15 @@ body::before {
 }
 .score-delta {
   position:absolute;
-  top:-10px; right:-22px;
+  top:-10px; right:-24px;
   font-family:'Orbitron',monospace;
-  font-size:11px; font-weight:700;
+  font-size:12px; font-weight:700;
   opacity:0;
   pointer-events:none;
+  white-space:nowrap;
 }
 .score-delta.show {
-  animation:deltaFloat 1.2s ease forwards;
+  animation:deltaFloat 1.4s ease forwards;
 }
 .score-delta.positive { color:var(--green); }
 .score-delta.negative { color:var(--red); }
@@ -436,9 +437,8 @@ body::before {
 <!-- SCORE CARD -->
 <div class="score-card">
   <div class="score-label">Asset Score</div>
-  <div class="score-value-wrap">
+  <div class="score-value-wrap" id="score-value-wrap">
     <div class="score-value" id="live-score">72</div>
-    <div class="score-delta" id="score-delta"></div>
   </div>
 </div>
 
@@ -823,7 +823,7 @@ function recalcScore() {
 
 function updateScoreDisplay(score, delta) {
   const el = document.getElementById('live-score');
-  const deltaEl = document.getElementById('score-delta');
+  const wrap = document.getElementById('score-value-wrap');
 
   // Color based on score
   let color = 'var(--green)';
@@ -834,19 +834,26 @@ function updateScoreDisplay(score, delta) {
 
   el.textContent = score;
   el.classList.remove('score-tick');
-  el.offsetHeight;
+  void el.offsetWidth;
   el.classList.add('score-tick');
 
-  // Show delta
+  // Show delta bubble — create fresh element every time for reliable animation
   if (delta !== 0) {
-    deltaEl.className = 'score-delta';
-    deltaEl.textContent = (delta > 0 ? '+' : '') + delta;
-    deltaEl.classList.add(delta > 0 ? 'positive' : 'negative');
-    void deltaEl.offsetWidth;
-    deltaEl.classList.add('show');
+    const bubble = document.createElement('div');
+    bubble.className = 'score-delta ' + (delta > 0 ? 'positive' : 'negative');
+    bubble.textContent = (delta > 0 ? '+' : '') + delta;
+    wrap.appendChild(bubble);
+
+    // Double rAF ensures element is painted before animation starts
+    requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        bubble.classList.add('show');
+      });
+    });
+
     setTimeout(() => {
-      deltaEl.className = 'score-delta';
-    }, 1200);
+      if (bubble.parentNode) bubble.parentNode.removeChild(bubble);
+    }, 1400);
   }
 }
 
