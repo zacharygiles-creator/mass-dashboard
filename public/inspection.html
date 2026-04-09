@@ -701,7 +701,8 @@ const SCORE_COLORS  = ['var(--green)','#7BC67E','var(--yellow)','var(--orange)',
 // Each question contributes a max number of points to the total score.
 // Critical = full penalty, Poor = 75%, Fair = 50%, Good = 25%, Excellent = 0%
 // This prevents any single answer from collapsing the score erratically.
-const MAX_POINTS = { high:4, medium:3, low:1.5 };
+const MAX_POINTS  = { high:4, medium:3, low:1.5 };
+const WEIGHT_MULT = { high:1.0, medium:0.75, low:0.5 };
 
 // Penalty per condition label (index 0=Excellent...4=Critical)
 const LABEL_PENALTY = [0, 0.25, 0.5, 0.75, 1.0];
