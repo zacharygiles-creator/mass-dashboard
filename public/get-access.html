@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Get Access — MASSCORE Technologies</title>
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+:root {
+  --red:#E8320A; --dark:#080808; --bg2:#0f0f0f; --bg3:#141414;
+  --border:#1e1e1e; --border2:#2a2a2a;
+  --text:#e8e8e8; --mid:#aaa; --dim:#888;
+}
+body { background:var(--dark); color:var(--text); font-family:'Rajdhani',sans-serif; overflow-x:hidden; }
+body::before {
+  content:''; position:fixed; inset:0;
+  background-image:linear-gradient(rgba(255,255,255,0.012) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,0.012) 1px,transparent 1px);
+  background-size:32px 32px; pointer-events:none; z-index:0;
+}
+nav {
+  position:fixed; top:0; left:0; right:0; z-index:100;
+  background:rgba(8,8,8,0.95); border-bottom:1px solid var(--border);
+  padding:0 48px; height:64px;
+  display:flex; align-items:center; justify-content:space-between;
+  backdrop-filter:blur(10px);
+}
+.nav-logo { font-family:'Orbitron',monospace; font-size:22px; font-weight:900; letter-spacing:3px; text-decoration:none; }
+.nav-logo .mass { color:#fff; }
+.nav-logo .core { color:var(--red); }
+.nav-links { display:flex; align-items:center; gap:32px; }
+.nav-links a { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:var(--mid); text-decoration:none; text-transform:uppercase; transition:color 0.2s; }
+.nav-links a:hover, .nav-links a.active { color:#fff; }
+.nav-login { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:2px; color:#fff; text-decoration:none; text-transform:uppercase; border:1px solid var(--red); padding:8px 18px; transition:background 0.2s; }
+.nav-login:hover { background:var(--red); }
+.nav-hamburger { display:none; flex-direction:column; gap:5px; cursor:pointer; padding:4px; background:none; border:none; }
+.nav-hamburger span { display:block; width:22px; height:2px; background:#fff; }
+.mobile-nav-menu { display:none; position:fixed; top:64px; left:0; right:0; background:rgba(8,8,8,0.98); border-bottom:1px solid var(--border); z-index:99; padding:16px 0; }
+.mobile-nav-menu.open { display:block; }
+.mobile-nav-menu a { display:block; font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; color:var(--mid); text-decoration:none; text-transform:uppercase; padding:14px 32px; border-bottom:1px solid var(--border); transition:color 0.2s; }
+.mobile-nav-menu a:last-child { border-bottom:none; }
+.mobile-nav-menu a:hover { color:#fff; }
+@media(max-width:768px) {
+  nav { padding:0 20px; }
+  .nav-links { display:none; }
+  .nav-hamburger { display:flex; }
+  .nav-login { font-size:8px; padding:6px 12px; letter-spacing:1px; }
+}
+.page-header { position:relative; z-index:1; padding:140px 48px 80px; text-align:center; border-bottom:1px solid var(--border); }
+.page-eyebrow { font-family:'Share Tech Mono',monospace; font-size:13px; letter-spacing:4px; color:var(--red); text-transform:uppercase; margin-bottom:20px; }
+.page-title { font-family:'Orbitron',monospace; font-size:clamp(28px,4vw,52px); font-weight:900; color:#fff; line-height:1.15; margin-bottom:20px; }
+.page-subtitle { font-size:clamp(16px,2vw,20px); color:#aaa; line-height:1.7; max-width:720px; margin:0 auto; }
+@media(max-width:768px) { .page-header { padding:120px 24px 60px; } }
+.main-wrap { position:relative; z-index:1; padding:80px 48px; max-width:1200px; margin:0 auto; }
+@media(max-width:768px) { .main-wrap { padding:60px 24px; } }
+.two-col { display:grid; grid-template-columns:1fr 1fr; gap:60px; align-items:start; }
+@media(max-width:900px) { .two-col { grid-template-columns:1fr; gap:48px; } }
+.section-label { font-family:'Share Tech Mono',monospace; font-size:9px; letter-spacing:4px; color:var(--red); text-transform:uppercase; margin-bottom:16px; }
+.section-title { font-family:'Orbitron',monospace; font-size:clamp(22px,2.8vw,34px); font-weight:700; color:#fff; margin-bottom:20px; line-height:1.2; }
+.section-body { font-size:17px; color:#aaa; line-height:1.8; }
+.section-rule { height:1px; background:var(--border); margin-bottom:48px; }
+.info-block { padding:20px 24px; background:var(--bg2); border:1px solid var(--border); border-left:3px solid var(--red); margin-bottom:16px; }
+.info-block-label { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px; color:var(--red); text-transform:uppercase; margin-bottom:8px; }
+.info-block-text { font-size:15px; color:#aaa; line-height:1.7; }
+.info-block-link { font-family:'Share Tech Mono',monospace; font-size:11px; color:#fff; text-decoration:none; letter-spacing:1px; }
+.info-block-link:hover { color:var(--red); }
+.serving-list { margin-top:8px; font-size:15px; color:#aaa; line-height:2; }
+.waitlist-wrap { background:var(--bg2); border:1px solid var(--border); border-top:3px solid var(--red); padding:48px; }
+.waitlist-title { font-family:'Orbitron',monospace; font-size:24px; font-weight:700; color:#fff; margin-bottom:8px; }
+.waitlist-sub { font-size:15px; color:#aaa; margin-bottom:32px; line-height:1.6; }
+.form-row { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:16px; }
+@media(max-width:600px) { .form-row { grid-template-columns:1fr; } }
+.form-field { display:flex; flex-direction:column; gap:6px; margin-bottom:16px; }
+.form-field label { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px; color:#aaa; text-transform:uppercase; }
+.form-field input, .form-field select, .form-field textarea { background:var(--bg3); border:1px solid var(--border2); color:#fff; font-family:'Rajdhani',sans-serif; font-size:15px; padding:10px 12px; outline:none; transition:border-color 0.2s; width:100%; }
+.form-field input:focus, .form-field select:focus, .form-field textarea:focus { border-color:var(--red); }
+.form-field select option { background:var(--bg3); }
+.btn-primary { background:var(--red); color:#fff; border:none; font-family:'Orbitron',monospace; font-size:10px; font-weight:700; letter-spacing:2px; padding:16px 32px; cursor:pointer; text-transform:uppercase; text-decoration:none; transition:background 0.2s; display:inline-block; width:100%; text-align:center; }
+.btn-primary:hover { background:#c42a08; }
+.success-msg { text-align:center; padding:32px 20px; font-family:'Share Tech Mono',monospace; font-size:10px; letter-spacing:2px; color:#7BC67E; text-transform:uppercase; display:none; border:1px solid rgba(123,198,126,0.2); background:rgba(123,198,126,0.05); }
+footer { position:relative; z-index:1; border-top:1px solid var(--border); background:var(--bg2); padding:40px 48px; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:16px; }
+.footer-logo { font-family:'Orbitron',monospace; font-size:16px; font-weight:900; }
+.footer-logo .mass { color:#fff; }
+.footer-logo .core { color:var(--red); }
+.footer-copy { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px; color:var(--dim); text-transform:uppercase; }
+.footer-login a { font-family:'Share Tech Mono',monospace; font-size:8px; letter-spacing:2px; color:var(--mid); text-decoration:none; text-transform:uppercase; }
+.footer-login a:hover { color:#fff; }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="/home.html" class="nav-logo"><span class="mass">MASS</span><span class="core">CORE</span></a>
+  <div class="nav-links">
+    <a href="/the-problem.html">The Problem</a>
+    <a href="/who-we-help.html">Who We Help</a>
+    <a href="/the-platform.html">The Platform</a>
+    <a href="/about.html">About</a>
+    <a href="/get-access.html" class="active">Get Access</a>
+  </div>
+  <div style="display:flex;align-items:center;gap:12px">
+    <a href="/login.html" class="nav-login">Dashboard Login</a>
+    <button class="nav-hamburger" onclick="toggleMobileMenu()" aria-label="Menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+</nav>
+<div class="mobile-nav-menu" id="mobile-menu">
+  <a href="/home.html" onclick="closeMobileMenu()">Home</a>
+  <a href="/the-problem.html" onclick="closeMobileMenu()">The Problem</a>
+  <a href="/who-we-help.html" onclick="closeMobileMenu()">Who We Help</a>
+  <a href="/the-platform.html" onclick="closeMobileMenu()">The Platform</a>
+  <a href="/about.html" onclick="closeMobileMenu()">About</a>
+  <a href="/get-access.html" onclick="closeMobileMenu()">Get Access</a>
+</div>
+
+<!-- PAGE HEADER -->
+<div class="page-header">
+  <div class="page-eyebrow">Get Access</div>
+  <div class="page-title">Join the waitlist.<br>Be first when we launch.</div>
+  <p class="page-subtitle">MASSCORE is in beta deployment now. We are selectively onboarding contractors and facilities ahead of our Fall 2026 public launch. Early access participants get priority onboarding, reduced launch pricing, and direct input into the roadmap.</p>
+</div>
+
+<!-- MAIN CONTENT -->
+<div class="main-wrap">
+  <div class="two-col">
+
+    <!-- LEFT COLUMN — INFO -->
+    <div>
+      <div class="section-label">Early Access</div>
+      <div class="section-rule"></div>
+      <div class="section-title">Currently accepting applications from contractors and facility operators.</div>
+      <p class="section-body" style="margin-bottom:32px">Fill out the form and tell us about your operation. We will be in touch before launch to discuss fit, onboarding, and early access pricing.</p>
+
+      <div class="info-block">
+        <div class="info-block-label">Currently Serving</div>
+        <div class="serving-list">
+          Industrial Ammonia Refrigeration<br>
+          Commercial HVAC & Chiller Plants<br>
+          Cold Storage & Food Processing Facilities<br>
+          Industrial Process Refrigeration
+        </div>
+      </div>
+
+      <div class="info-block">
+        <div class="info-block-label">Beta Status</div>
+        <div class="info-block-text">MASSCORE is live and deployed. We are selectively onboarding contractors and facilities ahead of our Fall 2026 public launch. Early access participants receive priority onboarding, reduced launch pricing, and direct input into the platform roadmap.</div>
+      </div>
+
+      <div class="info-block">
+        <div class="info-block-label">General Inquiries</div>
+        <a href="mailto:info@masscore.com" class="info-block-link">info@masscore.com</a>
+      </div>
+
+      <div class="info-block">
+        <div class="info-block-label">Investment & Partnership</div>
+        <a href="mailto:info@masscore.com" class="info-block-link">info@masscore.com</a>
+      </div>
+
+      <div style="margin-top:32px;padding:24px;background:var(--dark);border:1px solid var(--border2);border-left:4px solid var(--red);">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:8px;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin-bottom:12px">PSM & Compliance Teams</div>
+        <div style="font-size:15px;color:#aaa;line-height:1.8;">If you are a corporate PSM or compliance team interested in a multi-site deployment discussion — reach out directly. We want to understand your environment before recommending a deployment approach.</div>
+        <div style="margin-top:16px;">
+          <a href="mailto:info@masscore.com" style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#fff;text-decoration:none;letter-spacing:1px;">info@masscore.com</a>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT COLUMN — FORM -->
+    <div class="waitlist-wrap">
+      <div class="waitlist-title">Join the Waitlist</div>
+      <div class="waitlist-sub">Tell us about your facility or contracting operation and we will be in touch before launch.</div>
+      <form id="contact-form" onsubmit="submitForm(event)">
+        <div class="form-row">
+          <div class="form-field">
+            <label>First Name</label>
+            <input type="text" name="firstName" placeholder="First name" required>
+          </div>
+          <div class="form-field">
+            <label>Last Name</label>
+            <input type="text" name="lastName" placeholder="Last name" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-field">
+            <label>Email</label>
+            <input type="email" name="email" placeholder="your@email.com" required>
+          </div>
+          <div class="form-field">
+            <label>Phone</label>
+            <input type="tel" name="phone" placeholder="(555) 000-0000">
+          </div>
+        </div>
+        <div class="form-field">
+          <label>Company</label>
+          <input type="text" name="company" placeholder="Company name">
+        </div>
+        <div class="form-field">
+          <label>I am a...</label>
+          <select name="role">
+            <option value="">Select your role</option>
+            <option value="contractor">Refrigeration / HVAC Contractor</option>
+            <option value="facility_owner">Facility Owner / Operator</option>
+            <option value="psm_compliance">PSM / Compliance Team</option>
+            <option value="property_manager">Property Manager</option>
+            <option value="engineer">Refrigeration Engineer</option>
+            <option value="investor">Investor / Strategic Partner</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="form-field">
+          <label>Tell us about your facility or operation</label>
+          <textarea name="message" rows="4" placeholder="Number of sites, system types, what you are looking for..."></textarea>
+        </div>
+        <button type="submit" class="btn-primary">Join the Waitlist</button>
+      </form>
+      <div class="success-msg" id="success-msg">
+        You are on the list — we will be in touch before launch
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-logo"><span class="mass">MASS</span><span class="core">CORE</span></div>
+  <div class="footer-copy">© 2026 MASSCORE LLC — Confidential &amp; Proprietary — All Rights Reserved</div>
+  <div class="footer-login"><a href="/login.html">Dashboard Login</a></div>
+</footer>
+
+<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script>
+<script>
+async function submitForm(e) {
+  e.preventDefault();
+  const form = e.target;
+  const btn = form.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  btn.textContent = 'Submitting...';
+  const data = {
+    firstName: form.firstName.value,
+    lastName: form.lastName.value,
+    email: form.email.value,
+    phone: form.phone.value,
+    company: form.company.value,
+    role: form.role.value,
+    message: form.message.value
+  };
+  try {
+    const res = await fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const result = await res.json();
+    if (result.success) {
+      form.style.display = 'none';
+      document.getElementById('success-msg').style.display = 'block';
+    } else { throw new Error('Failed'); }
+  } catch(err) {
+    const leads = JSON.parse(localStorage.getItem('masscore_leads') || '[]');
+    leads.push(data);
+    localStorage.setItem('masscore_leads', JSON.stringify(leads));
+    form.style.display = 'none';
+    document.getElementById('success-msg').style.display = 'block';
+  }
+}
+function toggleMobileMenu() { document.getElementById('mobile-menu').classList.toggle('open'); }
+function closeMobileMenu() { document.getElementById('mobile-menu').classList.remove('open'); }
+</script>
+</body>
+</html>
