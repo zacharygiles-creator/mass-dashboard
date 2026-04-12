@@ -326,10 +326,26 @@ app.get('/api/rubric', requireAuth, async (req, res) => {
     const assetTypeIds = asset.fields['Asset Class'] || [];
     if (!assetTypeIds.length) return res.status(400).json({ error: 'Asset has no Asset Class assigned — set Asset Class in Airtable' });
 
-    const assetClassId = assetTypeIds[0];
-    const classRes     = await fetch(`https://api.airtable.com/v0/${baseId}/Asset%20Classes/${assetClassId}`, { headers });
-    const classRecord  = await classRes.json();
-    const assetClassName = (classRecord.fields && classRecord.fields['Asset Class Name']) || '';
+    // Asset Class field may return record ID array or a name string depending on Airtable config
+    const assetClassRaw = assetTypeIds[0];
+
+    // Fetch Asset Classes table to get all records — lets us match by ID or name
+    const allClassesRes  = await fetch(`https://api.airtable.com/v0/${baseId}/Asset%20Classes`, { headers });
+    const allClassesData = await allClassesRes.json();
+    const allClasses     = allClassesData.records || [];
+
+    // Find matching class record by ID or by name
+    const classRecord = allClasses.find(c =>
+      c.id === assetClassRaw ||
+      (c.fields['Asset Class Name'] || '').toUpperCase() === (assetClassRaw || '').toUpperCase()
+    );
+
+    if (!classRecord) {
+      return res.status(400).json({ error: 'Asset Class not found in Asset Classes table. Value: ' + assetClassRaw });
+    }
+
+    const assetClassId   = classRecord.id;
+    const assetClassName = classRecord.fields['Asset Class Name'] || '';
     const assetScore   = parseFloat(asset.fields['Asset Health Score']) || 72;
     const assetName    = asset.fields['Asset Name'] || asset.fields['Name'] || 'Asset';
 
