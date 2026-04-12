@@ -295,6 +295,204 @@ app.post('/api/request-quote', requireAuth, async (req, res) => {
   }
 });
 
+
+// ── RUBRIC QUESTIONS API ─────────────────────────────────
+app.get('/api/rubric', requireAuth, async (req, res) => {
+  try {
+    const fetch  = (await import('node-fetch')).default;
+    const baseId = process.env.AIRTABLE_BASE_ID;
+    const apiKey = process.env.AIRTABLE_API_KEY;
+    const headers = { Authorization: `Bearer ${apiKey}` };
+
+    const { assetId, inspType } = req.query;
+    if (!assetId || !inspType) {
+      return res.status(400).json({ error: 'assetId and inspType are required' });
+    }
+
+    const tierMap = {
+      'Weekly':      ['W'],
+      'Monthly':     ['W','M'],
+      'Quarterly':   ['W','M','Q'],
+      'Semi Annual': ['W','M','Q','SA'],
+      'Annual':      ['W','M','Q','SA','A']
+    };
+    const tiers = tierMap[inspType] || ['W'];
+
+    // Fetch asset record
+    const assetRes = await fetch(`https://api.airtable.com/v0/${baseId}/Assets/${assetId}`, { headers });
+    const asset    = await assetRes.json();
+    if (!asset || !asset.fields) return res.status(404).json({ error: 'Asset not found' });
+
+    const assetTypeIds = asset.fields['Asset Type'] || [];
+    if (!assetTypeIds.length) return res.status(400).json({ error: 'Asset has no Asset Type assigned' });
+
+    const assetClassId = assetTypeIds[0];
+    const classRes     = await fetch(`https://api.airtable.com/v0/${baseId}/Asset%20Classes/${assetClassId}`, { headers });
+    const classRecord  = await classRes.json();
+    const assetClassName = (classRecord.fields && classRecord.fields['Asset Class Name']) || '';
+    const assetScore   = parseFloat(asset.fields['Asset Health Score']) || 72;
+    const assetName    = asset.fields['Asset Name'] || asset.fields['Name'] || 'Asset';
+
+    // Fetch all active rubric questions with pagination
+    let allQuestions = [];
+    let offset = null;
+    do {
+      let url = `https://api.airtable.com/v0/${baseId}/Rubric%20Questions?filterByFormula=%7BActive%7D%3D1`;
+      if (offset) url += `&offset=${encodeURIComponent(offset)}`;
+      const qRes  = await fetch(url, { headers });
+      const qData = await qRes.json();
+      allQuestions = allQuestions.concat(qData.records || []);
+      offset = qData.offset || null;
+    } while (offset);
+
+    // Filter by asset class and frequency tier
+    const filtered = allQuestions.filter(q => {
+      const qClassIds = q.fields['Asset Classes'] || [];
+      const qTier     = q.fields['Frequency Tier'];
+      return tiers.includes(qTier) && qClassIds.includes(assetClassId);
+    });
+
+    // Sort by tier then question ID
+    const tierOrder = ['W','M','Q','SA','A'];
+    filtered.sort((a, b) => {
+      const ao = tierOrder.indexOf(a.fields['Frequency Tier']);
+      const bo = tierOrder.indexOf(b.fields['Frequency Tier']);
+      if (ao !== bo) return ao - bo;
+      return (a.fields['Question ID'] || 0) - (b.fields['Question ID'] || 0);
+    });
+
+    function buildAnswers(f, qType) {
+      if (qType === 'CL') {
+        return [
+          { label:'Excellent',    desc: f['Answer Excellent']    || '', score: 100 },
+          { label:'Good',         desc: f['Answer Good']         || '', score: 75  },
+          { label:'Fair',         desc: f['Answer Fair']         || '', score: 50  },
+          { label:'Degraded',     desc: f['Answer Degraded']     || '', score: 25  },
+          { label:'Needs Repair', desc: f['Answer Needs Repair'] || '', score: 0   }
+        ];
+      }
+      if (qType === 'YN') return [
+        { label:'Yes', desc:'Completed this visit', score: 100 },
+        { label:'No',  desc:'Not completed this visit', score: 0 }
+      ];
+      if (qType === 'SV') return [
+        { label:'Tested — Passed', desc:'Safety device tested and tripped at correct setpoint', score: 100 },
+        { label:'Tested — Failed', desc:'Safety device did not trip correctly — service required', score: 0 },
+        { label:'Not Tested',      desc:'Not tested this visit', score: 50 }
+      ];
+      if (qType === 'CV') return [
+        { label:'Calibrated',     desc:'Instrument verified accurate against reference', score: 100 },
+        { label:'Adjusted',       desc:'Found out of calibration — adjustment made', score: 75 },
+        { label:'Not Calibrated', desc:'Not calibrated this visit', score: 50 }
+      ];
+      return [];
+    }
+
+    const questions = filtered.map(q => {
+      const f     = q.fields;
+      const qType = f['Question Type'] || 'CL';
+      return {
+        id:            q.id,
+        questionId:    f['Question ID'],
+        group:         f['Section']        || 'General',
+        text:          f['Question Text']  || '',
+        weight:        (f['Score Weight']  || 'Medium').toLowerCase(),
+        type:          qType,
+        scoreTag:      f['Score Tag']      || 'H',
+        frequencyTier: f['Frequency Tier'] || 'W',
+        answers:       buildAnswers(f, qType)
+      };
+    });
+
+    res.json({ assetName, assetClass: assetClassName, assetScore, inspType, questionCount: questions.length, questions });
+
+  } catch (err) {
+    console.error('Rubric fetch error:', err);
+    res.status(500).json({ error: 'Failed to fetch rubric questions' });
+  }
+});
+
+// ── INSPECTION SUBMIT API ────────────────────────────────
+app.post('/api/inspection/submit', requireAuth, async (req, res) => {
+  try {
+    const fetch  = (await import('node-fetch')).default;
+    const baseId = process.env.AIRTABLE_BASE_ID;
+    const apiKey = process.env.AIRTABLE_API_KEY;
+    const headers = { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' };
+
+    const { assetId, siteName, inspType, healthScore, responses, openObservation, urgency } = req.body;
+    const now = new Date().toISOString();
+
+    // Create Assessment record
+    const assessRes = await fetch(`https://api.airtable.com/v0/${baseId}/Assessments`, {
+      method: 'POST',
+      headers,
+      body: JSON.stringify({
+        fields: {
+          'Assessment Date':     now.split('T')[0],
+          'Assessment Type':     inspType,
+          'Asset':               [assetId],
+          'Health Score Result': healthScore,
+          'Status':              'Complete',
+          'Submitted At':        now,
+          'Notes':               openObservation || ''
+        }
+      })
+    });
+    const assessment   = await assessRes.json();
+    const assessmentId = assessment.id;
+    if (!assessmentId) {
+      console.error('Assessment creation failed:', assessment);
+      return res.status(500).json({ error: 'Failed to create assessment record' });
+    }
+
+    // Create Inspection Response records in batches of 10
+    const responseRecords = (responses || [])
+      .filter(r => r.answerIndex !== null)
+      .map(r => ({
+        fields: {
+          'Assessment':               [assessmentId],
+          'Rubric Question':          [r.questionId],
+          'Asset':                    [assetId],
+          'Response Condition Label': r.answerLabel || '',
+          'Score Contribution':       r.answerScore || 0,
+          'Score Tag':                r.scoreTag    || 'H',
+          'Submitted At':             now
+        }
+      }));
+
+    const batches = [];
+    for (let i = 0; i < responseRecords.length; i += 10) {
+      batches.push(responseRecords.slice(i, i + 10));
+    }
+    await Promise.all(batches.map(batch =>
+      fetch(`https://api.airtable.com/v0/${baseId}/Inspection%20Responses`, {
+        method: 'POST', headers, body: JSON.stringify({ records: batch })
+      })
+    ));
+
+    // Update asset last inspection date
+    const dateFieldMap = {
+      'Weekly':      'Last Weekly Inspection',
+      'Monthly':     'Last Monthly Inspection',
+      'Quarterly':   'Last Quarterly Inspection',
+      'Semi Annual': 'Last Semi Annual Inspection',
+      'Annual':      'Last Annual Inspection'
+    };
+    const dateField = dateFieldMap[inspType] || 'Last Weekly Inspection';
+    await fetch(`https://api.airtable.com/v0/${baseId}/Assets/${assetId}`, {
+      method: 'PATCH', headers,
+      body: JSON.stringify({ fields: { [dateField]: now.split('T')[0] } })
+    });
+
+    res.json({ success: true, assessmentId });
+
+  } catch (err) {
+    console.error('Inspection submit error:', err);
+    res.status(500).json({ error: 'Failed to submit inspection' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`MASSCORE running at http://localhost:${port}`);
 });

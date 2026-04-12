@@ -500,7 +500,7 @@ body::before {
   <div class="complete-screen" id="complete-screen">
     <div class="complete-icon">✓</div>
     <div class="complete-title">Inspection Complete</div>
-    <div class="complete-sub">BC-1 — Weekly — <span id="complete-date"></span></div>
+    <div class="complete-sub"><span id="complete-sub-asset">Asset</span> — <span id="complete-sub-type">Inspection</span> — <span id="complete-date"></span></div>
     <div class="complete-score-wrap">
       <div class="complete-score-label">Final Asset Score</div>
       <div class="complete-score-value" id="complete-score">72</div>
@@ -509,9 +509,19 @@ body::before {
     <button class="complete-btn" onclick="
   const fromLobby = new URLSearchParams(window.location.search).get('from') === 'lobby';
   const site = new URLSearchParams(window.location.search).get('site') || '';
-  window.location.href = fromLobby ? '/inspection-lobby?site=' + encodeURIComponent(site) + '&type=Weekly' : '/dashboard';
+  const itype = new URLSearchParams(window.location.search).get('type') || 'Weekly';
+  window.location.href = fromLobby ? '/inspection-lobby?site=' + encodeURIComponent(site) + '&type=' + encodeURIComponent(itype) : '/dashboard';
 ">Return to Lobby</button>
     <button class="complete-btn-secondary" onclick="startNewInspection()">Start Another Inspection</button>
+  </div>
+
+</div>
+
+
+  <!-- LOADING SCREEN -->
+  <div id="loading-screen" style="display:block;padding:80px 24px;text-align:center">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--red);text-transform:uppercase;margin-bottom:16px;animation:badgePulse 1.5s ease infinite">Loading Inspection</div>
+    <div style="font-family:'Orbitron',monospace;font-size:11px;color:var(--dim);letter-spacing:2px">Fetching questions from MASSCORE...</div>
   </div>
 
 </div>
@@ -523,217 +533,128 @@ body::before {
 </div>
 
 <script>
-// ── DEMO QUESTIONS (Weekly GEA Screw Compressor) ──
-const QUESTIONS = [
-  {
-    group: 'Approach & Audible / Visual',
-    text: 'How would you describe the sound of the compressor during operation?',
-    weight: 'medium',
-    answers: [
-      { label:'Excellent', desc:'Running smooth and quiet, no unusual noise', score:90 },
-      { label:'Good',      desc:'Minor noise present but consistent with normal operation', score:75 },
-      { label:'Fair',      desc:'Intermittent knocking or ticking, warrants monitoring', score:55 },
-      { label:'Poor',      desc:'Audible knocking, snapping, or scraping that is new or worsening', score:35 },
-      { label:'Critical',  desc:'Loud banging, metal-on-metal contact, or scraping of coupling cover', score:10 }
-    ]
-  },
-  {
-    group: 'Approach & Audible / Visual',
-    text: 'How would you describe the vibration level of the compressor?',
-    weight: 'medium',
-    answers: [
-      { label:'Excellent', desc:'No perceptible vibration beyond normal operating baseline', score:90 },
-      { label:'Good',      desc:'Slight vibration, consistent with previous visits', score:75 },
-      { label:'Fair',      desc:'Noticeable vibration increase from baseline', score:55 },
-      { label:'Poor',      desc:'Significant shaking, loose components vibrating', score:35 },
-      { label:'Critical',  desc:'Severe vibration, machine movement on base, immediate concern', score:10 }
-    ]
-  },
-  {
-    group: 'Oil Leaks & Shaft Seal',
-    text: 'Are there any visible signs of oil staining or leakage on the exterior of the compressor?',
-    weight: 'medium',
-    answers: [
-      { label:'Excellent', desc:'No oil staining anywhere on the machine', score:90 },
-      { label:'Good',      desc:'Minor residual staining consistent with previous visits, no active leak', score:75 },
-      { label:'Fair',      desc:'New staining present, source identified, rate is minor', score:55 },
-      { label:'Poor',      desc:'Active leak visible, accumulation in drip tray since last visit', score:35 },
-      { label:'Critical',  desc:'Heavy active leak, oil on floor, or staining on multiple components', score:10 }
-    ]
-  },
-  {
-    group: 'Oil Leaks & Shaft Seal',
-    text: 'What is the shaft seal leak rate compared to the manufacturer\'s recommended maximum?',
-    weight: 'high',
-    answers: [
-      { label:'Excellent', desc:'No visible leakage at shaft seal', score:90 },
-      { label:'Good',      desc:'Minimal seepage, well within manufacturer tolerance', score:75 },
-      { label:'Fair',      desc:'Noticeable drip rate, approaching manufacturer\'s condemn threshold', score:55 },
-      { label:'Poor',      desc:'At or exceeding manufacturer\'s condemn threshold', score:35 },
-      { label:'Critical',  desc:'Heavy leak at shaft seal, immediate replacement required', score:10 }
-    ]
-  },
-  {
-    group: 'Oil Leaks & Shaft Seal',
-    text: 'Leak check with sulphur stick — what were the results around the shaft seal, valves, transducers, and sensors?',
-    weight: 'high',
-    answers: [
-      { label:'Excellent', desc:'No reaction at any test point', score:90 },
-      { label:'Good',      desc:'Faint reaction at one point, confirmed minor, documented', score:75 },
-      { label:'Fair',      desc:'Positive reaction at one or more points, source identified', score:55 },
-      { label:'Poor',      desc:'Multiple positive reactions, active leaks confirmed at several points', score:35 },
-      { label:'Critical',  desc:'Strong reaction at shaft seal or multiple critical points, ammonia loss confirmed', score:10 }
-    ]
-  },
-  {
-    group: 'Oil Level & Coalescer',
-    text: 'What is the oil level in the GEA sight glasses (SG1, SG2, SG3)?',
-    weight: 'medium',
-    answers: [
-      { label:'Excellent', desc:'Level at top of SG1 at shutdown, SG2 primary side showing normal level while running', score:90 },
-      { label:'Good',      desc:'Level slightly below top of SG1, within acceptable range', score:75 },
-      { label:'Fair',      desc:'Level at middle of SG3 at shutdown or SG2 while running — oil addition required', score:55 },
-      { label:'Poor',      desc:'Level below SG3 at shutdown or below SG2 while running — immediate addition required', score:35 },
-      { label:'Critical',  desc:'No visible oil level in any sight glass — compressor at risk of oil starvation', score:10 }
-    ]
-  },
-  {
-    group: 'Oil Level & Coalescer',
-    text: 'What is the condition of the secondary side / dry side sight glass?',
-    weight: 'medium',
-    answers: [
-      { label:'Excellent', desc:'Secondary side clear, no oil present during operation', score:90 },
-      { label:'Good',      desc:'Trace oil present, consistent with previous visit, being monitored', score:75 },
-      { label:'Fair',      desc:'Moderate oil accumulation, oil return system suspect', score:55 },
-      { label:'Poor',      desc:'Significant and increasing oil in secondary side, service required', score:35 },
-      { label:'Critical',  desc:'Heavy oil in secondary side confirmed, coalescer failed or liquid ammonia present', score:10 }
-    ]
-  },
-  {
-    group: 'Oil Heater & Control Panel',
-    text: 'What is the condition of the oil heater?',
-    weight: 'medium',
-    answers: [
-      { label:'Excellent', desc:'Heater confirmed operational, amperage within spec', score:90 },
-      { label:'Good',      desc:'Heater operational, minor variance in amp draw, within acceptable range', score:75 },
-      { label:'Fair',      desc:'Heater operational but amp draw outside normal range, monitor', score:55 },
-      { label:'Poor',      desc:'Heater circuit tripped or fuse blown, not confirmed operational', score:35 },
-      { label:'Critical',  desc:'Heater confirmed failed, oil temperature below safe starting threshold', score:10 }
-    ]
-  },
-  {
-    group: 'Oil Heater & Control Panel',
-    text: 'How do the control panel setpoints compare to expected values — pressures, temperatures, oil temp, filter differential?',
-    weight: 'medium',
-    answers: [
-      { label:'Excellent', desc:'All setpoints confirmed within spec, no deviations', score:90 },
-      { label:'Good',      desc:'Minor deviations noted, within acceptable tolerance', score:75 },
-      { label:'Fair',      desc:'One or more setpoints outside tolerance, adjustment required', score:55 },
-      { label:'Poor',      desc:'Multiple setpoints out of spec, operating outside design parameters', score:35 },
-      { label:'Critical',  desc:'Critical setpoint deviation present, safety shutdown risk or already tripped', score:10 }
-    ]
-  },
-  {
-    group: 'Oil Heater & Control Panel',
-    text: 'What is the condition of the slide valve / capacity control?',
-    weight: 'medium',
-    answers: [
-      { label:'Excellent', desc:'Manual load and unload confirmed smooth and responsive', score:90 },
-      { label:'Good',      desc:'Slight lag in response but functional', score:75 },
-      { label:'Fair',      desc:'Sluggish response, completing travel but slowly', score:55 },
-      { label:'Poor',      desc:'Slide valve not responding correctly to manual command', score:35 },
-      { label:'Critical',  desc:'No slide valve movement, capacity control failed', score:10 }
-    ]
-  },
-  {
-    group: 'Oil Heater & Control Panel',
-    text: 'What does the alarm history show?',
-    weight: 'low',
-    answers: [
-      { label:'Excellent', desc:'No alarms or shutdowns since last visit', score:90 },
-      { label:'Good',      desc:'Minor alarm present, investigated and resolved', score:75 },
-      { label:'Fair',      desc:'One unresolved alarm present, root cause not yet confirmed', score:55 },
-      { label:'Poor',      desc:'Multiple alarms, pattern suggesting a developing issue', score:35 },
-      { label:'Critical',  desc:'Shutdown event recorded, root cause not resolved', score:10 }
-    ]
-  },
-  {
-    group: 'Motor & Drivetrain',
-    text: 'What is the condition of the motor — smell, temperature, general appearance?',
-    weight: 'medium',
-    answers: [
-      { label:'Excellent', desc:'No unusual odour, normal operating temperature, clean', score:90 },
-      { label:'Good',      desc:'Slightly warm but within normal range, no odour', score:75 },
-      { label:'Fair',      desc:'Warm to the touch above baseline, faint smell, warrants monitoring', score:55 },
-      { label:'Poor',      desc:'Hot to the touch, noticeable burnt smell', score:35 },
-      { label:'Critical',  desc:'Strong burnt odour, motor overheating, risk of failure', score:10 }
-    ]
-  },
-  {
-    group: 'Motor & Drivetrain',
-    text: 'What is the condition of the oil pump shaft seal (if equipped)?',
-    weight: 'medium',
-    answers: [
-      { label:'Excellent', desc:'No leakage visible at oil pump shaft seal', score:90 },
-      { label:'Good',      desc:'Trace seepage, within acceptable range', score:75 },
-      { label:'Fair',      desc:'Minor active leak, monitoring required', score:55 },
-      { label:'Poor',      desc:'Noticeable leak, deteriorating', score:35 },
-      { label:'Critical',  desc:'Heavy leak at oil pump shaft seal, seal failure imminent or confirmed', score:10 }
-    ]
-  },
-  {
-    group: 'Electrical',
-    text: 'What is the motor amp draw compared to expected at current load?',
-    weight: 'medium',
-    answers: [
-      { label:'Excellent', desc:'Amp draw within 5% of expected at current load', score:90 },
-      { label:'Good',      desc:'Amp draw within 10% of expected', score:75 },
-      { label:'Fair',      desc:'Amp draw 10–20% above or below expected', score:55 },
-      { label:'Poor',      desc:'Amp draw more than 20% outside expected, cause unknown', score:35 },
-      { label:'Critical',  desc:'Amp draw at or exceeding FLA, motor overloaded', score:10 }
-    ]
-  }
-];
+// ── URL PARAMS ──
+const params     = new URLSearchParams(window.location.search);
+const SITE_NAME  = params.get('site')  || '';
+const ASSET_ID   = params.get('asset') || '';
+const INSP_TYPE  = params.get('type')  || 'Weekly';
+const FROM_LOBBY = params.get('from')  === 'lobby';
 
+// ── QUESTION STATE ──
+let QUESTIONS    = [];
+let ASSET_NAME   = '';
+let ASSET_CLASS  = '';
+let START_SCORE  = 72;
+
+// ── SCORE CONSTANTS ──
 const SCORE_CLASSES = ['excellent','good','fair','poor','critical'];
 const SCORE_COLORS  = ['var(--green)','#7BC67E','var(--yellow)','var(--orange)','var(--red)'];
-// ── CAPPED SCORING MODEL ──
-// Each question contributes a max number of points to the total score.
-// Critical = full penalty, Poor = 75%, Fair = 50%, Good = 25%, Excellent = 0%
-// This prevents any single answer from collapsing the score erratically.
-const MAX_POINTS  = { high:4, medium:3, low:1.5 };
-const WEIGHT_MULT = { high:1.0, medium:0.75, low:0.5 };
+const MAX_POINTS    = { high:4, medium:3, low:1.5 };
 
-// Penalty per condition label (index 0=Excellent...4=Critical)
-const LABEL_PENALTY = [0, 0.25, 0.5, 0.75, 1.0];
-
-let currentQ       = 0;
-let answers        = new Array(QUESTIONS.length).fill(null);
-let liveScore      = 72;
-let startScore     = 72;
+let currentQ        = 0;
+let answers         = [];
+let liveScore       = 72;
+let startScore      = 72;
 let selectedUrgency = null;
+
+// ── FETCH QUESTIONS FROM AIRTABLE ──
+async function loadQuestions() {
+  showLoading(true);
+  try {
+    const res  = await fetch(`/api/rubric?assetId=${encodeURIComponent(ASSET_ID)}&inspType=${encodeURIComponent(INSP_TYPE)}`);
+    const data = await res.json();
+
+    if (!res.ok || data.error) {
+      showError(data.error || 'Failed to load questions');
+      return;
+    }
+
+    QUESTIONS   = data.questions || [];
+    ASSET_NAME  = data.assetName || 'Asset';
+    ASSET_CLASS = data.assetClass || '';
+    startScore  = data.assetScore || 72;
+    liveScore   = startScore;
+    START_SCORE = startScore;
+
+    // Update header
+    document.getElementById('header-asset').textContent    = ASSET_NAME;
+    document.getElementById('header-insp-type').textContent = INSP_TYPE;
+    document.getElementById('live-score').textContent       = liveScore;
+
+    // Update complete screen subtitle
+    document.getElementById('complete-sub-asset').textContent = ASSET_NAME;
+    document.getElementById('complete-sub-type').textContent  = INSP_TYPE;
+
+    answers = new Array(QUESTIONS.length).fill(null);
+
+    showLoading(false);
+    init();
+
+  } catch (err) {
+    console.error('Question load error:', err);
+    showError('Connection error — please try again');
+  }
+}
+
+function showLoading(show) {
+  const flow    = document.getElementById('question-flow');
+  const loading = document.getElementById('loading-screen');
+  if (!loading) return;
+  if (show) {
+    flow.style.display    = 'none';
+    loading.style.display = 'block';
+  } else {
+    loading.style.display = 'none';
+    flow.style.display    = 'block';
+  }
+}
+
+function showError(msg) {
+  const loading = document.getElementById('loading-screen');
+  if (loading) {
+    loading.innerHTML = `
+      <div style="text-align:center;padding:40px 20px">
+        <div style="font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;color:var(--red);text-transform:uppercase;margin-bottom:12px">Failed to Load Inspection</div>
+        <div style="font-size:14px;color:var(--mid);margin-bottom:24px">${msg}</div>
+        <button onclick="loadQuestions()" style="background:var(--red);border:none;color:#fff;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;padding:12px 24px;cursor:pointer;text-transform:uppercase">Retry</button>
+      </div>`;
+  }
+}
 
 function init() {
   document.getElementById('q-total').textContent = QUESTIONS.length;
   document.getElementById('complete-date').textContent =
     new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
+  updateScoreDisplay(liveScore, 0);
   renderQuestion(0);
 }
 
 function renderQuestion(idx) {
   const q = QUESTIONS[idx];
+  if (!q) return;
+
   document.getElementById('q-current').textContent = idx + 1;
-  document.getElementById('progress-fill').style.width =
-    ((idx) / QUESTIONS.length * 100) + '%';
+  document.getElementById('progress-fill').style.width = ((idx) / QUESTIONS.length * 100) + '%';
   document.getElementById('q-group').textContent = q.group;
   document.getElementById('q-text').textContent  = q.text;
 
   // Build answer buttons
   const container = document.getElementById('q-answers');
   container.innerHTML = '';
+
+  // Determine CSS classes based on answer count
+  const ansCount = q.answers.length;
+  const getClass = (i, total) => {
+    if (total === 5) return SCORE_CLASSES[i];
+    if (total === 2) return i === 0 ? 'excellent' : 'critical';
+    if (total === 3) return i === 0 ? 'excellent' : i === 1 ? 'critical' : 'fair';
+    return SCORE_CLASSES[Math.min(i, 4)];
+  };
+
   q.answers.forEach((ans, i) => {
+    const cls = getClass(i, ansCount);
     const btn = document.createElement('button');
-    btn.className = `answer-btn ${SCORE_CLASSES[i]}`;
+    btn.className = `answer-btn ${cls}`;
     btn.innerHTML = `
       <div class="answer-indicator"></div>
       <div class="answer-content">
@@ -747,88 +668,72 @@ function renderQuestion(idx) {
     container.appendChild(btn);
   });
 
-  // Show critical alert if previously selected critical
+  // Critical alert — only show if last answer (index ansCount-1) selected and it's a Needs Repair type
   const critAlert = document.getElementById('critical-alert');
-  if (answers[idx] === 4) {
+  if (answers[idx] === ansCount - 1 && ansCount === 5) {
     critAlert.classList.add('show');
   } else {
     critAlert.classList.remove('show');
   }
 
-  // Nav state
   document.getElementById('nav-back').disabled = idx === 0;
   document.getElementById('nav-next').disabled = answers[idx] === null;
   document.getElementById('nav-next').textContent =
     idx === QUESTIONS.length - 1 ? 'Final Step' : 'Next';
 
-  // Animate card
   const card = document.getElementById('question-card');
   card.style.animation = 'none';
-  card.offsetHeight; // reflow
+  card.offsetHeight;
   card.style.animation = 'slideIn 0.25s ease';
 }
 
 function selectAnswer(qIdx, ansIdx, clickedBtn) {
-  const prevAnswer = answers[qIdx];
   answers[qIdx] = ansIdx;
 
-  // Update button states
   document.querySelectorAll('.answer-btn').forEach(b => b.classList.remove('selected'));
   clickedBtn.classList.add('selected');
 
-  // Critical alert
+  const q        = QUESTIONS[qIdx];
+  const ansCount = q.answers.length;
   const critAlert = document.getElementById('critical-alert');
-  if (ansIdx === 4) {
+  if (ansIdx === ansCount - 1 && ansCount === 5) {
     critAlert.classList.add('show');
   } else {
     critAlert.classList.remove('show');
   }
 
-  // Calculate score delta
-  const q = QUESTIONS[qIdx];
-  const newAnswerScore = q.answers[ansIdx].score;
-  const prevAnswerScore = prevAnswer !== null ? q.answers[prevAnswer].score : null;
-  const mult = WEIGHT_MULT[q.weight];
-
-  // Recalculate full live score from all answers
   recalcScore();
-
-  // Enable next
   document.getElementById('nav-next').disabled = false;
 }
 
 function recalcScore() {
-  // Calculate total penalty from all answered questions
   let totalPenalty = 0;
+
   answers.forEach((ans, i) => {
     if (ans !== null) {
-      const q = QUESTIONS[i];
-      const maxPts = MAX_POINTS[q.weight];
-      const penalty = maxPts * LABEL_PENALTY[ans];
+      const q       = QUESTIONS[i];
+      const maxPts  = MAX_POINTS[(q.weight || 'medium').toLowerCase()] || 3;
+      const ansScore = q.answers[ans] ? q.answers[ans].score : 100;
+      // Penalty = proportion of max points based on how far from perfect
+      const penalty = maxPts * ((100 - ansScore) / 100);
       totalPenalty += penalty;
     }
   });
 
-  // Score starts at startScore and deducts penalty points
-  // Max possible total penalty across all 14 weekly questions:
-  // 2 high (4pts each) + 10 medium (3pts each) + 1 low (1.5pts) + 1 medium = ~43.5 pts max
-  // This keeps score from ever collapsing below ~28 even if everything is Critical
   let newScore = Math.round(startScore - totalPenalty);
   newScore = Math.max(10, Math.min(100, newScore));
 
   const delta = newScore - liveScore;
-  liveScore = newScore;
-
+  liveScore   = newScore;
   updateScoreDisplay(newScore, delta);
 }
 
 function updateScoreDisplay(score, delta) {
-  const el = document.getElementById('live-score');
+  const el   = document.getElementById('live-score');
   const wrap = document.getElementById('score-value-wrap');
 
-  // Color based on score
   let color = 'var(--green)';
-  if (score < 40) color = 'var(--red)';
+  if (score < 40)      color = 'var(--red)';
   else if (score < 60) color = 'var(--orange)';
   else if (score < 75) color = 'var(--yellow)';
   document.documentElement.style.setProperty('--score-color', color);
@@ -838,20 +743,14 @@ function updateScoreDisplay(score, delta) {
   void el.offsetWidth;
   el.classList.add('score-tick');
 
-  // Show delta bubble — create fresh element every time for reliable animation
   if (delta !== 0) {
     const bubble = document.createElement('div');
     bubble.className = 'score-delta ' + (delta > 0 ? 'positive' : 'negative');
     bubble.textContent = (delta > 0 ? '+' : '') + delta;
     wrap.appendChild(bubble);
-
-    // Double rAF ensures element is painted before animation starts
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => {
-        bubble.classList.add('show');
-      });
+      requestAnimationFrame(() => { bubble.classList.add('show'); });
     });
-
     setTimeout(() => {
       if (bubble.parentNode) bubble.parentNode.removeChild(bubble);
     }, 1400);
@@ -875,15 +774,14 @@ function goBack() {
 }
 
 function showOpenObservation() {
-  document.getElementById('question-flow').style.display = 'none';
+  document.getElementById('question-flow').style.display    = 'none';
   document.getElementById('open-obs-section').style.display = 'block';
-  document.getElementById('progress-fill').style.width = '95%';
-  document.getElementById('q-current').textContent = '—';
-  document.getElementById('nav-back').disabled = false;
-  document.getElementById('nav-next').disabled = false;
-  document.getElementById('nav-next').textContent = 'Submit Inspection';
+  document.getElementById('progress-fill').style.width      = '95%';
+  document.getElementById('q-current').textContent          = '—';
+  document.getElementById('nav-back').disabled              = false;
+  document.getElementById('nav-next').disabled              = false;
+  document.getElementById('nav-next').textContent           = 'Submit Inspection';
 
-  // Watch textarea for content
   const ta = document.getElementById('open-obs-text');
   ta.addEventListener('input', () => {
     const urgency = document.getElementById('urgency-section');
@@ -896,10 +794,9 @@ function showOpenObservation() {
     }
   });
 
-  // Override nav
   document.getElementById('nav-back').onclick = () => {
     document.getElementById('open-obs-section').style.display = 'none';
-    document.getElementById('question-flow').style.display = 'block';
+    document.getElementById('question-flow').style.display    = 'block';
     currentQ = QUESTIONS.length - 1;
     renderQuestion(currentQ);
   };
@@ -912,46 +809,85 @@ function selectUrgency(btn, value) {
   btn.classList.add('selected-urgency');
 }
 
-function submitInspection() {
-  // Show complete screen
+async function submitInspection() {
+  // Show complete screen immediately — write-back happens async
   document.getElementById('open-obs-section').style.display = 'none';
   document.getElementById('complete-screen').classList.add('show');
-  document.getElementById('nav-bar').style.display = 'none';
-  document.getElementById('progress-fill').style.width = '100%';
+  document.getElementById('nav-bar').style.display           = 'none';
+  document.getElementById('progress-fill').style.width       = '100%';
 
-  document.getElementById('complete-score').textContent = liveScore;
-  document.getElementById('complete-score').style.color =
+  document.getElementById('complete-score').textContent    = liveScore;
+  document.getElementById('complete-score').style.color    =
     liveScore >= 75 ? 'var(--green)' : liveScore >= 55 ? 'var(--yellow)' : 'var(--red)';
 
-  const change = liveScore - startScore;
-  const changeEl = document.getElementById('complete-change');
+  const change    = liveScore - startScore;
+  const changeEl  = document.getElementById('complete-change');
   changeEl.textContent = (change >= 0 ? '+' : '') + change + ' from previous score';
   changeEl.style.color = change >= 0 ? 'var(--green)' : 'var(--red)';
+
+  // Build response payload
+  const responses = answers.map((ans, i) => {
+    const q = QUESTIONS[i];
+    return {
+      questionId:    q.id,
+      questionText:  q.text,
+      questionType:  q.type,
+      scoreTag:      q.scoreTag,
+      frequencyTier: q.frequencyTier,
+      weight:        q.weight,
+      answerIndex:   ans,
+      answerLabel:   ans !== null ? q.answers[ans].label : null,
+      answerScore:   ans !== null ? q.answers[ans].score : null
+    };
+  });
+
+  const openObs = document.getElementById('open-obs-text').value.trim();
+
+  try {
+    await fetch('/api/inspection/submit', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        assetId:       ASSET_ID,
+        siteName:      SITE_NAME,
+        inspType:      INSP_TYPE,
+        healthScore:   liveScore,
+        responses,
+        openObservation: openObs,
+        urgency:       selectedUrgency
+      })
+    });
+  } catch (err) {
+    console.error('Submit error:', err);
+    // Don't block the user — submission failed silently, we'll handle retry later
+  }
 }
 
 function saveAndExit() {
-  const fromLobby = new URLSearchParams(window.location.search).get('from') === 'lobby';
-  const site = new URLSearchParams(window.location.search).get('site') || '';
-  const dest = fromLobby ? `/inspection-lobby?site=${encodeURIComponent(site)}&type=Weekly` : '/dashboard';
+  const site = SITE_NAME;
+  const dest = FROM_LOBBY
+    ? `/inspection-lobby?site=${encodeURIComponent(site)}&type=${encodeURIComponent(INSP_TYPE)}`
+    : '/dashboard';
   if (confirm('Save your progress and return?')) {
     window.location.href = dest;
   }
 }
 
 function startNewInspection() {
-  currentQ = 0;
-  answers = new Array(QUESTIONS.length).fill(null);
-  liveScore = 72;
+  currentQ        = 0;
+  answers         = new Array(QUESTIONS.length).fill(null);
+  liveScore       = startScore;
   selectedUrgency = null;
   document.getElementById('complete-screen').classList.remove('show');
   document.getElementById('question-flow').style.display = 'block';
-  document.getElementById('nav-bar').style.display = 'flex';
+  document.getElementById('nav-bar').style.display       = 'flex';
   document.getElementById('nav-next').onclick = goNext;
   document.getElementById('nav-back').onclick = goBack;
   init();
 }
 
-init();
+// ── BOOT ──
+loadQuestions();
 </script>
 </body>
 </html>
