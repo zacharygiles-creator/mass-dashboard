@@ -434,19 +434,7 @@ app.get('/api/rubric', requireAuth, async (req, res) => {
       };
     });
 
-    res.json({ assetName, assetClass: assetClassName, assetScore, inspType, questionCount: questions.length, questions,
-      _debug: {
-        assetClassNameRaw: assetClassName,
-        assetClassNameUpper: assetClassName.toUpperCase().trim(),
-        totalQuestions: allQuestions.length,
-        sampleQuestionFields: allQuestions.slice(0,2).map(q => ({
-          qClass: q.fields['Asset Class'],
-          qClassType: typeof q.fields['Asset Class'],
-          qTier: q.fields['Frequency Tier'],
-          qId: q.fields['Question ID']
-        }))
-      }
-    });
+    res.json({ assetName, assetClass: assetClassName, assetScore, inspType, questionCount: questions.length, questions });
 
   } catch (err) {
     console.error('Rubric fetch error:', err);
