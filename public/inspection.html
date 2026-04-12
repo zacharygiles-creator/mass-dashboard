@@ -446,7 +446,7 @@ body::before {
 <div class="insp-main">
 
   <!-- QUESTION FLOW -->
-  <div id="question-flow">
+  <div id="question-flow" style="display:none">
     <div class="question-card" id="question-card">
       <div class="question-group" id="q-group">Approach & Audible / Visual</div>
       <div class="question-text" id="q-text">Loading...</div>
@@ -565,7 +565,12 @@ async function loadQuestions() {
     const data = await res.json();
 
     if (!res.ok || data.error) {
-      showError(data.error || 'Failed to load questions');
+      showError((data.error || 'Failed to load questions') + ' (Asset ID: ' + ASSET_ID + ')');
+      return;
+    }
+
+    if (!data.questions || data.questions.length === 0) {
+      showError('No questions found for this asset. Asset Class: ' + (data.assetClass || 'not set') + '. Check that Asset Type is assigned in Airtable.');
       return;
     }
 
