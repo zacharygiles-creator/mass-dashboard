@@ -323,31 +323,28 @@ app.get('/api/rubric', requireAuth, async (req, res) => {
     const asset    = await assetRes.json();
     if (!asset || !asset.fields) return res.status(404).json({ error: 'Asset not found' });
 
-    const assetTypeIds = asset.fields['Asset Class'] || [];
-    if (!assetTypeIds.length) return res.status(400).json({ error: 'Asset has no Asset Class assigned — set Asset Class in Airtable' });
+    // Get asset class — field may be plain text or linked record array
+    const assetClassRaw = asset.fields['Asset Class'];
+    let assetClassName = '';
 
-    // Asset Class field may return record ID array or a name string depending on Airtable config
-    const assetClassRaw = assetTypeIds[0];
-
-    // Fetch Asset Classes table to get all records — lets us match by ID or name
-    const allClassesRes  = await fetch(`https://api.airtable.com/v0/${baseId}/Asset%20Classes`, { headers });
-    const allClassesData = await allClassesRes.json();
-    const allClasses     = allClassesData.records || [];
-
-    // Find matching class record by ID or by name
-    const classRecord = allClasses.find(c =>
-      c.id === assetClassRaw ||
-      (c.fields['Asset Class Name'] || '').toUpperCase() === (assetClassRaw || '').toUpperCase()
-    );
-
-    if (!classRecord) {
-      return res.status(400).json({ error: 'Asset Class not found in Asset Classes table. Value: ' + assetClassRaw });
+    if (!assetClassRaw || (Array.isArray(assetClassRaw) && !assetClassRaw.length)) {
+      return res.status(400).json({ error: 'Asset has no Asset Class assigned — set Asset Class in Airtable' });
     }
 
-    const assetClassId   = classRecord.id;
-    const assetClassName = classRecord.fields['Asset Class Name'] || '';
-    const assetScore   = parseFloat(asset.fields['Asset Health Score']) || 72;
-    const assetName    = asset.fields['Asset Name'] || asset.fields['Name'] || 'Asset';
+    if (Array.isArray(assetClassRaw)) {
+      const classRes    = await fetch(`https://api.airtable.com/v0/${baseId}/Asset%20Classes/${assetClassRaw[0]}`, { headers });
+      const classRecord = await classRes.json();
+      assetClassName    = (classRecord.fields && classRecord.fields['Asset Class Name']) || '';
+    } else {
+      assetClassName = String(assetClassRaw);
+    }
+
+    if (!assetClassName) {
+      return res.status(400).json({ error: 'Could not resolve Asset Class name' });
+    }
+
+    const assetScore = parseFloat(asset.fields['Asset Health Score']) || 72;
+    const assetName  = asset.fields['Asset Name'] || asset.fields['Name'] || 'Asset';
 
     // Fetch all active rubric questions with pagination
     let allQuestions = [];
@@ -361,11 +358,11 @@ app.get('/api/rubric', requireAuth, async (req, res) => {
       offset = qData.offset || null;
     } while (offset);
 
-    // Filter by asset class and frequency tier
+    // Filter by asset class name (case-insensitive) and frequency tier
     const filtered = allQuestions.filter(q => {
-      const qClassIds = q.fields['Asset Classes'] || [];
-      const qTier     = q.fields['Frequency Tier'];
-      return tiers.includes(qTier) && qClassIds.includes(assetClassId);
+      const qClass = (q.fields['Asset Class'] || '').toString().toUpperCase().trim();
+      const qTier  = q.fields['Frequency Tier'];
+      return tiers.includes(qTier) && qClass === assetClassName.toUpperCase().trim();
     });
 
     // Sort by tier then question ID
@@ -420,13 +417,7 @@ app.get('/api/rubric', requireAuth, async (req, res) => {
       };
     });
 
-    res.json({ assetName, assetClass: assetClassName, assetScore, inspType, questionCount: questions.length, questions,
-      _debug: {
-        assetClassId,
-        totalQuestionsFound: allQuestions.length,
-        sampleQClassIds: allQuestions.slice(0,3).map(q => ({ id: q.id, classIds: q.fields['Asset Classes'], tier: q.fields['Frequency Tier'] }))
-      }
-    });
+    res.json({ assetName, assetClass: assetClassName, assetScore, inspType, questionCount: questions.length, questions });
 
   } catch (err) {
     console.error('Rubric fetch error:', err);
