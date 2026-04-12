@@ -513,6 +513,7 @@ body::before {
   window.location.href = fromLobby ? '/inspection-lobby?site=' + encodeURIComponent(site) + '&type=' + encodeURIComponent(itype) : '/dashboard';
 ">Return to Lobby</button>
     <button class="complete-btn-secondary" onclick="startNewInspection()">Start Another Inspection</button>
+    <div id="submit-error" style="display:none;margin-top:16px;padding:12px;background:rgba(232,50,10,0.1);border:1px solid rgba(232,50,10,0.3);font-family:'Share Tech Mono',monospace;font-size:10px;color:var(--red);letter-spacing:1px;text-align:center"></div>
   </div>
 
 </div>
@@ -849,22 +850,31 @@ async function submitInspection() {
   const openObs = document.getElementById('open-obs-text').value.trim();
 
   try {
-    await fetch('/api/inspection/submit', {
+    const submitRes  = await fetch('/api/inspection/submit', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
-        assetId:       ASSET_ID,
-        siteName:      SITE_NAME,
-        inspType:      INSP_TYPE,
-        healthScore:   liveScore,
+        assetId:         ASSET_ID,
+        siteName:        SITE_NAME,
+        inspType:        INSP_TYPE,
+        healthScore:     liveScore,
         responses,
         openObservation: openObs,
-        urgency:       selectedUrgency
+        urgency:         selectedUrgency
       })
     });
+    const submitData = await submitRes.json();
+    if (!submitRes.ok || !submitData.success) {
+      console.error('Submit failed:', submitData);
+      // Show error note under complete screen
+      const errEl = document.getElementById('submit-error');
+      if (errEl) {
+        errEl.textContent = 'Note: Inspection data may not have saved. Error: ' + (submitData.error || 'Unknown');
+        errEl.style.display = 'block';
+      }
+    }
   } catch (err) {
     console.error('Submit error:', err);
-    // Don't block the user — submission failed silently, we'll handle retry later
   }
 }
 

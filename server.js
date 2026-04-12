@@ -454,26 +454,27 @@ app.post('/api/inspection/submit', requireAuth, async (req, res) => {
     const now = new Date().toISOString();
 
     // Create Assessment record
+    const assessBody = {
+      fields: {
+        'Assessment Date':     now.split('T')[0],
+        'Assessment Type':     inspType,
+        'Asset':               [assetId],
+        'Health Score Result': parseFloat(healthScore) || 0,
+        'Status':              'Complete',
+        'Notes':               openObservation || ''
+      }
+    };
+
     const assessRes = await fetch(`https://api.airtable.com/v0/${baseId}/Assessments`, {
       method: 'POST',
       headers,
-      body: JSON.stringify({
-        fields: {
-          'Assessment Date':     now.split('T')[0],
-          'Assessment Type':     inspType,
-          'Asset':               [assetId],
-          'Health Score Result': healthScore,
-          'Status':              'Complete',
-          'Submitted At':        now,
-          'Notes':               openObservation || ''
-        }
-      })
+      body: JSON.stringify(assessBody)
     });
     const assessment   = await assessRes.json();
     const assessmentId = assessment.id;
     if (!assessmentId) {
-      console.error('Assessment creation failed:', assessment);
-      return res.status(500).json({ error: 'Failed to create assessment record' });
+      console.error('Assessment creation failed:', JSON.stringify(assessment));
+      return res.status(500).json({ error: 'Failed to create assessment', detail: assessment.error || assessment });
     }
 
     // Create Inspection Response records in batches of 10
