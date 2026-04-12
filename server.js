@@ -420,7 +420,13 @@ app.get('/api/rubric', requireAuth, async (req, res) => {
       };
     });
 
-    res.json({ assetName, assetClass: assetClassName, assetScore, inspType, questionCount: questions.length, questions });
+    res.json({ assetName, assetClass: assetClassName, assetScore, inspType, questionCount: questions.length, questions,
+      _debug: {
+        assetClassId,
+        totalQuestionsFound: allQuestions.length,
+        sampleQClassIds: allQuestions.slice(0,3).map(q => ({ id: q.id, classIds: q.fields['Asset Classes'], tier: q.fields['Frequency Tier'] }))
+      }
+    });
 
   } catch (err) {
     console.error('Rubric fetch error:', err);
