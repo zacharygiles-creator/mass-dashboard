@@ -323,8 +323,8 @@ app.get('/api/rubric', requireAuth, async (req, res) => {
     const asset    = await assetRes.json();
     if (!asset || !asset.fields) return res.status(404).json({ error: 'Asset not found' });
 
-    const assetTypeIds = asset.fields['Asset Type'] || [];
-    if (!assetTypeIds.length) return res.status(400).json({ error: 'Asset has no Asset Type assigned' });
+    const assetTypeIds = asset.fields['Asset Class'] || [];
+    if (!assetTypeIds.length) return res.status(400).json({ error: 'Asset has no Asset Class assigned — set Asset Class in Airtable' });
 
     const assetClassId = assetTypeIds[0];
     const classRes     = await fetch(`https://api.airtable.com/v0/${baseId}/Asset%20Classes/${assetClassId}`, { headers });
