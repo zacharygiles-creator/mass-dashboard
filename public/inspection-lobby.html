@@ -586,123 +586,166 @@ body::before {
 </div>
 
 <script>
-// ── DEMO DATA ──
-// In production this would be pulled from the Airtable API
-// via the same /api/data endpoint, filtered by the site param
-
-const SITE_NAME = new URLSearchParams(window.location.search).get('site') || 'MASS Cold Storage';
+// ── URL PARAMS ──
+const SITE_NAME = new URLSearchParams(window.location.search).get('site') || '';
 const INSP_TYPE = new URLSearchParams(window.location.search).get('type') || 'Weekly';
 
-// Demo: last 3 inspectors
-const LAST_INSPECTORS = [
-  { name:'John Doe',   date:'Apr 1, 2026',  type:'weekly',    initials:'JD' },
-  { name:'Jeff Doe',   date:'Mar 25, 2026', type:'weekly',    initials:'FD' },
-  { name:'John Doe',   date:'Jan 15, 2026', type:'quarterly', initials:'JD' },
-];
+const LAST_INSP_FIELD = {
+  'Weekly':      'Last Weekly Inspection',
+  'Monthly':     'Last Monthly Inspection',
+  'Quarterly':   'Last Quarterly Inspection',
+  'Semi Annual': 'Last Semi Annual Inspection',
+  'Annual':      'Last Annual Inspection'
+}[INSP_TYPE] || 'Last Weekly Inspection';
 
-// Demo: assets by zone
-const ZONES = [
-  {
-    id:'compression',
-    name:'Compression',
-    icon:'⚙',
-    assets:[
-      { id:'bc1', name:'BC-1 Compressor', type:'GEA Screw — Thermosyphon', score:72, color:'var(--green)',    questions:14, lastInsp:'Apr 1', status:'not-started' },
-      { id:'bc3', name:'BC-3 Compressor', type:'GEA Screw — Thermosyphon', score:68, color:'var(--yellow)',   questions:14, lastInsp:'Apr 1', status:'not-started' },
-      { id:'c1',  name:'C-1 Compressor',  type:'GEA Screw',                score:71, color:'var(--green)',    questions:14, lastInsp:'Apr 1', status:'not-started' },
-      { id:'c2',  name:'C-2 Compressor',  type:'GEA Screw',                score:65, color:'var(--yellow)',   questions:14, lastInsp:'Apr 1', status:'not-started' },
-      { id:'c3',  name:'C-3 Compressor',  type:'GEA Screw',                score:65, color:'var(--yellow)',   questions:14, lastInsp:'Apr 1', status:'not-started' },
-      { id:'c4',  name:'C-4 Compressor',  type:'GEA Screw',                score:65, color:'var(--yellow)',   questions:14, lastInsp:'Apr 1', status:'not-started' },
-      { id:'c5',  name:'C-5 Compressor',  type:'GEA Screw',                score:70, color:'var(--green)',    questions:14, lastInsp:'Apr 1', status:'not-started' },
-    ]
-  },
-  {
-    id:'condensing',
-    name:'Condensing',
-    icon:'💧',
-    assets:[
-      { id:'ec1', name:'Condenser EC1-A/B', type:'Evaporative Condenser', score:55, color:'var(--yellow)', questions:6, lastInsp:'Apr 1', status:'not-started' },
-      { id:'ec2', name:'Condenser EC2-A/B', type:'Evaporative Condenser', score:87, color:'var(--green)',  questions:6, lastInsp:'Apr 1', status:'not-started' },
-      { id:'ec3', name:'Condenser EC3-A/B', type:'Evaporative Condenser', score:95, color:'var(--green)',  questions:6, lastInsp:'Apr 1', status:'not-started' },
-    ]
-  },
-  {
-    id:'vessels',
-    name:'Pressure Vessels & Vessels',
-    icon:'🛡',
-    assets:[
-      { id:'lsa1', name:'LSA-1 Vessel',    type:'Low Side Accumulator', score:78, color:'var(--green)',  questions:5, lastInsp:'Mar 25', status:'not-started' },
-      { id:'hsa1', name:'HSA-1 Vessel',    type:'High Side Accumulator', score:74, color:'var(--green)', questions:5, lastInsp:'Mar 25', status:'not-started' },
-      { id:'dump', name:'Dump Tank-2',     type:'Dump Tank',             score:65, color:'var(--yellow)', questions:5, lastInsp:'Mar 25', status:'not-started' },
-    ]
-  },
-  {
-    id:'safety',
-    name:'Safety Systems',
-    icon:'⚠',
-    assets:[
-      { id:'ammdet', name:'Ammonia Detection', type:'Sensidyne System', score:null, color:'var(--mid)',    questions:4, lastInsp:'Mar 25', status:'not-started' },
-      { id:'emvent', name:'Emergency Ventilation', type:'Machine Room', score:null, color:'var(--mid)',   questions:4, lastInsp:'Mar 25', status:'not-started' },
-      { id:'eyewash', name:'Emergency Eyewash / Shower', type:'Safety Station', score:null, color:'var(--mid)', questions:3, lastInsp:'Mar 25', status:'not-started' },
-    ]
+let ZONES       = [];
+let assetStatus = {};
+
+// ── LOAD REAL DATA FROM AIRTABLE ──
+async function loadData() {
+  document.getElementById('lobby-main').innerHTML = `
+    <div style="text-align:center;padding:60px 20px">
+      <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--red);text-transform:uppercase;animation:badgePulse 1.5s ease infinite">Loading Assets</div>
+    </div>`;
+
+  try {
+    const res = await fetch('/api/data');
+    const D   = await res.json();
+
+    // Find the site record
+    const siteRecord = (D.sites?.records || []).find(s =>
+      (s.fields['Site Name'] || s.fields['Name']) === SITE_NAME
+    );
+    if (!siteRecord) {
+      document.getElementById('lobby-main').innerHTML =
+        `<div style="padding:40px;text-align:center;color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px">Site not found</div>`;
+      return;
+    }
+
+    const siteId   = siteRecord.id;
+    const siteName = siteRecord.fields['Site Name'] || siteRecord.fields['Name'] || '';
+
+    // Get systems for this site
+    const siteSystems = (D.systems?.records || []).filter(s => {
+      const linked = s.fields['Site'] || s.fields['Sites'] || [];
+      if (Array.isArray(linked)) return linked.includes(siteId) || linked.includes(siteName);
+      return linked === siteId || linked === siteName;
+    });
+    const sysIds = siteSystems.map(s => s.id);
+
+    // Get assets linked to those systems
+    const siteAssets = (D.assets?.records || []).filter(a => {
+      const linked = a.fields['System'] || a.fields['Systems'] || [];
+      if (Array.isArray(linked)) return linked.some(id => sysIds.includes(id));
+      return sysIds.includes(linked);
+    });
+
+    // Open findings count
+    const openFindings = (D.findings?.records || []).filter(fd => {
+      const linked = fd.fields['Site'] || fd.fields['Sites'] || [];
+      const status = (fd.fields['Status'] || '').toUpperCase();
+      const inSite = Array.isArray(linked) ? linked.includes(siteId) : linked === siteId || linked === siteName;
+      return inSite && status !== 'RESOLVED';
+    });
+
+    const plantScore = parseFloat(siteRecord.fields['Plant Health Score']) || null;
+
+    // Helper: score color
+    function scoreColor(s) {
+      if (s === null || s === undefined || isNaN(s)) return 'var(--dim)';
+      if (s >= 70) return 'var(--green)';
+      if (s >= 55) return 'var(--yellow)';
+      return 'var(--red)';
+    }
+
+    // Helper: format asset for zone
+    function formatAsset(a) {
+      const f         = a.fields;
+      const score     = f['Asset Health Score'] != null ? parseFloat(f['Asset Health Score']) : null;
+      const lastDate  = f[LAST_INSP_FIELD];
+      const lastInsp  = lastDate
+        ? new Date(lastDate).toLocaleDateString('en-US', {month:'short', day:'numeric'})
+        : 'Never';
+      return {
+        id:       a.id,
+        name:     f['Asset Name'] || f['Name'] || 'Asset',
+        type:     f['Compressor Type'] || 'Asset',
+        score:    isNaN(score) ? null : score,
+        color:    scoreColor(score),
+        lastInsp,
+        questions: '—'
+      };
+    }
+
+    // Build ZONES from systems that have assets
+    ZONES = siteSystems.map(sys => {
+      const systemAssets = siteAssets.filter(a => {
+        const al = a.fields['System'] || a.fields['Systems'] || [];
+        return Array.isArray(al) ? al.includes(sys.id) : al === sys.id;
+      });
+      return {
+        id:     sys.id,
+        name:   sys.fields['System Name'] || 'System',
+        icon:   '⚙',
+        assets: systemAssets.map(formatAsset)
+      };
+    }).filter(z => z.assets.length > 0);
+
+    // Fallback: if no systems resolved, group all assets under one zone
+    if (ZONES.length === 0 && siteAssets.length > 0) {
+      ZONES = [{ id:'all', name:'All Assets', icon:'⚙', assets: siteAssets.map(formatAsset) }];
+    }
+
+    // Init status
+    assetStatus = {};
+    ZONES.forEach(z => z.assets.forEach(a => { assetStatus[a.id] = 'not-started'; }));
+
+    // Intel strip
+    const totalAssets = ZONES.reduce((s,z) => s + z.assets.length, 0);
+    document.getElementById('intel-assets').textContent    = totalAssets;
+    document.getElementById('intel-questions').textContent = '—';
+    document.getElementById('intel-score').textContent     = plantScore ? Math.round(plantScore) : '—';
+    document.getElementById('intel-findings').textContent  = openFindings.length;
+    document.getElementById('total-count').textContent     = totalAssets;
+
+    init();
+
+  } catch (err) {
+    console.error('Lobby load error:', err);
+    document.getElementById('lobby-main').innerHTML = `
+      <div style="text-align:center;padding:60px 20px">
+        <div style="color:var(--red);font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;margin-bottom:16px">Failed to load assets</div>
+        <button onclick="loadData()" style="background:var(--red);border:none;color:#fff;font-family:'Share Tech Mono',monospace;font-size:11px;letter-spacing:2px;padding:12px 24px;cursor:pointer;text-transform:uppercase">Retry</button>
+      </div>`;
   }
-];
+}
 
-// ── STATE ──
-let assetStatus = {}; // id -> 'not-started' | 'in-progress' | 'complete'
-ZONES.forEach(z => z.assets.forEach(a => { assetStatus[a.id] = 'not-started'; }));
-
-// ── INIT ──
+// ── INIT (runs after data loaded) ──
 function init() {
-  // Header
-  document.getElementById('lobby-site-name').textContent = SITE_NAME;
-  document.getElementById('lobby-insp-type').textContent = INSP_TYPE + ' Inspection';
+  document.getElementById('lobby-site-name').textContent  = SITE_NAME;
+  document.getElementById('lobby-insp-type').textContent  = INSP_TYPE + ' Inspection';
   document.getElementById('lobby-date').textContent = new Date().toLocaleDateString('en-US',{weekday:'long',month:'long',day:'numeric'});
 
-  // Intel strip
   const totalAssets = ZONES.reduce((s,z) => s + z.assets.length, 0);
-  const totalQuestions = ZONES.reduce((s,z) => z.assets.reduce((ss,a) => ss + a.questions, 0) + s, 0);
-  document.getElementById('intel-assets').textContent = totalAssets;
-  document.getElementById('intel-questions').textContent = totalQuestions;
-  document.getElementById('intel-score').textContent = '72';
-  document.getElementById('intel-findings').textContent = '3';
-  document.getElementById('intel-last').textContent = 'Apr 1, 2026';
-  document.getElementById('intel-last-who').textContent = 'John Doe';
   document.getElementById('lobby-est-time').querySelector('span').textContent =
     'Est. ' + Math.round(totalAssets * 4) + ' min';
-  document.getElementById('total-count').textContent = totalAssets;
 
-  // Inspectors
   renderInspectors();
-
-  // Zones
   renderZones();
-
-  // Progress
   updateProgress();
 }
 
 function renderInspectors() {
-  const list = document.getElementById('operators-list');
-  list.innerHTML = LAST_INSPECTORS.map(op => `
-    <div class="operator-tag">
-      <div class="operator-avatar">${op.initials}</div>
-      <div class="operator-info">
-        <div class="operator-name">${op.name}</div>
-        <div class="operator-date">${op.date}</div>
-      </div>
-      <div class="operator-type ${op.type}">${op.type}</div>
-    </div>
-  `).join('');
+  document.getElementById('operators-list').innerHTML =
+    `<div style="font-family:'Share Tech Mono',monospace;font-size:9px;color:var(--dim);letter-spacing:2px">No recent inspections on record</div>`;
 }
 
 function renderZones() {
   const main = document.getElementById('lobby-main');
   main.innerHTML = ZONES.map((zone, zi) => {
     const total = zone.assets.length;
-    const done = zone.assets.filter(a => assetStatus[a.id] === 'complete').length;
-    const pct = total > 0 ? (done/total*100) : 0;
-
+    const done  = zone.assets.filter(a => assetStatus[a.id] === 'complete').length;
+    const pct   = total > 0 ? (done/total*100) : 0;
     return `
     <div class="zone" id="zone-${zone.id}">
       <div class="zone-header">
@@ -721,14 +764,14 @@ function renderZones() {
 }
 
 function renderAssetCard(asset) {
-  const status = assetStatus[asset.id];
-  const scoreDisplay = asset.score !== null ? asset.score : '—';
-  const scoreColor = asset.score !== null ? asset.color : 'var(--dim)';
+  const status       = assetStatus[asset.id];
+  const scoreDisplay = asset.score !== null ? Math.round(asset.score) : '—';
+  const scoreColor   = asset.color;
 
-  let btnClass = status === 'complete' ? 'complete' : status === 'in-progress' ? 'in-progress' : 'not-started';
-  let btnText = status === 'complete' ? '✓ Complete' : status === 'in-progress' ? '▶ Resume' : '▶ Start';
-  let chipClass = status === 'complete' ? 'chip-done' : status === 'in-progress' ? 'chip-ip' : 'chip-ns';
-  let chipText = status === 'complete' ? 'Done' : status === 'in-progress' ? 'In Progress' : 'Not Started';
+  const btnClass = status === 'complete' ? 'complete' : status === 'in-progress' ? 'in-progress' : 'not-started';
+  const btnText  = status === 'complete' ? '✓ Complete' : status === 'in-progress' ? '▶ Resume' : '▶ Start';
+  const chipClass = status === 'complete' ? 'chip-done' : status === 'in-progress' ? 'chip-ip' : 'chip-ns';
+  const chipText  = status === 'complete' ? 'Done' : status === 'in-progress' ? 'In Progress' : 'Not Started';
 
   return `
   <div class="asset-card ${status}" id="card-${asset.id}" onclick="startAsset('${asset.id}')">
@@ -756,34 +799,33 @@ function renderAssetCard(asset) {
 }
 
 function startAsset(assetId) {
-  // Mark as in-progress if not started
   if (assetStatus[assetId] === 'not-started') {
     assetStatus[assetId] = 'in-progress';
+    renderZones();
   }
-  // Navigate to inspection page with asset context
-  window.location.href = `/inspection?site=${encodeURIComponent(SITE_NAME)}&asset=${assetId}&type=${INSP_TYPE}&from=lobby`;
+  window.location.href = `/inspection?site=${encodeURIComponent(SITE_NAME)}&asset=${assetId}&type=${encodeURIComponent(INSP_TYPE)}&from=lobby`;
 }
 
 function updateProgress() {
   const allAssets = ZONES.flatMap(z => z.assets);
-  const total = allAssets.length;
-  const done = allAssets.filter(a => assetStatus[a.id] === 'complete').length;
-  const pct = total > 0 ? Math.round(done/total*100) : 0;
+  const total     = allAssets.length;
+  const done      = allAssets.filter(a => assetStatus[a.id] === 'complete').length;
+  const pct       = total > 0 ? Math.round(done/total*100) : 0;
 
   document.getElementById('completed-count').textContent = done;
-  document.getElementById('master-fill').style.width = pct + '%';
+  document.getElementById('master-fill').style.width     = pct + '%';
 
-  // Update next up
-  const next = allAssets.find(a => assetStatus[a.id] !== 'complete');
-  const inProg = allAssets.find(a => assetStatus[a.id] === 'in-progress');
+  const inProg    = allAssets.find(a => assetStatus[a.id] === 'in-progress');
+  const next      = allAssets.find(a => assetStatus[a.id] === 'not-started');
   const nextAsset = inProg || next;
 
   if (nextAsset) {
-    document.getElementById('next-up-asset').textContent = nextAsset.name + ' — ' + nextAsset.type;
-    document.getElementById('next-up-btn').textContent = inProg ? 'Resume Inspection →' : 'Begin Inspection →';
+    document.getElementById('next-up-asset').textContent  = nextAsset.name + ' — ' + nextAsset.type;
+    document.getElementById('next-up-btn').textContent    = inProg ? 'Resume Inspection →' : 'Begin Inspection →';
     document.getElementById('next-up-btn').classList.remove('all-done');
+    document.getElementById('next-up-btn').onclick        = goToNextAsset;
   } else {
-    document.getElementById('next-up-asset').textContent = 'All assets inspected for this visit';
+    document.getElementById('next-up-asset').textContent  = 'All assets inspected for this visit';
     const btn = document.getElementById('next-up-btn');
     btn.textContent = 'Submit Inspection';
     btn.classList.add('all-done');
@@ -793,17 +835,17 @@ function updateProgress() {
 
 function goToNextAsset() {
   const allAssets = ZONES.flatMap(z => z.assets);
-  const inProg = allAssets.find(a => assetStatus[a.id] === 'in-progress');
-  const next = allAssets.find(a => assetStatus[a.id] === 'not-started');
-  const target = inProg || next;
+  const inProg    = allAssets.find(a => assetStatus[a.id] === 'in-progress');
+  const next      = allAssets.find(a => assetStatus[a.id] === 'not-started');
+  const target    = inProg || next;
   if (target) startAsset(target.id);
 }
 
-// Set date
 document.getElementById('complete-sub-text').textContent =
   SITE_NAME + ' — ' + new Date().toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'});
 
-init();
+// ── BOOT ──
+loadData();
 </script>
 </body>
 </html>
