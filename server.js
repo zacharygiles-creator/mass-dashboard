@@ -358,11 +358,28 @@ app.get('/api/rubric', requireAuth, async (req, res) => {
       offset = qData.offset || null;
     } while (offset);
 
-    // Filter by asset class name (case-insensitive) and frequency tier
+    // Look up the Asset Class record ID so we can match against questions
+    // Questions store Asset Class as a linked record (array of record IDs)
+    const allClassesRes  = await fetch(`https://api.airtable.com/v0/${baseId}/Asset%20Classes`, { headers });
+    const allClassesData = await allClassesRes.json();
+    const matchedClass   = (allClassesData.records || []).find(c =>
+      (c.fields['Asset Class Name'] || '').toUpperCase().trim() === assetClassName.toUpperCase().trim()
+    );
+
+    if (!matchedClass) {
+      return res.status(400).json({ error: 'Asset Class record not found in Asset Classes table: ' + assetClassName });
+    }
+
+    const assetClassRecordId = matchedClass.id;
+
+    // Filter questions by Asset Class record ID and frequency tier
     const filtered = allQuestions.filter(q => {
-      const qClass = (q.fields['Asset Class'] || '').toString().toUpperCase().trim();
-      const qTier  = q.fields['Frequency Tier'];
-      return tiers.includes(qTier) && qClass === assetClassName.toUpperCase().trim();
+      const qClassIds = q.fields['Asset Class'] || [];
+      const qTier     = q.fields['Frequency Tier'];
+      const classMatch = Array.isArray(qClassIds)
+        ? qClassIds.includes(assetClassRecordId)
+        : String(qClassIds).toUpperCase().trim() === assetClassName.toUpperCase().trim();
+      return tiers.includes(qTier) && classMatch;
     });
 
     // Sort by tier then question ID
