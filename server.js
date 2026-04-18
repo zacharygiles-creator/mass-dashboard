@@ -443,7 +443,12 @@ app.get('/api/rubric', requireAuth, async (req, res) => {
 });
 
 // ── INSPECTION SUBMIT API ────────────────────────────────
+// PATCHED VERSION — logs everything from Airtable so we can see what's failing.
+// Replace your existing `app.post('/api/inspection/submit', ...)` block in server.js
+// with this entire block. Do NOT add it alongside the old one — replace it.
 app.post('/api/inspection/submit', requireAuth, async (req, res) => {
+  const log = (label, data) => console.log(`[SUBMIT] ${label}:`, typeof data === 'string' ? data : JSON.stringify(data, null, 2));
+
   try {
     const fetch  = (await import('node-fetch')).default;
     const baseId = process.env.AIRTABLE_BASE_ID;
@@ -453,7 +458,14 @@ app.post('/api/inspection/submit', requireAuth, async (req, res) => {
     const { assetId, siteName, inspType, healthScore, responses, openObservation, urgency } = req.body;
     const now = new Date().toISOString();
 
-    // Create Assessment record
+    log('INCOMING PAYLOAD', {
+      assetId, siteName, inspType, healthScore,
+      responseCount: (responses || []).length,
+      firstResponse: (responses || [])[0] || null,
+      openObservation, urgency
+    });
+
+    // ── STEP 1: Create Assessment record ────────────────────────
     const assessBody = {
       fields: {
         'Assessment Date':     now.split('T')[0],
@@ -464,22 +476,27 @@ app.post('/api/inspection/submit', requireAuth, async (req, res) => {
         'Notes':               openObservation || ''
       }
     };
+    log('STEP 1 REQUEST — Assessment body', assessBody);
 
     const assessRes = await fetch(`https://api.airtable.com/v0/${baseId}/Assessments`, {
-      method: 'POST',
-      headers,
-      body: JSON.stringify(assessBody)
+      method: 'POST', headers, body: JSON.stringify(assessBody)
     });
-    const assessment   = await assessRes.json();
+    const assessment = await assessRes.json();
+    log('STEP 1 RESPONSE — Assessment result', { status: assessRes.status, body: assessment });
+
     const assessmentId = assessment.id;
     if (!assessmentId) {
-      console.error('Assessment creation failed:', JSON.stringify(assessment));
-      return res.status(500).json({ error: 'Failed to create assessment', detail: assessment.error || assessment });
+      return res.status(500).json({
+        error: 'Failed to create assessment',
+        step: 'STEP 1',
+        status: assessRes.status,
+        detail: assessment.error || assessment
+      });
     }
 
-    // Create Inspection Response records in batches of 10
+    // ── STEP 2: Create Inspection Response records ──────────────
     const responseRecords = (responses || [])
-      .filter(r => r.answerIndex !== null)
+      .filter(r => r.answerIndex !== null && r.answerIndex !== undefined)
       .map(r => ({
         fields: {
           'Assessment':               [assessmentId],
@@ -492,17 +509,39 @@ app.post('/api/inspection/submit', requireAuth, async (req, res) => {
         }
       }));
 
-    const batches = [];
-    for (let i = 0; i < responseRecords.length; i += 10) {
-      batches.push(responseRecords.slice(i, i + 10));
+    log('STEP 2 — Total response records to write', responseRecords.length);
+    if (responseRecords.length > 0) {
+      log('STEP 2 — First record sample', responseRecords[0]);
     }
-    await Promise.all(batches.map(batch =>
-      fetch(`https://api.airtable.com/v0/${baseId}/Inspection%20Responses`, {
-        method: 'POST', headers, body: JSON.stringify({ records: batch })
-      })
-    ));
 
-    // Update asset last inspection date
+    const batchErrors = [];
+    for (let i = 0; i < responseRecords.length; i += 10) {
+      const batch = responseRecords.slice(i, i + 10);
+      const batchNum = Math.floor(i / 10) + 1;
+      log(`STEP 2 REQUEST — Batch ${batchNum} (${batch.length} records)`, 'sending...');
+
+      const batchRes = await fetch(`https://api.airtable.com/v0/${baseId}/Inspection%20Responses`, {
+        method: 'POST', headers, body: JSON.stringify({ records: batch })
+      });
+      const batchBody = await batchRes.json();
+      log(`STEP 2 RESPONSE — Batch ${batchNum}`, { status: batchRes.status, body: batchBody });
+
+      if (!batchRes.ok || batchBody.error) {
+        batchErrors.push({ batch: batchNum, status: batchRes.status, error: batchBody.error || batchBody });
+      }
+    }
+
+    if (batchErrors.length > 0) {
+      log('STEP 2 FAILED — batch errors', batchErrors);
+      return res.status(500).json({
+        error: 'Failed to write inspection responses',
+        step: 'STEP 2',
+        assessmentId,
+        batchErrors
+      });
+    }
+
+    // ── STEP 3: Update asset last inspection date ───────────────
     const dateFieldMap = {
       'Weekly':      'Last Weekly Inspection',
       'Monthly':     'Last Monthly Inspection',
@@ -511,16 +550,26 @@ app.post('/api/inspection/submit', requireAuth, async (req, res) => {
       'Annual':      'Last Annual Inspection'
     };
     const dateField = dateFieldMap[inspType] || 'Last Weekly Inspection';
-    await fetch(`https://api.airtable.com/v0/${baseId}/Assets/${assetId}`, {
+    log('STEP 3 REQUEST — updating asset', { assetId, dateField, date: now.split('T')[0] });
+
+    const patchRes = await fetch(`https://api.airtable.com/v0/${baseId}/Assets/${assetId}`, {
       method: 'PATCH', headers,
       body: JSON.stringify({ fields: { [dateField]: now.split('T')[0] } })
     });
+    const patchBody = await patchRes.json();
+    log('STEP 3 RESPONSE — Asset patch result', { status: patchRes.status, body: patchBody });
 
-    res.json({ success: true, assessmentId });
+    if (!patchRes.ok) {
+      log('STEP 3 WARNING — asset date update failed (non-fatal)', patchBody);
+      // Don't fail the whole submission for this — the inspection data is already saved
+    }
+
+    log('SUBMIT — all steps complete', { assessmentId, responseCount: responseRecords.length });
+    res.json({ success: true, assessmentId, responseCount: responseRecords.length });
 
   } catch (err) {
-    console.error('Inspection submit error:', err);
-    res.status(500).json({ error: 'Failed to submit inspection' });
+    console.error('[SUBMIT] UNCAUGHT ERROR:', err);
+    res.status(500).json({ error: 'Failed to submit inspection', detail: err.message });
   }
 });
 
