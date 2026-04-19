@@ -495,7 +495,7 @@ app.post('/api/inspection/submit', requireAuth, async (req, res) => {
           'Response Condition Label': upper(r.answerLabel || ''),   // single-select → UPPERCASED
           'Score Contribution':       r.answerScore || 0,
           'Score Tag':                upper(r.scoreTag || 'H'),      // single-select → UPPERCASED
-          'Submitted At':             now
+          'Submitted At':             now.split('T')[0]              // date-only (no time) — matches Airtable field type
         }
       }));
 
