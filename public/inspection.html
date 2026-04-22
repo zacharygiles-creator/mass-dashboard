@@ -411,6 +411,8 @@ body::before {
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin-bottom: 8px;
+  width: 100%;
+  box-sizing: border-box;
 }
 .reading-field {
   display: flex;
@@ -433,6 +435,7 @@ body::before {
   padding: 10px 12px;
   outline: none;
   width: 100%;
+  box-sizing: border-box;
   transition: border-color 0.2s;
 }
 .reading-input:focus {
@@ -570,8 +573,8 @@ select.reading-input option {
   <!-- LOADING SCREEN -->
 
   <!-- READINGS SCREEN -->
-  <div id="readings-screen" style="display:none;padding:0 0 100px 0;margin-top:-120px">
-    <div class="question-card" style="margin-bottom:0">
+  <div id="readings-screen" style="display:none;padding:0 0 100px 0">
+    <div class="question-card" style="margin-bottom:0;padding:20px 16px;box-sizing:border-box;width:100%">
       <div class="question-group">Compressor Readings</div>
       <div class="question-text" style="margin-bottom:20px">Log current readings for this compressor. Tap Skip if readings are auto-populated or not required this visit.</div>
 
@@ -775,6 +778,7 @@ function showReadingsScreen() {
   document.getElementById('question-flow').style.display   = 'none';
   document.getElementById('readings-screen').style.display = 'block';
   document.getElementById('nav-bar').style.display         = 'none';
+  document.querySelector('.insp-main').style.paddingTop    = '80px';
 
   // Show screw or recip specific fields
   if (isScrew(ASSET_CLASS)) {
@@ -790,6 +794,7 @@ function showReadingsScreen() {
 function skipReadings() {
   document.getElementById('readings-screen').style.display = 'none';
   document.getElementById('nav-bar').style.display         = 'flex';
+  document.querySelector('.insp-main').style.paddingTop    = '200px';
   showLoading(false);
 }
 
@@ -868,6 +873,7 @@ async function submitReadingsAndContinue() {
   // Proceed to questions
   document.getElementById('readings-screen').style.display = 'none';
   document.getElementById('nav-bar').style.display         = 'flex';
+  document.querySelector('.insp-main').style.paddingTop    = '200px';
   showLoading(false);
 }
 
