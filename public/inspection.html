@@ -411,8 +411,6 @@ body::before {
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin-bottom: 8px;
-  width: 100%;
-  box-sizing: border-box;
 }
 .reading-field {
   display: flex;
@@ -435,7 +433,6 @@ body::before {
   padding: 10px 12px;
   outline: none;
   width: 100%;
-  box-sizing: border-box;
   transition: border-color 0.2s;
 }
 .reading-input:focus {
@@ -573,10 +570,20 @@ select.reading-input option {
   <!-- LOADING SCREEN -->
 
   <!-- READINGS SCREEN -->
-  <div id="readings-screen" style="display:none;padding:0 0 100px 0">
-    <div class="question-card" style="margin-bottom:0;padding:20px 16px;box-sizing:border-box;width:100%">
-      <div class="question-group">Compressor Readings</div>
-      <div class="question-text" style="margin-bottom:20px">Log current readings for this compressor. Tap Skip if readings are auto-populated or not required this visit.</div>
+
+
+  <div id="loading-screen" style="display:block;padding:80px 24px;text-align:center">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--red);text-transform:uppercase;margin-bottom:16px;animation:badgePulse 1.5s ease infinite">Loading Inspection</div>
+    <div style="font-family:'Orbitron',monospace;font-size:11px;color:var(--dim);letter-spacing:2px">Fetching questions from MASSCORE...</div>
+  </div>
+
+</div>
+
+<!-- READINGS SCREEN (outside insp-main, full page overlay) -->
+<div id="readings-screen" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#080808;z-index:50;overflow-y:auto;padding:80px 16px 120px 16px;box-sizing:border-box">
+  <div style="max-width:600px;margin:0 auto">
+    <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:3px;color:var(--red);text-transform:uppercase;margin-bottom:4px">Compressor Readings</div>
+    <div style="font-family:'Rajdhani',sans-serif;font-size:15px;color:var(--mid);margin-bottom:24px;line-height:1.4">Log current readings for this compressor. Tap Skip if readings are auto-populated or not required this visit.</div>
 
       <!-- COMMON FIELDS -->
       <div class="readings-grid">
@@ -713,14 +720,14 @@ select.reading-input option {
     <div style="padding:16px 16px 0 16px;display:flex;flex-direction:column;gap:12px">
       <button id="readings-continue-btn" onclick="submitReadingsAndContinue()" style="width:100%;background:var(--red);border:none;color:#fff;font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:3px;padding:16px;cursor:pointer;text-transform:uppercase">Log Readings & Continue</button>
       <button onclick="skipReadings()" style="width:100%;background:transparent;border:1px solid #333;color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;padding:14px;cursor:pointer;text-transform:uppercase">Skip — Auto Populated or Not Required</button>
-    </div>
+
   </div>
 
-  <div id="loading-screen" style="display:block;padding:80px 24px;text-align:center">
-    <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--red);text-transform:uppercase;margin-bottom:16px;animation:badgePulse 1.5s ease infinite">Loading Inspection</div>
-    <div style="font-family:'Orbitron',monospace;font-size:11px;color:var(--dim);letter-spacing:2px">Fetching questions from MASSCORE...</div>
+  <!-- READINGS ACTIONS -->
+  <div style="position:fixed;bottom:0;left:0;right:0;padding:16px;background:#0a0a0a;border-top:1px solid #1a1a1a;display:flex;flex-direction:column;gap:10px;z-index:51">
+    <button id="readings-continue-btn" onclick="submitReadingsAndContinue()" style="width:100%;background:var(--red);border:none;color:#fff;font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:3px;padding:16px;cursor:pointer;text-transform:uppercase">Log Readings & Continue</button>
+    <button onclick="skipReadings()" style="width:100%;background:transparent;border:1px solid #333;color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;padding:12px;cursor:pointer;text-transform:uppercase">Skip — Auto Populated or Not Required</button>
   </div>
-
 </div>
 
 <!-- NAV BAR -->
@@ -778,7 +785,6 @@ function showReadingsScreen() {
   document.getElementById('question-flow').style.display   = 'none';
   document.getElementById('readings-screen').style.display = 'block';
   document.getElementById('nav-bar').style.display         = 'none';
-  document.querySelector('.insp-main').style.paddingTop    = '80px';
 
   // Show screw or recip specific fields
   if (isScrew(ASSET_CLASS)) {
@@ -794,7 +800,6 @@ function showReadingsScreen() {
 function skipReadings() {
   document.getElementById('readings-screen').style.display = 'none';
   document.getElementById('nav-bar').style.display         = 'flex';
-  document.querySelector('.insp-main').style.paddingTop    = '200px';
   showLoading(false);
 }
 
@@ -873,7 +878,6 @@ async function submitReadingsAndContinue() {
   // Proceed to questions
   document.getElementById('readings-screen').style.display = 'none';
   document.getElementById('nav-bar').style.display         = 'flex';
-  document.querySelector('.insp-main').style.paddingTop    = '200px';
   showLoading(false);
 }
 
