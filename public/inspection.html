@@ -569,12 +569,11 @@ select.reading-input option {
 
   <!-- LOADING SCREEN -->
 
-  <!-- READINGS SCREEN -->
+  <!-- READINGS SCREEN — fixed overlay -->
   <div id="readings-screen" style="display:none;position:fixed;top:0;left:0;right:0;bottom:0;background:#080808;z-index:50;overflow-y:auto;padding:160px 16px 140px 16px;box-sizing:border-box">
     <div style="max-width:700px;margin:0 auto">
       <div class="question-group">Compressor Readings</div>
       <div class="question-text" style="margin-bottom:20px">Log current readings for this compressor. Tap Skip if readings are auto-populated or not required this visit.</div>
-
       <!-- COMMON FIELDS -->
       <div class="readings-grid">
         <div class="reading-field">
@@ -706,10 +705,9 @@ select.reading-input option {
 
     </div>
 
-    </div>
 
-    <!-- READINGS ACTIONS — fixed to bottom -->
-    <div style="position:fixed;bottom:0;left:0;right:0;padding:12px 16px;background:#0a0a0a;border-top:1px solid #1a1a1a;display:flex;flex-direction:column;gap:8px;z-index:51;box-sizing:border-box">
+    </div>
+    <div id="readings-actions" style="position:fixed;bottom:0;left:0;right:0;padding:12px 16px;background:#0a0a0a;border-top:1px solid #1a1a1a;display:flex;flex-direction:column;gap:8px;z-index:51;box-sizing:border-box">
       <button id="readings-continue-btn" onclick="submitReadingsAndContinue()" style="width:100%;background:var(--red);border:none;color:#fff;font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:3px;padding:16px;cursor:pointer;text-transform:uppercase">Log Readings & Continue</button>
       <button onclick="skipReadings()" style="width:100%;background:transparent;border:1px solid #333;color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;padding:12px;cursor:pointer;text-transform:uppercase">Skip — Auto Populated or Not Required</button>
     </div>
@@ -790,8 +788,9 @@ function showReadingsScreen() {
 
 // ── SKIP READINGS ──
 function skipReadings() {
-  document.getElementById('readings-screen').style.display = 'none';
-  document.getElementById('nav-bar').style.display         = 'flex';
+  document.getElementById('readings-screen').style.display  = 'none';
+  document.getElementById('readings-actions').style.display = 'none';
+  document.getElementById('nav-bar').style.display          = 'flex';
   showLoading(false);
 }
 
@@ -864,12 +863,13 @@ async function submitReadingsAndContinue() {
     }
   } catch (err) {
     console.error('Readings submit error:', err);
-    // Non-fatal — continue to inspection regardless
+    alert('Readings save error: ' + err.message + ' — continuing to inspection');
   }
 
   // Proceed to questions
-  document.getElementById('readings-screen').style.display = 'none';
-  document.getElementById('nav-bar').style.display         = 'flex';
+  document.getElementById('readings-screen').style.display  = 'none';
+  document.getElementById('readings-actions').style.display = 'none';
+  document.getElementById('nav-bar').style.display          = 'flex';
   showLoading(false);
 }
 
