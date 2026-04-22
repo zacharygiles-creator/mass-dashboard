@@ -404,6 +404,54 @@ body::before {
   font-size:10px; letter-spacing:1px; color:var(--red);
   text-transform:uppercase; line-height:1.5;
 }
+
+/* ── READINGS SCREEN ── */
+.readings-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+.reading-field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.reading-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 2px;
+  color: var(--dim);
+  text-transform: uppercase;
+}
+.reading-input {
+  background: #141414;
+  border: 1px solid #2a2a2a;
+  color: #fff;
+  font-family: 'Rajdhani', sans-serif;
+  font-size: 16px;
+  padding: 10px 12px;
+  outline: none;
+  width: 100%;
+  transition: border-color 0.2s;
+}
+.reading-input:focus {
+  border-color: var(--red);
+}
+select.reading-input option {
+  background: #141414;
+}
+.readings-section-label {
+  font-family: 'Share Tech Mono', monospace;
+  font-size: 8px;
+  letter-spacing: 3px;
+  color: var(--red);
+  text-transform: uppercase;
+  margin: 20px 0 12px 0;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #2a2a2a;
+}
+
 </style>
 </head>
 <body>
@@ -520,6 +568,151 @@ body::before {
 
 
   <!-- LOADING SCREEN -->
+
+  <!-- READINGS SCREEN -->
+  <div id="readings-screen" style="display:none;padding:0 0 100px 0">
+    <div class="question-card" style="margin-bottom:0">
+      <div class="question-group">Compressor Readings</div>
+      <div class="question-text" style="margin-bottom:20px">Log current readings for this compressor. Tap Skip if readings are auto-populated or not required this visit.</div>
+
+      <!-- COMMON FIELDS -->
+      <div class="readings-grid">
+        <div class="reading-field">
+          <label class="reading-label">Machine Status</label>
+          <select class="reading-input" id="r-machine-status">
+            <option value="">Select</option>
+            <option>RUNNING</option>
+            <option>STANDBY</option>
+            <option>OFF</option>
+            <option>ALARM</option>
+          </select>
+        </div>
+        <div class="reading-field">
+          <label class="reading-label">Oil Pressure (PSIG)</label>
+          <input type="number" class="reading-input" id="r-oil-pressure" placeholder="e.g. 65">
+        </div>
+        <div class="reading-field">
+          <label class="reading-label">Suction Reading</label>
+          <input type="number" class="reading-input" id="r-suction-reading" placeholder="e.g. 20">
+        </div>
+        <div class="reading-field">
+          <label class="reading-label">Suction Units</label>
+          <select class="reading-input" id="r-suction-units">
+            <option value="">Select</option>
+            <option>PSIG</option>
+            <option>IN HG</option>
+          </select>
+        </div>
+        <div class="reading-field">
+          <label class="reading-label">Discharge Pressure (PSIG)</label>
+          <input type="number" class="reading-input" id="r-discharge-pressure" placeholder="e.g. 180">
+        </div>
+        <div class="reading-field">
+          <label class="reading-label">Discharge Temp (F)</label>
+          <input type="number" class="reading-input" id="r-discharge-temp" placeholder="e.g. 165">
+        </div>
+        <div class="reading-field">
+          <label class="reading-label">Suction Temperature (F)</label>
+          <input type="number" class="reading-input" id="r-suction-temp" placeholder="e.g. -20">
+        </div>
+        <div class="reading-field">
+          <label class="reading-label">Oil Temperature (F)</label>
+          <input type="number" class="reading-input" id="r-oil-temp" placeholder="e.g. 120">
+        </div>
+        <div class="reading-field">
+          <label class="reading-label">Motor Amps (Running)</label>
+          <input type="number" class="reading-input" id="r-motor-amps" placeholder="e.g. 85">
+        </div>
+        <div class="reading-field">
+          <label class="reading-label">Oil Filter ΔP (PSID)</label>
+          <input type="number" class="reading-input" id="r-oil-filter-dp" placeholder="e.g. 8">
+        </div>
+        <div class="reading-field">
+          <label class="reading-label">Oil Filter Pressure</label>
+          <input type="number" class="reading-input" id="r-oil-filter-pressure" placeholder="e.g. 60">
+        </div>
+        <div class="reading-field">
+          <label class="reading-label">Net Oil Pressure</label>
+          <input type="number" class="reading-input" id="r-net-oil-pressure" placeholder="e.g. 57">
+        </div>
+        <div class="reading-field">
+          <label class="reading-label">Runtime Hours</label>
+          <input type="number" class="reading-input" id="r-runtime-hours" placeholder="e.g. 14250">
+        </div>
+        <div class="reading-field">
+          <label class="reading-label">Start Count</label>
+          <input type="number" class="reading-input" id="r-start-count" placeholder="e.g. 342">
+        </div>
+        <div class="reading-field">
+          <label class="reading-label">kW Demand</label>
+          <input type="number" class="reading-input" id="r-kw-demand" placeholder="e.g. 45">
+        </div>
+        <div class="reading-field">
+          <label class="reading-label">Control Method</label>
+          <select class="reading-input" id="r-control-method">
+            <option value="">Select</option>
+            <option>AUTO</option>
+            <option>MANUAL</option>
+            <option>REMOTE</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- SCREW ONLY FIELDS -->
+      <div id="screw-fields" style="display:none">
+        <div class="readings-section-label">Screw Compressor</div>
+        <div class="readings-grid">
+          <div class="reading-field">
+            <label class="reading-label">Vi</label>
+            <input type="number" step="0.1" class="reading-input" id="r-vi" placeholder="e.g. 2.4">
+          </div>
+          <div class="reading-field">
+            <label class="reading-label">Oil Separator Temperature (F)</label>
+            <input type="number" class="reading-input" id="r-oil-sep-temp" placeholder="e.g. 140">
+          </div>
+          <div class="reading-field">
+            <label class="reading-label">Oil Differential</label>
+            <input type="number" class="reading-input" id="r-oil-differential" placeholder="e.g. 12">
+          </div>
+          <div class="reading-field">
+            <label class="reading-label">Balance Piston Pressure</label>
+            <input type="number" class="reading-input" id="r-balance-piston" placeholder="e.g. 95">
+          </div>
+          <div class="reading-field">
+            <label class="reading-label">Slide Valve %</label>
+            <input type="number" class="reading-input" id="r-slide-valve" placeholder="e.g. 75">
+          </div>
+        </div>
+      </div>
+
+      <!-- RECIP ONLY FIELDS -->
+      <div id="recip-fields" style="display:none">
+        <div class="readings-section-label">Reciprocating Compressor</div>
+        <div class="readings-grid">
+          <div class="reading-field">
+            <label class="reading-label">Crankcase Pressure (PSIG)</label>
+            <input type="number" class="reading-input" id="r-crankcase" placeholder="e.g. 5">
+          </div>
+          <div class="reading-field">
+            <label class="reading-label">Unloader Stage %</label>
+            <input type="number" class="reading-input" id="r-unloader-stage" placeholder="e.g. 50">
+          </div>
+          <div class="reading-field">
+            <label class="reading-label">Motor Amps At Stage</label>
+            <input type="number" class="reading-input" id="r-amps-at-stage" placeholder="e.g. 42">
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- READINGS ACTIONS -->
+    <div style="padding:16px 16px 0 16px;display:flex;flex-direction:column;gap:12px">
+      <button id="readings-continue-btn" onclick="submitReadingsAndContinue()" style="width:100%;background:var(--red);border:none;color:#fff;font-family:'Orbitron',monospace;font-size:11px;font-weight:700;letter-spacing:3px;padding:16px;cursor:pointer;text-transform:uppercase">Log Readings & Continue</button>
+      <button onclick="skipReadings()" style="width:100%;background:transparent;border:1px solid #333;color:var(--dim);font-family:'Share Tech Mono',monospace;font-size:10px;letter-spacing:2px;padding:14px;cursor:pointer;text-transform:uppercase">Skip — Auto Populated or Not Required</button>
+    </div>
+  </div>
+
   <div id="loading-screen" style="display:block;padding:80px 24px;text-align:center">
     <div style="font-family:'Share Tech Mono',monospace;font-size:9px;letter-spacing:4px;color:var(--red);text-transform:uppercase;margin-bottom:16px;animation:badgePulse 1.5s ease infinite">Loading Inspection</div>
     <div style="font-family:'Orbitron',monospace;font-size:11px;color:var(--dim);letter-spacing:2px">Fetching questions from MASSCORE...</div>
@@ -558,6 +751,126 @@ let liveScore       = 72;
 let startScore      = 72;
 let selectedUrgency = null;
 
+
+// ── COMPRESSOR TYPE HELPERS ──
+const SCREW_CLASSES = ['ROTARY SCREW COMPRESSOR'];
+const RECIP_CLASSES = ['RECIPROCATING COMPRESSOR'];
+
+function isCompressor(assetClass) {
+  const uc = (assetClass || '').toUpperCase().trim();
+  return SCREW_CLASSES.includes(uc) || RECIP_CLASSES.includes(uc);
+}
+
+function isScrew(assetClass) {
+  return SCREW_CLASSES.includes((assetClass || '').toUpperCase().trim());
+}
+
+function isRecip(assetClass) {
+  return RECIP_CLASSES.includes((assetClass || '').toUpperCase().trim());
+}
+
+// ── SHOW READINGS SCREEN ──
+function showReadingsScreen() {
+  document.getElementById('loading-screen').style.display  = 'none';
+  document.getElementById('question-flow').style.display   = 'none';
+  document.getElementById('readings-screen').style.display = 'block';
+  document.getElementById('nav-bar').style.display         = 'none';
+
+  // Show screw or recip specific fields
+  if (isScrew(ASSET_CLASS)) {
+    document.getElementById('screw-fields').style.display = 'block';
+    document.getElementById('recip-fields').style.display = 'none';
+  } else if (isRecip(ASSET_CLASS)) {
+    document.getElementById('recip-fields').style.display = 'block';
+    document.getElementById('screw-fields').style.display = 'none';
+  }
+}
+
+// ── SKIP READINGS ──
+function skipReadings() {
+  document.getElementById('readings-screen').style.display = 'none';
+  document.getElementById('nav-bar').style.display         = 'flex';
+  showLoading(false);
+}
+
+// ── SUBMIT READINGS AND CONTINUE ──
+async function submitReadingsAndContinue() {
+  const btn = document.getElementById('readings-continue-btn');
+  btn.textContent = 'Saving...';
+  btn.disabled    = true;
+
+  const now = new Date().toISOString();
+
+  // Build readings record — only include fields with values
+  const fields = {
+    'Tag':          ASSET_NAME,
+    'Date':         now.split('T')[0],
+    'Assets':       [ASSET_ID]
+  };
+
+  const numField = (id, name) => {
+    const el = document.getElementById(id);
+    if (el && el.value.trim() !== '') fields[name] = parseFloat(el.value);
+  };
+  const txtField = (id, name) => {
+    const el = document.getElementById(id);
+    if (el && el.value.trim() !== '') fields[name] = el.value.trim();
+  };
+
+  txtField('r-machine-status',     'Machine Status');
+  numField('r-oil-pressure',       'Oil Pressure (PSIG)');
+  numField('r-suction-reading',    'Suction Reading');
+  txtField('r-suction-units',      'Suction Units');
+  numField('r-discharge-pressure', 'Discharge Pressure (PSIG)');
+  numField('r-discharge-temp',     'Discharge Temp (F)');
+  numField('r-suction-temp',       'Suction Temperature');
+  numField('r-oil-temp',           'Oil Temperature');
+  numField('r-motor-amps',         'Motor Amps (Running)');
+  numField('r-oil-filter-dp',      'Oil Filter ΔP (PSID)');
+  numField('r-oil-filter-pressure','Oil Filter Pressure');
+  numField('r-net-oil-pressure',   'Net Oil Pressure');
+  numField('r-runtime-hours',      'Compressor Runtime (Hours)');
+  numField('r-start-count',        'Start Count');
+  numField('r-kw-demand',          'kW Demand');
+  txtField('r-control-method',     'Control Method');
+
+  // Screw fields
+  if (isScrew(ASSET_CLASS)) {
+    numField('r-vi',             'Vi');
+    numField('r-oil-sep-temp',   'Oil Separator Temperature');
+    numField('r-oil-differential','Oil Differential');
+    numField('r-balance-piston', 'Balance Piston Pressure');
+    numField('r-slide-valve',    'Slide Valve %');
+  }
+
+  // Recip fields
+  if (isRecip(ASSET_CLASS)) {
+    numField('r-crankcase',      'Crankcase Pressure (PSIG)');
+    numField('r-unloader-stage', 'Unloader Stage %');
+    numField('r-amps-at-stage',  'Motor Amps At Stage');
+  }
+
+  try {
+    const res = await fetch('/api/readings/submit', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify({ fields })
+    });
+    const data = await res.json();
+    if (!res.ok || !data.success) {
+      console.error('Readings submit failed:', data);
+    }
+  } catch (err) {
+    console.error('Readings submit error:', err);
+    // Non-fatal — continue to inspection regardless
+  }
+
+  // Proceed to questions
+  document.getElementById('readings-screen').style.display = 'none';
+  document.getElementById('nav-bar').style.display         = 'flex';
+  showLoading(false);
+}
+
 // ── FETCH QUESTIONS FROM AIRTABLE ──
 async function loadQuestions() {
   showLoading(true);
@@ -593,7 +906,12 @@ async function loadQuestions() {
 
     answers = new Array(QUESTIONS.length).fill(null);
 
-    showLoading(false);
+    // Show readings screen first if this is a compressor
+    if (isCompressor(ASSET_CLASS)) {
+      showReadingsScreen();
+    } else {
+      showLoading(false);
+    }
     init();
 
   } catch (err) {

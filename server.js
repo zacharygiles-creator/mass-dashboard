@@ -550,6 +550,38 @@ app.post('/api/inspection/submit', requireAuth, async (req, res) => {
   }
 });
 
+
+// ── READINGS SUBMIT API ──────────────────────────────────
+app.post('/api/readings/submit', requireAuth, async (req, res) => {
+  try {
+    const fetch  = (await import('node-fetch')).default;
+    const baseId = process.env.AIRTABLE_BASE_ID;
+    const apiKey = process.env.AIRTABLE_API_KEY;
+    const headers = { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' };
+
+    const { fields } = req.body;
+    if (!fields) return res.status(400).json({ error: 'No fields provided' });
+
+    const result = await fetch(`https://api.airtable.com/v0/${baseId}/Compressor%20Readings`, {
+      method:  'POST',
+      headers,
+      body:    JSON.stringify({ fields })
+    });
+    const data = await result.json();
+
+    if (!data.id) {
+      console.error('[READINGS] Create failed:', JSON.stringify(data));
+      return res.status(500).json({ error: 'Failed to save readings', detail: data.error || data });
+    }
+
+    res.json({ success: true, id: data.id });
+
+  } catch (err) {
+    console.error('[READINGS] Submit error:', err);
+    res.status(500).json({ error: 'Failed to submit readings' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`MASSCORE running at http://localhost:${port}`);
 });
