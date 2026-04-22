@@ -167,6 +167,9 @@ body::before {
   position:relative; z-index:1;
   min-height:100vh;
 }
+.insp-main.readings-mode {
+  padding-top:80px;
+}
 
 /* ── QUESTION CARD ── */
 .question-card {
@@ -411,6 +414,7 @@ body::before {
   grid-template-columns: 1fr 1fr;
   gap: 12px;
   margin-bottom: 8px;
+  padding-left: 4px;
 }
 .reading-field {
   display: flex;
@@ -570,8 +574,8 @@ select.reading-input option {
   <!-- LOADING SCREEN -->
 
   <!-- READINGS SCREEN -->
-  <div id="readings-screen" style="display:none;padding:0 0 100px 0">
-    <div class="question-card" style="margin-bottom:0">
+  <div id="readings-screen" style="display:none;padding:0 0 100px 0;overflow-x:hidden">
+    <div class="question-card" style="margin-bottom:0;padding-left:16px;padding-right:16px;box-sizing:border-box">
       <div class="question-group">Compressor Readings</div>
       <div class="question-text" style="margin-bottom:20px">Log current readings for this compressor. Tap Skip if readings are auto-populated or not required this visit.</div>
 
@@ -775,6 +779,7 @@ function showReadingsScreen() {
   document.getElementById('question-flow').style.display   = 'none';
   document.getElementById('readings-screen').style.display = 'block';
   document.getElementById('nav-bar').style.display         = 'none';
+  document.querySelector('.insp-main').classList.add('readings-mode');
 
   // Show screw or recip specific fields
   if (isScrew(ASSET_CLASS)) {
@@ -790,6 +795,7 @@ function showReadingsScreen() {
 function skipReadings() {
   document.getElementById('readings-screen').style.display = 'none';
   document.getElementById('nav-bar').style.display         = 'flex';
+  document.querySelector('.insp-main').classList.remove('readings-mode');
   showLoading(false);
 }
 
@@ -868,6 +874,7 @@ async function submitReadingsAndContinue() {
   // Proceed to questions
   document.getElementById('readings-screen').style.display = 'none';
   document.getElementById('nav-bar').style.display         = 'flex';
+  document.querySelector('.insp-main').classList.remove('readings-mode');
   showLoading(false);
 }
 
