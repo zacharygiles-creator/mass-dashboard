@@ -893,7 +893,7 @@ async function loadQuestions() {
     QUESTIONS   = data.questions || [];
     ASSET_NAME  = data.assetName || 'Asset';
     ASSET_CLASS = data.assetClass || '';
-    startScore  = data.assetScore || 72;
+    startScore  = Math.round(data.assetScore || 72);
     liveScore   = startScore;
     START_SCORE = startScore;
 
@@ -1064,7 +1064,7 @@ function updateScoreDisplay(score, delta) {
   else if (score < 75) color = 'var(--yellow)';
   document.documentElement.style.setProperty('--score-color', color);
 
-  el.textContent = score;
+  el.textContent = Math.round(score);
   el.classList.remove('score-tick');
   void el.offsetWidth;
   el.classList.add('score-tick');
