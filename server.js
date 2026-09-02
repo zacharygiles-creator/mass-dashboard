@@ -54,9 +54,19 @@ app.get('/', (req, res) => {
   res.redirect('/home.html');
 });
 
-// Dashboard - requires auth
+// Dashboard - requires auth.
+// A user with no sites assigned has nothing to look at, so send them
+// straight into onboarding rather than rendering an empty dashboard.
 app.get('/dashboard', requireAuth, (req, res) => {
+  const sites = req.session.user.sites;           // null = access to everything
+  const needsOnboarding = Array.isArray(sites) && sites.length === 0;
+  if (needsOnboarding && !req.query.skip) return res.redirect('/onboarding');
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
+});
+
+// Onboarding wizard - requires auth
+app.get('/onboarding', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'onboarding.html'));
 });
 
 // Inspection lobby - requires auth
@@ -168,6 +178,169 @@ app.get('/api/data', requireAuth, async (req, res) => {
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Failed to fetch data' });
+  }
+});
+
+// ── ONBOARDING: create site, systems and assets ──────────
+// Takes the wizard answers and builds the skeleton in Airtable.
+// Returns the new site id plus the first asset id so the wizard
+// can hand straight off to asset registration.
+app.post('/api/onboarding/structure', requireAuth, async (req, res) => {
+  try {
+    const fetch  = (await import('node-fetch')).default;
+    const baseId = process.env.AIRTABLE_BASE_ID;
+    const apiKey = process.env.AIRTABLE_API_KEY;
+    const headers = { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' };
+
+    const {
+      site,                  // "Pepsi - Houston"
+      plantType,             // cold | chiller | process
+      compressorType,        // screw | recip | mixed
+      liquidFeed,            // pumped | pumper | gravity
+      compressorCount,
+      condenserCount,
+      stages                 // [{ v: 19, label: "19F", evap: 11 }, ...]
+    } = req.body;
+
+    if (!site) return res.status(400).json({ error: 'Site name is required' });
+
+    const created = async (table, fields) => {
+      const r = await fetch(`https://api.airtable.com/v0/${baseId}/${encodeURIComponent(table)}`, {
+        method: 'POST', headers, body: JSON.stringify({ fields })
+      });
+      const j = await r.json();
+      if (!r.ok) { console.error(`[ONBOARD] ${table} create failed`, JSON.stringify(j)); throw new Error(table); }
+      return j;
+    };
+
+    // ── Site ──
+    const siteRec = await created('Sites', {
+      'Site Name': site,
+      'Plant Type': (plantType || '').toUpperCase() || undefined
+    });
+    const siteId = siteRec.id;
+
+    // ── Work out the systems ──
+    const nComp = Math.max(0, parseInt(compressorCount, 10) || 0);
+    const nCond = (parseInt(condenserCount, 10) > 0)
+      ? parseInt(condenserCount, 10)
+      : Math.max(2, Math.ceil(nComp / 2));
+
+    const sorted = (Array.isArray(stages) ? stages : [])
+      .slice()
+      .sort((a, b) => b.v - a.v);              // warmest first, down the pressure ladder
+
+    const plan = [];
+
+    if (nComp > 0) {
+      const label = compressorType === 'recip' ? 'RECIPROCATING COMPRESSOR'
+                  : compressorType === 'screw' ? 'ROTARY SCREW COMPRESSOR'
+                  : 'ROTARY SCREW COMPRESSOR';
+      plan.push({
+        system: 'Compressors',
+        assets: Array.from({ length: nComp }, (_, i) => ({
+          name: `${compressorType === 'recip' ? 'RC' : 'C'}-${i + 1}`,
+          type: 'COMPRESSOR',
+          cls:  label
+        }))
+      });
+    }
+
+    plan.push({
+      system: 'Condensing',
+      assets: [
+        ...Array.from({ length: nCond }, (_, i) => ({
+          name: `Condenser ${i + 1}`, type: 'CONDENSER', cls: 'EVAPORATIVE CONDENSER'
+        })),
+        { name: 'Liquid Receiver', type: 'VESSEL', cls: 'PRESSURE VESSEL' }
+      ]
+    });
+
+    sorted.forEach(st => {
+      const assets = [{ name: `${st.label} Vessel`, type: 'VESSEL', cls: 'PRESSURE VESSEL' }];
+      if (liquidFeed === 'pumped') {
+        assets.push({ name: `${st.label} Recirc Pump 1`, type: 'PUMP', cls: 'PUMP' });
+        assets.push({ name: `${st.label} Recirc Pump 2`, type: 'PUMP', cls: 'PUMP' });
+      }
+      if (liquidFeed === 'pumper') {
+        assets.push({ name: `${st.label} Pumper Drum`, type: 'VESSEL', cls: 'PUMPER DRUM' });
+      }
+      const nEvap = Math.max(0, parseInt(st.evap, 10) || 0);
+      for (let i = 0; i < nEvap; i++) {
+        assets.push({ name: `${st.label} Evap ${i + 1}`, type: 'EVAPORATORS', cls: 'EVAPORATOR' });
+      }
+      plan.push({ system: `${st.label} Stage`, assets });
+    });
+
+    if (plantType === 'chiller') {
+      plan.push({
+        system: 'Auxiliary',
+        assets: [
+          { name: 'Glycol Tank - Supply', type: 'VESSEL', cls: 'PRESSURE VESSEL' },
+          { name: 'Glycol Tank - Return', type: 'VESSEL', cls: 'PRESSURE VESSEL' },
+          { name: 'Glycol Pump 1', type: 'PUMP', cls: 'PUMP' },
+          { name: 'Glycol Pump 2', type: 'PUMP', cls: 'PUMP' },
+          { name: 'Glycol Pump 3', type: 'PUMP', cls: 'PUMP' }
+        ]
+      });
+    }
+
+    // ── Create systems, then their assets ──
+    const out = { site: siteId, systems: [], assets: [] };
+    let firstAssetId = null;
+
+    for (const block of plan) {
+      const sysRec = await created('Systems', {
+        'System Name': `${block.system} (${site})`,
+        'Site': [siteId],
+        'Systems Priority Weight': 5
+      });
+      out.systems.push({ id: sysRec.id, name: block.system });
+
+      for (const a of block.assets) {
+        const assetRec = await created('Assets', {
+          'Asset Name':  `${a.name} (${site})`,
+          'Asset Type':  a.type,
+          'System':      [sysRec.id],
+          'Site':        [siteId]
+        });
+        out.assets.push({ id: assetRec.id, name: a.name });
+        if (!firstAssetId) firstAssetId = assetRec.id;
+      }
+    }
+
+    out.firstAsset  = firstAssetId;
+    out.systemCount = out.systems.length;
+    out.assetCount  = out.assets.length;
+    res.json(out);
+
+  } catch (err) {
+    console.error('[ONBOARD] structure failed:', err);
+    res.status(500).json({ error: 'Failed to build structure' });
+  }
+});
+
+// ── ONBOARDING: update an asset's registration details ───
+app.post('/api/onboarding/asset', requireAuth, async (req, res) => {
+  try {
+    const fetch  = (await import('node-fetch')).default;
+    const baseId = process.env.AIRTABLE_BASE_ID;
+    const apiKey = process.env.AIRTABLE_API_KEY;
+    const headers = { Authorization: `Bearer ${apiKey}`, 'Content-Type': 'application/json' };
+
+    const { assetId, fields } = req.body;
+    if (!assetId) return res.status(400).json({ error: 'assetId is required' });
+
+    const r = await fetch(`https://api.airtable.com/v0/${baseId}/Assets/${assetId}`, {
+      method: 'PATCH', headers, body: JSON.stringify({ fields })
+    });
+    const j = await r.json();
+    if (!r.ok) { console.error('[ONBOARD] asset patch failed', JSON.stringify(j)); throw new Error('patch'); }
+    res.json({ success: true, id: j.id });
+
+  } catch (err) {
+    console.error('[ONBOARD] asset failed:', err);
+    res.status(500).json({ error: 'Failed to update asset' });
   }
 });
 
@@ -310,13 +483,21 @@ app.get('/api/rubric', requireAuth, async (req, res) => {
     }
 
     const tierMap = {
-      'Weekly':      ['W'],
-      'Monthly':     ['W','M'],
-      'Quarterly':   ['W','M','Q'],
-      'Semi Annual': ['W','M','Q','SA'],
-      'Annual':      ['W','M','Q','SA','A']
+      'Weekly':       ['W'],
+      'Monthly':      ['W','M'],
+      'Quarterly':    ['W','M','Q'],
+      'Semi Annual':  ['W','M','Q','SA'],
+      'Annual':       ['W','M','Q','SA','A'],
+      'Onboarding':   [],
+      'Reassessment': []
     };
     const tiers = tierMap[inspType] || ['W'];
+
+    // Onboarding and Reassessment run the integrity question set, not the
+    // frequency-based recurring set. Both pull RUBRIC TYPE = ONBOARDING.
+    // What differs between them is how the scoring engine treats the answers,
+    // which is driven by Assessment Type on the Assessments record.
+    const integrityRun = (inspType === 'Onboarding' || inspType === 'Reassessment');
 
     // Fetch asset record
     const assetRes = await fetch(`https://api.airtable.com/v0/${baseId}/Assets/${assetId}`, { headers });
@@ -372,22 +553,33 @@ app.get('/api/rubric', requireAuth, async (req, res) => {
 
     const assetClassRecordId = matchedClass.id;
 
-    // Filter questions by Asset Class record ID and frequency tier
+    // Filter questions by Asset Class record ID, then by rubric type.
+    // Single-select values are stored UPPERCASE in Airtable by convention,
+    // so every comparison below normalises case before matching.
     const filtered = allQuestions.filter(q => {
       const qClassIds = q.fields['Asset Class'] || [];
-      const qTier     = q.fields['Frequency Tier'];
       const classMatch = Array.isArray(qClassIds)
         ? qClassIds.includes(assetClassRecordId)
         : String(qClassIds).toUpperCase().trim() === assetClassName.toUpperCase().trim();
-      return tiers.includes(qTier) && classMatch;
+      if (!classMatch) return false;
+
+      const rubricType = String(q.fields['Rubric Type'] || 'RECURRING').toUpperCase().trim();
+      const qTier      = String(q.fields['Frequency Tier'] || '').toUpperCase().trim();
+
+      if (integrityRun) return rubricType === 'ONBOARDING';
+      return rubricType === 'RECURRING' && tiers.includes(qTier);
     });
 
     // Sort by tier then question ID
+    // Onboarding questions carry no Frequency Tier, so they sort by Question ID
+    // alone. Recurring questions sort by tier first, then ID.
     const tierOrder = ['W','M','Q','SA','A'];
     filtered.sort((a, b) => {
-      const ao = tierOrder.indexOf(a.fields['Frequency Tier']);
-      const bo = tierOrder.indexOf(b.fields['Frequency Tier']);
-      if (ao !== bo) return ao - bo;
+      if (!integrityRun) {
+        const ao = tierOrder.indexOf(String(a.fields['Frequency Tier'] || '').toUpperCase().trim());
+        const bo = tierOrder.indexOf(String(b.fields['Frequency Tier'] || '').toUpperCase().trim());
+        if (ao !== bo) return ao - bo;
+      }
       return (a.fields['Question ID'] || 0) - (b.fields['Question ID'] || 0);
     });
 
@@ -420,16 +612,17 @@ app.get('/api/rubric', requireAuth, async (req, res) => {
 
     const questions = filtered.map(q => {
       const f     = q.fields;
-      const qType = f['Question Type'] || 'CL';
+      const qType = String(f['Question Type'] || 'CL').toUpperCase().trim();
       return {
         id:            q.id,
         questionId:    f['Question ID'],
         group:         f['Section']        || 'General',
         text:          f['Question Text']  || '',
-        weight:        (f['Score Weight']  || 'Medium').toLowerCase(),
+        weight:        String(f['Score Weight'] || 'Medium').toLowerCase(),
         type:          qType,
-        scoreTag:      f['Score Tag']      || 'H',
-        frequencyTier: f['Frequency Tier'] || 'W',
+        scoreTag:      String(f['Score Tag'] || 'H').toUpperCase(),
+        frequencyTier: f['Frequency Tier'] || null,
+        scope:         f['Question Scope'] || '',
         answers:       buildAnswers(f, qType)
       };
     });
@@ -523,17 +716,23 @@ app.post('/api/inspection/submit', requireAuth, async (req, res) => {
 
     // ── STEP 3: Update asset last inspection date (non-fatal) ──────
     const dateFieldMap = {
-      'Weekly':      'Last Weekly Inspection',
-      'Monthly':     'Last Monthly Inspection',
-      'Quarterly':   'Last Quarterly Inspection',
-      'Semi Annual': 'Last Semi Annual Inspection',
-      'Annual':      'Last Annual Inspection'
+      'Weekly':       'Last Weekly Inspection',
+      'Monthly':      'Last Monthly Inspection',
+      'Quarterly':    'Last Quarterly Inspection',
+      'Semi Annual':  'Last Semi Annual Inspection',
+      'Annual':       'Last Annual Inspection',
+      'Onboarding':   'Last Onboarding',
+      'Reassessment': 'Last Onboarding'
     };
     const dateField = dateFieldMap[inspType] || 'Last Weekly Inspection';
 
+    // Onboarding also flags the asset as baselined.
+    const patchFields = { [dateField]: now.split('T')[0] };
+    if (inspType === 'Onboarding') patchFields['Onboarding Complete'] = true;
+
     const patchRes = await fetch(`https://api.airtable.com/v0/${baseId}/Assets/${assetId}`, {
       method: 'PATCH', headers,
-      body: JSON.stringify({ fields: { [dateField]: now.split('T')[0] } })
+      body: JSON.stringify({ fields: patchFields })
     });
     if (!patchRes.ok) {
       const patchBody = await patchRes.json().catch(() => ({}));
